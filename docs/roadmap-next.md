@@ -193,6 +193,11 @@ personalize the app. Seeded by user; PM to slice per cycle via the 3-layer hybri
   replacer-function interpolation, only when a non-guest firstName exists; generic title untouched otherwise.
   Toasts + personalized insights framing still open.
 - [P9.5] Editable profile in Settings→Account (name/city/vehicle), so data isn't register-only.
+  First-name editing done — STAGED 2026-07-08 (APP_VERSION 2.6.9->2.6.10 / SW v1.6.13->v1.6.14): new
+  inline name field + Save button in Settings→Account (non-guest only), persisted via the same paths as
+  registration (`pb_firstName_<uid>` localStorage for Sync accounts, `dbGet`/`dbPut` round-trip on the
+  `users` IndexedDB record for local accounts); `applyLang()` re-run after save so the greeting and
+  empty-state title update immediately, no reload needed. City/vehicle fields still open.
 - Privacy note: app is local-first/on-device; keep new fields OPTIONAL, never required beyond first name,
   no new data leaves the device; advisor-security/privacy reviews any field that would sync.
 

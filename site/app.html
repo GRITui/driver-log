@@ -151,6 +151,10 @@
           <div class="account-sub" id="acct-since" data-i18n="local_account">Local account on this device</div>
         </div>
       </div>
+      <div class="settings-row" id="acct-name-edit-row" style="display:none;gap:8px;">
+        <input type="text" id="acct-firstname-input" data-i18n-ph="name_placeholder" placeholder="Your first name" style="flex:1;min-width:0;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);">
+        <button onclick="saveFirstName()" style="background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 14px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;" data-i18n="save_name">Save</button>
+      </div>
     </div>
     <div class="section-title" data-i18n="sync_app">Sync &amp; app</div>
     <div class="settings-list">
@@ -216,7 +220,7 @@
     <div class="section-title" data-i18n="about">About</div>
     <div class="settings-list">
       <div class="settings-row"><span class="settings-label" data-i18n="app_word">App</span><span style="color:var(--text3)">Driver log book</span></div>
-      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.6.9</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.6.11</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="total_sessions">Total sessions</span><span id="set-count" style="color:var(--text3)">—</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="created_by">Created by</span><span style="color:var(--text3)">Grit · Powered by Claude</span></div>
       <a class="settings-row" href="mailto:grit4game@gmail.com?subject=DriverLog%20feedback" style="text-decoration:none">

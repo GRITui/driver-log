@@ -3,7 +3,8 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.6.13';  // v1.6.13: personalized dashboard empty-state welcome title with first name (EN+TH); APP_VERSION 2.6.8->2.6.9
+const SW_VERSION = 'v1.6.15';  // v1.6.14: editable first name in Settings→Account; APP_VERSION 2.6.9->2.6.10
+// prior: v1.6.13: personalized dashboard empty-state welcome title with first name (EN+TH); APP_VERSION 2.6.8->2.6.9
 // prior: v1.6.12: first-name capture at registration + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH); APP_VERSION 2.6.7->2.6.8
 // prior: v1.6.11 hero card readability + alignment restyle (styles.css: branded tint, dark high-contrast amount, even gap, dark-mode variant); APP_VERSION 2.6.6->2.6.7
 // prior: v1.6.10 local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm); APP_VERSION 2.6.5->2.6.6

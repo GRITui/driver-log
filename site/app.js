@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.6.9';   // bump on every deploy — 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.6.11';   // bump on every deploy — 2.6.10: editable first name in Settings→Account (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -451,6 +451,7 @@ const I18N = {
     total_spent: 'Total spent', total_liters: 'Total liters', avg_per_liter: 'Avg ฿/L',
     no_refills: 'No refills logged yet.', unknown_station: 'Unknown station',
     account: 'Account', local_account: 'Local account on this device', sync_app: 'Sync & app',
+    save_name: 'Save', name_placeholder: 'Your first name', name_saved: 'Name saved!',
     sync_status: 'Sync status', local_only: 'Local only', install_app: 'Install app', install: 'Install',
     preferences: 'Preferences', language: 'Language', distance_unit: 'Distance unit',
     km_option: 'Kilometers (km)', mi_option: 'Miles (mi)', currency: 'Currency', export_data: 'Export data',
@@ -525,6 +526,7 @@ const I18N = {
     total_spent: 'ใช้จ่ายรวม', total_liters: 'ลิตรรวม', avg_per_liter: 'เฉลี่ย ฿/ล.',
     no_refills: 'ยังไม่มีการเติมน้ำมัน', unknown_station: 'ไม่ระบุปั๊ม',
     account: 'บัญชี', local_account: 'บัญชีในเครื่องนี้', sync_app: 'ซิงก์และแอป',
+    save_name: 'บันทึก', name_placeholder: 'ชื่อจริงของคุณ', name_saved: 'บันทึกชื่อแล้ว',
     sync_status: 'สถานะซิงก์', local_only: 'เฉพาะในเครื่อง', install_app: 'ติดตั้งแอป', install: 'ติดตั้ง',
     preferences: 'การตั้งค่า', language: 'ภาษา', distance_unit: 'หน่วยระยะทาง',
     km_option: 'กิโลเมตร (km)', mi_option: 'ไมล์ (mi)', currency: 'สกุลเงิน', export_data: 'ส่งออกข้อมูล',
@@ -765,6 +767,26 @@ function applyUser() {
     : (Sync.enabled() && Sync.authed()) ? 'Synced across your devices' : 'Local account on this device';
   const logoutBtn = document.querySelector('.btn-logout');
   if (logoutBtn) logoutBtn.style.display = isGuest ? 'none' : 'block';
+  const editRow = document.getElementById('acct-name-edit-row');
+  const nameInput = document.getElementById('acct-firstname-input');
+  if (editRow) editRow.style.display = isGuest ? 'none' : 'flex';
+  if (nameInput && !isGuest) nameInput.value = currentUser.firstName || '';
+}
+
+async function saveFirstName() {
+  if (isGuest || !currentUser) return;
+  const input = document.getElementById('acct-firstname-input');
+  const val = input ? input.value.trim() : '';
+  currentUser.firstName = val;
+  if (Sync.enabled() && Sync.authed()) {
+    if (val) localStorage.setItem('pb_firstName_' + Sync.uid(), val);
+    else localStorage.removeItem('pb_firstName_' + Sync.uid());
+  } else {
+    const rec = await dbGet('users', currentUser.id);
+    if (rec) { rec.firstName = val; await dbPut('users', rec); }
+  }
+  applyLang();
+  toast(t('name_saved'));
 }
 
 async function reload() {
