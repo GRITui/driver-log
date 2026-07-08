@@ -1,0 +1,59 @@
+[
+  {
+    "name": "sessions",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "name": "user", "type": "text", "required": true, "options": { "min": 1, "max": 50 } },
+      { "name": "cuid", "type": "text", "required": true, "options": { "min": 1, "max": 64 } },
+      { "name": "serviceType", "type": "text", "required": false, "options": { "max": 30 } },
+      { "name": "date", "type": "text", "required": false, "options": { "max": 20 } },
+      { "name": "endDate", "type": "text", "required": false, "options": { "max": 20 } },
+      { "name": "provider", "type": "text", "required": false, "options": { "max": 20 } },
+      { "name": "startTime", "type": "text", "required": false, "options": { "max": 5 } },
+      { "name": "endTime", "type": "text", "required": false, "options": { "max": 5 } },
+      { "name": "distance", "type": "number", "required": false, "options": {} },
+      { "name": "consumption", "type": "number", "required": false, "options": {} },
+      { "name": "oilPrice", "type": "number", "required": false, "options": {} },
+      { "name": "exp", "type": "number", "required": false, "options": {} },
+      { "name": "rev", "type": "number", "required": false, "options": {} },
+      { "name": "tip", "type": "number", "required": false, "options": {} },
+      { "name": "netRev", "type": "number", "required": false, "options": {} },
+      { "name": "updatedAt", "type": "text", "required": false, "options": { "max": 40 } },
+      { "name": "deleted", "type": "bool", "required": false, "options": {} }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX idx_sessions_cuid ON sessions (cuid)",
+      "CREATE INDEX idx_sessions_user ON sessions (user)"
+    ],
+    "listRule": "user = @request.auth.id",
+    "viewRule": "user = @request.auth.id",
+    "createRule": "@request.auth.id != \"\" && user = @request.auth.id",
+    "updateRule": "user = @request.auth.id",
+    "deleteRule": "user = @request.auth.id"
+  },
+  {
+    "name": "fuel",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "name": "user", "type": "text", "required": true, "options": { "min": 1, "max": 50 } },
+      { "name": "cuid", "type": "text", "required": true, "options": { "min": 1, "max": 64 } },
+      { "name": "station", "type": "text", "required": false, "options": { "max": 120 } },
+      { "name": "liters", "type": "number", "required": false, "options": {} },
+      { "name": "price", "type": "number", "required": false, "options": {} },
+      { "name": "date", "type": "text", "required": false, "options": { "max": 20 } },
+      { "name": "updatedAt", "type": "text", "required": false, "options": { "max": 40 } },
+      { "name": "deleted", "type": "bool", "required": false, "options": {} }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX idx_fuel_cuid ON fuel (cuid)",
+      "CREATE INDEX idx_fuel_user ON fuel (user)"
+    ],
+    "listRule": "user = @request.auth.id",
+    "viewRule": "user = @request.auth.id",
+    "createRule": "@request.auth.id != \"\" && user = @request.auth.id",
+    "updateRule": "user = @request.auth.id",
+    "deleteRule": "user = @request.auth.id"
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "_README": "Copy this file to config.json (same dir) and fill REAL values there. config.json is gitignored. Generate the bcrypt hash with:  node -e \"console.log(require('bcryptjs').hashSync('your-real-password',12))\"  — never commit the real hash or store the Anthropic key here (the claude CLI keeps its own auth).",
+
+  "port": 8787,
+  "allowed_origin": "https://driverlog.link",
+
+  "password_hash": "$2a$12$REPLACE_ME_WITH_A_REAL_BCRYPT_HASH_0000000000000000000000",
+  "allowed_user": "GRIT",
+
+  "token_ttl_seconds": 900,
+
+  "rate_limit_max": 20,
+  "rate_limit_window_seconds": 60,
+
+  "login_lockout_max_fails": 5,
+  "login_lockout_window_seconds": 900,
+  "login_lockout_seconds": 900,
+
+  "ollama_url": "http://127.0.0.1:11434",
+  "ollama_model": "phi4-mini",
+
+  "claude_bin": "claude",
+  "claude_model": "sonnet",
+  "claude_timeout_ms": 120000,
+  "claude_max_output_bytes": 20000,
+  "claude_max_image_bytes": 6291456,
+  "max_hops": 3
+}

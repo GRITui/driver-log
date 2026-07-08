@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Drivee</title>
+<meta name="description" content="Drivee — private AI chat for the DriverLog team.">
+<meta name="theme-color" content="#D0021B">
+<meta name="robots" content="noindex, nofollow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DriverLog">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
+<link rel="stylesheet" href="chat.css">
+<script>
+(function () {
+  try {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+  } catch (e) {}
+})();
+</script>
+</head>
+<body class="chat-shell-body">
+
+<div class="chat-shell" id="chat-shell">
+
+  <header class="chat-hdr">
+    <div class="chat-hdr-brand">
+      <span class="chat-hdr-mark" aria-hidden="true">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DriverLog">
+          <rect width="512" height="512" rx="115" fill="#fff"/>
+          <path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#D0021B"/>
+          <path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/>
+          <circle cx="360" cy="126" r="40" fill="#D0021B"/>
+          <circle cx="360" cy="126" r="16" fill="#fff"/>
+        </svg>
+      </span>
+      <div class="chat-hdr-titles">
+        <h1>Drivee</h1>
+        <div class="chat-hdr-sub">Signed in as GRIT</div>
+      </div>
+    </div>
+    <button class="chat-logout" id="btn-logout" type="button">Log out</button>
+  </header>
+
+  <main class="chat-log" id="chat-messages" aria-live="polite" aria-label="Conversation">
+    <div class="chat-empty" id="chat-empty">
+      <div class="chat-empty-mark" aria-hidden="true">💬</div>
+      <p>Ask Drivee anything.</p>
+    </div>
+  </main>
+
+  <div class="chat-err-bar" id="chat-err" role="alert" aria-live="assertive"></div>
+
+  <div class="chat-previews" id="chat-previews" aria-label="Attached images" aria-live="polite"></div>
+
+  <form class="chat-composer" id="chat-form">
+    <input type="file" id="chat-file" accept="image/png,image/jpeg,image/gif,image/webp,image/*" multiple class="sr-only" aria-hidden="true" tabindex="-1">
+    <button class="chat-attach" id="btn-attach" type="button" aria-label="Attach image">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm0 12h16v-2l-4-4-3 3-2-2-3 3v2zm3-6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" fill="currentColor"/></svg>
+    </button>
+    <button class="chat-mode" id="btn-claude" type="button" aria-pressed="false" title="Ask Claude to handle your messages. Say &ldquo;Bye claude&rdquo; to switch back to Phi-4 (on-device).">Ask&nbsp;Claude</button>
+    <label for="chat-input" class="sr-only">Message the assistant</label>
+    <textarea id="chat-input" rows="1" placeholder="Message…" aria-label="Message the assistant" autocomplete="off" autocapitalize="sentences" enterkeyhint="send"></textarea>
+    <button class="chat-send" id="btn-send" type="submit" aria-label="Send">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12l16-8-6 8 6 8-16-8z" fill="currentColor"/></svg>
+    </button>
+  </form>
+
+</div>
+
+<script src="config.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>

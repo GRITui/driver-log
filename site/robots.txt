@@ -1,0 +1,6 @@
+# robots.txt for driverlog.link
+# DriverLog is an installable PWA; allow full crawling so search engines and
+# AdSense can render pages (CSS/JS must stay crawlable) and read ads.txt.
+
+User-agent: *
+Allow: /

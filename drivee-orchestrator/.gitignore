@@ -1,0 +1,12 @@
+# Real secrets / runtime config — NEVER commit. Ship config.example.json only.
+config.json
+
+# Dependencies
+node_modules/
+
+# Scratch working dir the claude tool runs in
+.claude-scratch/
+
+# Logs / OS cruft
+*.log
+.DS_Store

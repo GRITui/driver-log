@@ -1,0 +1,42 @@
+# DriverLog — fix for the 2026-07-05 "blank page" deploy bug.
+#
+# Root cause (confirmed via live fetch): driverlog.link/app.js is being served
+# with an incorrect Content-Type (application/x-javascript) and does not parse
+# as valid JavaScript in the browser, even though the file we uploaded is a
+# clean, plain UTF-8 .js with no corruption (verified byte-for-byte inside the
+# deployed zip itself). Because app.js never executes, bootApp() never runs:
+# the static HTML/CSS shell loads (which is why styles.css and the raw markup
+# both came back correct), but nothing gets rendered into the screens and the
+# page is effectively blank.
+#
+# This forces the correct MIME type for .js/.css/.json and disables any
+# broken compression pass that may be mangling the JS response without
+# declaring Content-Encoding, which is the other main cause of this symptom.
+
+AddType application/javascript .js
+AddType text/css .css
+AddType application/manifest+json .webmanifest
+AddType application/json .json
+
+<IfModule mod_deflate.c>
+  SetEnvIfNoCase Request_URI \.js$  no-gzip
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.js$">
+    Header set Content-Type "application/javascript; charset=UTF-8"
+  </FilesMatch>
+</IfModule>
+
+# Fix for the "driverlog.link/ root serves a stale ancient v2.0.0 build" bug
+# (flagged, unresolved, in the 2026-07-05T18:10 dev-log entry). index.html is
+# a tiny redirector script (checks localStorage, bounces to /app.html or
+# /login.html) — if it or app.html/app.js get cached long-term at the edge or
+# by the browser, visitors keep getting an old build after every deploy even
+# though the origin has the new files. Force these entry documents to always
+# revalidate; long-lived static assets (icons, vendor libs) are unaffected.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

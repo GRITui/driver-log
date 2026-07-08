@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Drivee — Log in</title>
+<meta name="description" content="Drivee — private AI chat for the DriverLog team.">
+<meta name="theme-color" content="#D0021B">
+<meta name="robots" content="noindex, nofollow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DriverLog">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
+<link rel="stylesheet" href="chat.css">
+<script>
+/* Follow the OS theme, mirroring the main DriverLog app's data-theme convention. */
+(function () {
+  try {
+    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+  } catch (e) {}
+})();
+</script>
+</head>
+<body class="chat-auth-body">
+
+<div class="auth active" id="s-auth">
+  <div class="auth-hero">
+    <div class="auth-wordmark">
+      <svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DriverLog">
+        <g transform="translate(15,19) scale(0.2226)">
+          <rect width="512" height="512" rx="115" fill="#fff"/>
+          <path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#D0021B"/>
+          <path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/>
+          <circle cx="360" cy="126" r="40" fill="#D0021B"/>
+          <circle cx="360" cy="126" r="16" fill="#fff"/>
+        </g>
+        <text x="148" y="93" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="62" font-weight="700" letter-spacing="-1.5">
+          <tspan fill="#ffffff">Driver</tspan><tspan fill="#FDECEA">Log</tspan>
+        </text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-card-title">Drivee sign-in</div>
+
+    <form id="chat-login-form" autocomplete="on" novalidate>
+      <div class="auth-err" id="auth-err" role="alert" aria-live="assertive"></div>
+
+      <div class="auth-field">
+        <label for="auth-user">User</label>
+        <input type="text" id="auth-user" value="GRIT" readonly aria-readonly="true" autocomplete="username" tabindex="-1">
+      </div>
+
+      <div class="auth-field">
+        <label for="auth-pass">Password</label>
+        <input type="password" id="auth-pass" autocomplete="current-password" placeholder="••••••••" autocapitalize="none" autocorrect="off" required>
+      </div>
+
+      <button class="auth-btn" id="auth-submit" type="submit">Log in</button>
+    </form>
+
+    <div class="auth-hint">Private access · GRIT only<br><br>Created by Grit · Powered by Claude</div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>

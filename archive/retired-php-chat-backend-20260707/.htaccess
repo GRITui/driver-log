@@ -1,0 +1,46 @@
+# DriverLog Chat — access hardening for /chat/.
+#
+# Goal: the browser may only reach the API endpoints (/chat/api/*.php) and
+# static front-end assets. Server-side internals (lib/, any config.php, and
+# dotfiles) must never be served directly.
+
+# --- Block dotfiles (.htaccess, .env, etc.) ---
+# Apache 2.4 (Require) with a legacy fallback for older access control.
+<FilesMatch "^\.">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# --- Block any config.php anywhere under /chat/ (belt and suspenders;
+#     the real secret config lives above the web root, not here) ---
+<FilesMatch "^config\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# --- Deny the entire lib/ directory (session/auth/csrf/ratelimit/config loader) ---
+# Path-based rule so no PHP under lib/ is ever executed via a direct URL.
+# (A dedicated lib/.htaccess with "Require all denied" is the primary guard;
+#  this is the belt to that suspenders.)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^lib/ - [F,L]
+</IfModule>
+
+# NOTE: we deliberately do NOT add a blanket "Require all granted" for *.php.
+# Apache 2.4 already permits access by default when nothing denies, and a
+# blanket grant here would be merged AFTER the config.php deny above and
+# re-expose config.php. api/*.php stays reachable without it.
+
+# --- Directory listing off ---
+Options -Indexes

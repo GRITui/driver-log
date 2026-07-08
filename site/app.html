@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>DriverLog — Driver Log Book</title>
+<meta name="description" content="Track earnings, fuel, and driving insights. Free, offline-first driver log book.">
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D0021B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DriverLog">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
+<!-- self-hosted libs (offline-capable) -->
+<script src="/vendor/chart.umd.min.js"></script>
+<script src="/vendor/html2canvas.min.js"></script>
+<script src="/vendor/pocketbase.umd.js"></script>
+<!-- Google Consent Mode v2 (EU User Consent Policy): everything denied by default until
+     Google's certified CMP records the user's choice. Required for EEA / UK / Switzerland. -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    wait_for_update: 500
+  });
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3349895945204021" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body class="authed">
+
+<!-- DASHBOARD -->
+<div class="screen" id="s-dash">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <h1 id="dash-greeting">สวัสดี!</h1>
+        <div class="hdr-sub" id="dash-date">—</div>
+      </div>
+      <button class="avatar" id="dash-avatar" onclick="switchScreen('settings')">G</button>
+    </div>
+  </div>
+  <div class="period-bar" id="period-bar">
+    <button class="p-tab active" data-period="today" data-i18n="period_today">Today</button>
+    <button class="p-tab" data-period="week" data-i18n="period_week">This week</button>
+    <button class="p-tab" data-period="month" data-i18n="period_month">This month</button>
+    <button class="p-tab" data-period="all" data-i18n="period_all">All time</button>
+    <button class="p-tab" data-period="custom" data-i18n="period_custom">Custom</button>
+  </div>
+  <div id="custom-range" style="display:none;background:var(--red);padding:0 16px 12px;gap:8px;align-items:center;">
+    <input type="date" id="range-start" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:7px 10px;color:#fff;font-size:13px;font-family:inherit;flex:1;">
+    <span style="color:rgba(255,255,255,.7);font-size:13px;" data-i18n="to">to</span>
+    <input type="date" id="range-end" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:7px 10px;color:#fff;font-size:13px;font-family:inherit;flex:1;">
+  </div>
+  <div class="hero" id="hero-card">
+    <div class="hero-label" id="hero-label">Net revenue — Today</div>
+    <div class="hero-amt" id="hero-amt">฿0</div>
+    <div class="hero-delta" id="hero-delta" style="display:none;font-size:13px;margin-top:2px;"></div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-label" data-i18n="revenue">Revenue</div><div class="hero-stat-val" id="h-rev">฿0</div></div>
+      <div><div class="hero-stat-label" data-i18n="tips">Tips</div><div class="hero-stat-val" id="h-tip">฿0</div></div>
+      <div><div class="hero-stat-label" data-i18n="fuel_exp">Fuel exp</div><div class="hero-stat-val" id="h-exp">฿0</div></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="empty" id="dash-empty-state" style="display:none">
+      <div class="empty-icon">🚗</div>
+      <p><strong data-i18n="onboard_welcome_title">Welcome to DriverLog!</strong><br>
+      <span data-i18n="onboard_welcome_body">Track your driving income, fuel costs, and profit per shift — right on your phone.</span></p>
+      <button class="btn-submit" style="margin-top:16px" onclick="openAddSession()" data-i18n="onboard_cta">Log your first session</button>
+    </div>
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card"><div class="stat-icon">🛣️</div><div class="stat-label" data-i18n="distance">Distance</div><div class="stat-val" id="g-dist">—</div><div class="stat-sub" id="g-sessions">—</div></div>
+      <div class="stat-card"><div class="stat-icon">⛽</div><div class="stat-label" data-i18n="fuel_cost_ratio">Fuel cost ratio</div><div class="stat-val" id="g-ratio">—</div><div class="stat-sub" id="g-ratio-badge"></div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label" data-i18n="avg_per_session">Avg / session</div><div class="stat-val" id="g-avg">—</div><div class="stat-sub" data-i18n="net_revenue_lower">net revenue</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label" data-i18n="total_revenue">Total revenue</div><div class="stat-val" id="g-totrev">—</div><div class="stat-sub" data-i18n="before_expenses">before expenses</div></div>
+    </div>
+    <div class="section-title" data-i18n="profitability">Is this shift profitable?</div>
+    <div class="insight-card" id="profit-insights"></div>
+    <div class="section-title" data-i18n="weekly_recap">Weekly earnings recap</div>
+    <div class="insight-card" id="weekly-recap"></div>
+    <div class="section-title" data-i18n="earnings_trend">Earnings trend</div>
+    <div class="chart-card"><div class="chart-wrap"><canvas id="trend-chart"></canvas></div></div>
+    <div class="section-title" data-i18n="by_service_type">By service type</div>
+    <div class="service-grid" id="svc-breakdown"></div>
+    <div class="section-title" data-i18n="best_time">Best time to drive</div>
+    <div class="insight-card" id="time-insights"></div>
+    <div class="section-title" data-i18n="top_days">Top earning days</div>
+    <div class="insight-card" id="day-insights"></div>
+    <div class="ad-slot" id="ad-dash">
+      <div class="ad-label" data-i18n="ad_label">Sponsored</div>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3349895945204021" data-ad-slot="9769218389" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </div>
+    <div class="affiliate-card" id="affiliate-fuel">
+      <div class="affiliate-badge" data-i18n="affiliate_label">Partner offer</div>
+      <div class="affiliate-title" data-i18n="affiliate_fuel_title">Fuel card partner</div>
+      <div class="affiliate-body" data-i18n="affiliate_fuel_body">Save on every fill-up. Partner offers coming soon.</div>
+      <span class="affiliate-cta" data-i18n="affiliate_cta" aria-disabled="true">Coming soon</span>
+    </div>
+  </div>
+</div>
+
+<!-- SESSIONS -->
+<div class="screen" id="s-sessions">
+  <div class="hdr-plain" data-i18n="sessions_title">Sessions</div>
+  <div class="content">
+    <select id="vehicle-filter" class="field" style="display:none;margin:0 0 12px;" onchange="renderSessions()">
+      <option value="" data-i18n="all_vehicles">All vehicles</option>
+    </select>
+    <div id="sessions-list"></div>
+  </div>
+</div>
+
+<!-- FUEL LOG -->
+<div class="screen" id="s-fuel">
+  <div class="hdr-plain" data-i18n="fuel_log_title">Fuel log</div>
+  <div class="content">
+    <div class="summary-banner" id="fuel-summary"></div>
+    <div class="section-title" data-i18n="refill_history">Refill history</div>
+    <div id="fuel-list"></div>
+    <div class="section-title" data-i18n="add_refill">Add refill</div>
+    <div class="form-section">
+      <div class="field"><label data-i18n="gas_station">Gas station</label><input type="text" id="f-station" placeholder="e.g. PTT สาขาลาดพร้าว"></div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="liters">Liters</label><input type="number" id="f-liters" placeholder="0" step="0.1" min="0" inputmode="decimal"></div>
+        <div class="field-half"><label data-i18n="total_price">Total price (฿)</label><input type="number" id="f-fprice" placeholder="0" min="0" inputmode="decimal"></div>
+      </div>
+      <div class="field"><label data-i18n="date">Date</label><input type="date" id="f-fdate"></div>
+    </div>
+    <button class="btn-submit" onclick="saveFuel()" data-i18n="save_refill">Save refill</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="s-settings">
+  <div class="hdr-plain" data-i18n="settings_title">Settings</div>
+  <div class="content">
+    <div class="section-title" data-i18n="account">Account</div>
+    <div class="settings-list">
+      <div class="account-row">
+        <div class="account-avatar" id="acct-avatar">G</div>
+        <div>
+          <div class="account-name" id="acct-name">—</div>
+          <div class="account-sub" id="acct-since" data-i18n="local_account">Local account on this device</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title" data-i18n="sync_app">Sync &amp; app</div>
+    <div class="settings-list">
+      <div class="settings-row">
+        <span class="settings-label" data-i18n="sync_status">Sync status</span>
+        <span id="sync-status" style="color:var(--text3);font-size:14px;" data-i18n="local_only">Local only</span>
+      </div>
+      <div class="settings-row" id="install-row" style="display:none;">
+        <span class="settings-label" data-i18n="install_app">Install app</span>
+        <button id="install-btn" onclick="promptInstall()" style="display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 14px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">⬇ <span data-i18n="install">Install</span></button>
+      </div>
+    </div>
+    <div class="section-title" data-i18n="preferences">Preferences</div>
+    <div class="settings-list">
+      <div class="settings-row">
+        <span class="settings-label" data-i18n="language">Language</span>
+        <select id="set-lang" onchange="saveSetting('lang',this.value);applyLang()">
+          <option value="en">English</option>
+          <option value="th">ภาษาไทย</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label" data-i18n="appearance">Appearance</span>
+        <select id="set-theme" onchange="setTheme(this.value)">
+          <option value="light" data-i18n="theme_light">Light</option>
+          <option value="dark" data-i18n="theme_dark">Dark</option>
+          <option value="auto" data-i18n="theme_auto">Auto</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label" data-i18n="distance_unit">Distance unit</span>
+        <select id="set-unit" onchange="saveSetting('unit',this.value)">
+          <option value="km" data-i18n="km_option">Kilometers (km)</option>
+          <option value="mi" data-i18n="mi_option">Miles (mi)</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label" data-i18n="currency">Currency</span>
+        <span style="color:var(--text3);font-size:15px;">THB (฿)</span>
+      </div>
+    </div>
+    <div class="section-title" data-i18n="reminders">Reminders</div>
+    <div class="settings-list">
+      <div class="settings-row">
+        <div>
+          <span class="settings-label" data-i18n="shift_reminders">Shift reminders</span>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;" data-i18n="shift_reminders_helper">Notifications require app permission (coming soon)</div>
+        </div>
+        <button class="toggle" id="reminder-toggle" onclick="toggleShiftReminders()" role="switch" aria-checked="false" aria-label="Toggle shift reminders"></button>
+      </div>
+    </div>
+    <div class="section-title" data-i18n="export_data">Export data</div>
+    <div class="settings-list" style="padding: 12px;">
+      <div class="export-btns">
+        <button onclick="exportCSV()">📊 CSV</button>
+        <button onclick="exportImage()">📷 <span data-i18n="image_word">Image</span></button>
+        <button onclick="exportMonthlyCSV()">📅 <span data-i18n="monthly_word">Monthly</span></button>
+        <button onclick="exportBackup()">💾 <span data-i18n="backup_word">Backup</span></button>
+        <button onclick="pickBackupFile()">♻️ <span data-i18n="restore_word">Restore</span></button>
+        <input type="file" id="backup-file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
+      </div>
+    </div>
+    <div class="section-title" data-i18n="about">About</div>
+    <div class="settings-list">
+      <div class="settings-row"><span class="settings-label" data-i18n="app_word">App</span><span style="color:var(--text3)">Driver log book</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.6.9</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="total_sessions">Total sessions</span><span id="set-count" style="color:var(--text3)">—</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="created_by">Created by</span><span style="color:var(--text3)">Grit · Powered by Claude</span></div>
+      <a class="settings-row" href="mailto:grit4game@gmail.com?subject=DriverLog%20feedback" style="text-decoration:none">
+        <span class="settings-label" data-i18n="send_feedback">Send feedback</span>
+        <span style="color:var(--red);font-size:15px;font-weight:700">↗</span>
+      </a>
+      <a class="settings-row" href="/privacy.html" target="_blank" rel="noopener" style="text-decoration:none">
+        <span class="settings-label" data-i18n="privacy_policy">Privacy policy</span>
+        <span style="color:var(--red);font-size:15px;font-weight:700">↗</span>
+      </a>
+      <div class="settings-row">
+        <span class="settings-label" data-i18n="ad_consent">Ad &amp; cookie consent</span>
+        <button id="consent-manage-btn" onclick="manageConsent()" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Set preference</button>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()" data-i18n="logout">Log out</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" id="nav-dash" onclick="switchScreen('dash')" aria-current="page">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span data-i18n="nav_dashboard">Dashboard</span>
+  </button>
+  <button class="nav-btn" id="nav-sessions" onclick="switchScreen('sessions')">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+    <span data-i18n="nav_sessions">Sessions</span>
+    <div class="nav-badge" id="sessions-badge" style="display:none"></div>
+  </button>
+  <button class="nav-btn" id="nav-fuel" onclick="switchScreen('fuel')" style="display:none">
+    <svg viewBox="0 0 24 24"><path d="M3 22V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14"/><line x1="3" y1="22" x2="15" y2="22"/><path d="M15 8h3l2 2v6.5a1.5 1.5 0 0 1-3 0V14h-2"/><line x1="6" y1="12" x2="12" y2="12"/></svg>
+    <span data-i18n="nav_fuel">Fuel</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="switchScreen('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span data-i18n="nav_settings">Settings</span>
+  </button>
+</nav>
+
+<!-- ADD SESSION MODAL -->
+<div class="modal-overlay" id="modal-session">
+  <div class="modal" style="position:relative;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button type="button" class="modal-close-x" aria-label="Close" onclick="closeSessionModal()">&#10005;</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title" data-i18n="log_session">Log session</div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header" data-i18n="select_provider">Select provider</div>
+      <div class="svc-selector prov-selector">
+        <div class="svc-opt sel" data-prov="Grab" onclick="selProv(this)">Grab</div>
+        <div class="svc-opt" data-prov="Lineman" onclick="selProv(this)">Lineman</div>
+        <div class="svc-opt" data-prov="Bolt" onclick="selProv(this)">Bolt</div>
+        <div class="svc-opt" data-prov="Shopee" onclick="selProv(this)">Shopee</div>
+        <div class="svc-opt" data-prov="Taxi" onclick="selProv(this)">Taxi</div>
+      </div>
+      <div class="form-header" data-i18n="service_type">Service type</div>
+      <div class="svc-selector type-selector">
+        <div class="svc-opt sel" data-type="Car" onclick="selType(this)">🚗 <span data-i18n="type_car">Car</span></div>
+        <div class="svc-opt" data-type="Bike" onclick="selType(this)">🏍️ <span data-i18n="type_bike">Bike</span></div>
+        <div class="svc-opt" data-type="Food" onclick="selType(this)">🍔 <span data-i18n="type_food">Food</span></div>
+        <div class="svc-opt" data-type="Express" onclick="selType(this)">📦 <span data-i18n="type_express">Express</span></div>
+      </div>
+    </div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header" data-i18n="trip_details">Trip details</div>
+      <div class="field"><label data-i18n="date">Date</label><input type="date" id="s-date"></div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="start_time">Start time</label><input type="time" id="s-start" step="900" oninput="calcDuration()"></div>
+        <div class="field-half"><label data-i18n="end_time">End time</label><input type="time" id="s-end" step="900" oninput="calcDuration()"></div>
+      </div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="end_date">End date</label><input type="date" id="s-enddate" oninput="calcDuration()"></div>
+        <div class="field-half" style="display:flex;align-items:flex-end;padding-bottom:10px;"><span style="font-size:13px;color:var(--text3);"><span data-i18n="duration">Duration</span>: <b id="s-dur" style="color:var(--red)">—</b></span></div>
+      </div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="distance_km">Distance (km)</label><input type="number" id="s-dist" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label data-i18n="consumption">Consumption (km/L)</label><input type="number" id="s-cons" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+      </div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="oil_price">Oil price (฿/L)</label><input type="number" id="s-oil" placeholder="0" step="0.01" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label data-i18n="fuel_expense">Fuel expense (฿)</label><input type="number" id="s-exp" placeholder="auto" step="0.01" min="0" inputmode="decimal" oninput="calcSNet(false)"></div>
+      </div>
+      <div class="field"><label data-i18n="vehicle">Vehicle</label><input type="text" id="s-vehicle" data-i18n-ph="vehicle_placeholder" placeholder="e.g. Honda Click 125i"></div>
+    </div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header" data-i18n="revenue">Revenue</div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="revenue_b">Revenue (฿)</label><input type="number" id="s-rev" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label data-i18n="extra_tip">Extra tip (฿)</label><input type="number" id="s-tip" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+      </div>
+    </div>
+    <div class="net-box"><div class="net-box-label" data-i18n="net_revenue">Net revenue</div><div class="net-box-val" id="s-net">฿ 0</div></div>
+    <input type="hidden" id="s-edit-id">
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" onclick="closeSessionModal()" data-i18n="cancel">Cancel</button>
+      <button class="btn-submit" onclick="saveSession()" data-i18n="save_session">Save session</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAB (shown on sessions screen) -->
+<div class="fab-wrap">
+  <button class="fab" id="fab" style="display:none" onclick="openAddSession()">+</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- CONSENT BANNER (EU User Consent Policy / Consent Mode v2) -->
+<div class="consent-banner" id="consent-banner" style="display:none">
+  <p class="consent-text" id="consent-text" data-i18n="consent_text">
+    We use cookies to show ads and understand basic usage. You can accept or reject non-essential
+    cookies — the app works the same either way.
+  </p>
+  <div class="consent-actions">
+    <button type="button" class="consent-btn consent-reject" onclick="rejectConsent()" data-i18n="consent_reject">Reject</button>
+    <button type="button" class="consent-btn consent-accept" onclick="acceptConsent()" data-i18n="consent_accept">Accept</button>
+  </div>
+  <a class="consent-link" href="/privacy.html" target="_blank" rel="noopener" data-i18n="privacy_policy">Privacy policy</a>
+</div>
+
+<script src="/app.js"></script>
+<script>
+bootApp();
+</script>
+</body>
+</html>

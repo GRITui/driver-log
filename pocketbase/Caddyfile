@@ -1,0 +1,14 @@
+# DriverLog reverse proxy — automatic HTTPS for the PocketBase API.
+# Caddy obtains + renews a Let's Encrypt cert for this hostname automatically,
+# as long as DNS points api.driverlog.link at this machine and ports 80/443 are reachable.
+
+api.driverlog.link {
+	encode gzip
+	reverse_proxy pocketbase:8090
+
+	# Optional: keep logs
+	log {
+		output stdout
+		format console
+	}
+}

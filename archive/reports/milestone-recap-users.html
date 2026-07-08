@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriverLog — What's New</title>
+<style>
+  :root {
+    --red:#D0021B; --red-dark:#A80016; --red-light:#FDECEA; --red-mid:#E8344A; --red-border:#F5C6C6;
+    --bg:#F2F2F7; --card:#fff; --border:#E5E5EA; --border-mid:#C7C7CC;
+    --text:#1C1C1E; --text2:#3C3C43; --text3:#8E8E93; --text4:#AEAEB2;
+    --green:#34C759; --amber:#FF9500; --blue:#007AFF;
+    --radius:14px; --radius-sm:10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.45;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+  }
+  .page {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.06);
+  }
+  header {
+    background: linear-gradient(120deg, var(--red-dark), var(--red));
+    color: #fff;
+    padding: 26px 30px;
+    text-align: center;
+  }
+  header .logo { width: 72px; height: 72px; margin: 0 auto 12px; }
+  header .logo svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 4px 10px rgba(0,0,0,.25)); }
+  header h1 { font-size: 29px; letter-spacing: -.6px; }
+  header p { font-size: 15px; opacity: .92; margin-top: 6px; }
+  header .badge {
+    display: inline-block; background: rgba(255,255,255,.2);
+    padding: 6px 15px; border-radius: 999px; font-weight: 600;
+    font-size: 13px; margin-top: 13px;
+  }
+  .body { padding: 26px 30px 28px; }
+  .lead { font-size: 15px; text-align: center; color: var(--text2); max-width: 720px; margin: 0 auto 24px; }
+  .lead strong { color: var(--text); }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .feat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 18px 16px; }
+  .feat .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--red-light); color: var(--red); display: flex; align-items: center; justify-content: center; font-size: 21px; margin-bottom: 11px; }
+  .feat h3 { font-size: 15px; margin-bottom: 4px; }
+  .feat p { font-size: 13px; color: var(--text3); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card2 { border-radius: var(--radius); padding: 18px 20px; }
+  .now { background: #F0FBF2; border: 1px solid #CDEED5; }
+  .soon { background: #FFF6E9; border: 1px solid #FCE2B8; }
+  .card2 h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+  .now h2 { color: #1F9E3D; }
+  .soon h2 { color: #C56E00; }
+  .card2 ul { list-style: none; }
+  .card2 li { font-size: 13.5px; padding: 4px 0 4px 22px; position: relative; }
+  .now li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .soon li::before { content: "★"; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
+
+  footer { border-top: 1px solid var(--border); padding: 14px 30px; font-size: 12px; color: var(--text3); text-align: center; }
+  footer strong { color: var(--red); }
+  @media print { body { padding: 0; background: #fff; } .page { border: none; box-shadow: none; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="DriverLog"><defs><linearGradient id="hb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8344A"/><stop offset="1" stop-color="#A80016"/></linearGradient></defs><rect width="512" height="512" rx="115" fill="url(#hb2)"/><path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#fff"/><path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#D0021B" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/><circle cx="360" cy="126" r="40" fill="#fff"/><circle cx="360" cy="126" r="16" fill="#D0021B"/></svg></div>
+      <h1>DriverLog is here</h1>
+      <p>The simple way to track your earnings and fuel — built for gig drivers</p>
+      <div class="badge">Now live at driverlog.link</div>
+    </header>
+
+    <div class="body">
+      <p class="lead">Log every trip, tank, and dollar in seconds. <strong>Your data stays on your phone</strong> — no account required, works even with no signal.</p>
+
+      <div class="features">
+        <div class="feat">
+          <div class="ic">💵</div>
+          <h3>Track your money</h3>
+          <p>Record earnings and expenses so you always know what you actually made.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">⛽</div>
+          <h3>Log your fuel</h3>
+          <p>Keep every fill-up in one place and see what fuel is really costing you.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">📊</div>
+          <h3>See your trends</h3>
+          <p>Clear charts show how your earnings and costs change over time.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">📴</div>
+          <h3>Works offline</h3>
+          <p>No connection? No problem. Everything works without internet and syncs later.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">📲</div>
+          <h3>Install like an app</h3>
+          <p>Add it to your home screen and open it instantly — no app store needed.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">🔒</div>
+          <h3>Private by default</h3>
+          <p>Use it as a guest with zero sign-up. Your logs never leave your device.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card2 now">
+          <h2>Ready to use today</h2>
+          <ul>
+            <li>Earnings, expense &amp; fuel logging</li>
+            <li>Visual charts of your trends</li>
+            <li>Full offline support</li>
+            <li>Install to your home screen</li>
+            <li>Guest mode — no sign-up needed</li>
+          </ul>
+        </div>
+        <div class="card2 soon">
+          <h2>Coming soon</h2>
+          <ul>
+            <li>Sign in to back up your data</li>
+            <li>Sync across all your devices</li>
+            <li>DriverLog on the Google Play Store</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Get started free at <strong>driverlog.link</strong> — open it in your browser and tap "Add to Home Screen"
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriverLog — Brand & CI Guidelines</title>
+<style>
+  :root {
+    --red:#D0021B; --red-dark:#A80016; --red-light:#FDECEA; --red-mid:#E8344A; --red-border:#F5C6C6;
+    --bg:#F2F2F7; --card:#fff; --border:#E5E5EA; --border-mid:#C7C7CC;
+    --text:#1C1C1E; --text2:#3C3C43; --text3:#8E8E93; --text4:#AEAEB2;
+    --green:#34C759; --amber:#FF9500; --blue:#007AFF;
+    --radius:14px; --radius-sm:10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif;
+    color: var(--text); background: var(--bg); line-height: 1.5;
+    padding: 32px 24px; display: flex; justify-content: center;
+  }
+  .doc { width: 100%; max-width: 940px; }
+
+  .hero { background: linear-gradient(120deg, var(--red-dark), var(--red)); color:#fff; border-radius: var(--radius); padding: 34px 34px 30px; margin-bottom: 22px; }
+  .hero .eyebrow { text-transform: uppercase; letter-spacing: 2px; font-size: 12px; opacity: .85; }
+  .hero h1 { font-size: 32px; letter-spacing: -.7px; margin: 6px 0 4px; }
+  .hero p { opacity: .9; font-size: 15px; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 30px; margin-bottom: 22px; }
+  .card h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--red); margin-bottom: 4px; }
+  .card .sub { font-size: 20px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 18px; }
+  p.lede { font-size: 14.5px; color: var(--text2); }
+
+  /* logo showcase */
+  .logo-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 14px; }
+  .logo-cell { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px; text-align: center; background: var(--bg); }
+  .logo-cell.dark { background: var(--red-dark); }
+  .logo-cell svg, .logo-cell img { max-width: 100%; height: auto; }
+  .logo-cell .cap { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-top: 12px; }
+  .logo-cell.dark .cap { color: rgba(255,255,255,.7); }
+
+  .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .dd { border-radius: var(--radius-sm); padding: 14px 16px; font-size: 13px; }
+  .dd.do { background: #F0FBF2; border: 1px solid #CDEED5; }
+  .dd.dont { background: var(--red-light); border: 1px solid var(--red-border); }
+  .dd h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .dd.do h4 { color:#1F9E3D; } .dd.dont h4 { color: var(--red); }
+  .dd ul { list-style: none; } .dd li { padding: 3px 0 3px 18px; position: relative; }
+  .dd.do li::before { content:"✓"; position:absolute; left:0; color:var(--green); font-weight:700; }
+  .dd.dont li::before { content:"✕"; position:absolute; left:0; color:var(--red); font-weight:700; }
+
+  /* colors */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .sw { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .sw .chip { height: 74px; }
+  .sw .info { padding: 10px 12px; }
+  .sw .nm { font-size: 13px; font-weight: 650; }
+  .sw .hx { font-size: 12px; color: var(--text3); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .sw .use { font-size: 11px; color: var(--text4); margin-top: 3px; }
+  .subhead { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin: 22px 0 10px; }
+
+  /* type */
+  .type-spec { display:flex; align-items:baseline; gap:14px; border-bottom:1px solid var(--border); padding:12px 0; flex-wrap: wrap; }
+  .type-spec:last-child { border-bottom: none; }
+  .type-spec .label { width: 120px; font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:.5px; flex-shrink:0; }
+  .type-spec .meta { font-size: 12px; color: var(--text3); font-family: ui-monospace, Menlo, monospace; margin-left:auto; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap: 26px; }
+  .foot { text-align:center; font-size:12px; color:var(--text3); padding: 8px 0 4px; }
+  code.inline { font-family: ui-monospace, Menlo, monospace; background: var(--bg); border:1px solid var(--border); border-radius:5px; padding:1px 6px; font-size:12px; }
+  @media print { body { padding:0; background:#fff; } .card,.hero { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="hero">
+    <div class="eyebrow">Corporate Identity</div>
+    <h1>DriverLog Brand Guidelines</h1>
+    <p>Visual identity system for the offline-first driver log book · driverlog.link · v1.0, July 2026</p>
+  </div>
+
+  <!-- LOGO -->
+  <div class="card">
+    <h2>01 — Logo</h2>
+    <div class="sub">The mark &amp; wordmark</div>
+    <p class="lede" style="margin-bottom:20px;">The mark is a rising route ending at a destination marker — it signals both <strong>driving</strong> and <strong>earnings growth</strong>. Use the app-icon squircle for product/app contexts and the horizontal wordmark for documents, headers, and the web.</p>
+
+    <div class="logo-row">
+      <div class="logo-cell">
+        <svg viewBox="0 0 512 512" width="120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8344A"/><stop offset="1" stop-color="#A80016"/></linearGradient></defs><rect width="512" height="512" rx="115" fill="url(#g1)"/><path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#fff"/><path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#D0021B" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/><circle cx="360" cy="126" r="40" fill="#fff"/><circle cx="360" cy="126" r="16" fill="#D0021B"/></svg>
+        <div class="cap">App icon (squircle)</div>
+      </div>
+      <div class="logo-cell" style="display:flex;flex-direction:column;justify-content:center;">
+        <svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8344A"/><stop offset="1" stop-color="#A80016"/></linearGradient></defs><g transform="translate(15,19) scale(0.2226)"><rect width="512" height="512" rx="115" fill="url(#g2)"/><path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#fff"/><path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#D0021B" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/><circle cx="360" cy="126" r="40" fill="#fff"/><circle cx="360" cy="126" r="16" fill="#D0021B"/></g><text x="148" y="93" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="62" font-weight="700" letter-spacing="-1.5"><tspan fill="#1C1C1E">Driver</tspan><tspan fill="#D0021B">Log</tspan></text></svg>
+        <div class="cap">Horizontal wordmark</div>
+      </div>
+      <div class="logo-cell dark" style="display:flex;flex-direction:column;justify-content:center;">
+        <svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg"><g transform="translate(15,19) scale(0.2226)"><rect width="512" height="512" rx="115" fill="#fff"/><path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#D0021B"/><path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/><circle cx="360" cy="126" r="40" fill="#D0021B"/><circle cx="360" cy="126" r="16" fill="#fff"/></g><text x="148" y="93" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="62" font-weight="700" letter-spacing="-1.5"><tspan fill="#ffffff">Driver</tspan><tspan fill="#FDECEA">Log</tspan></text></svg>
+        <div class="cap">Reversed (on red/dark)</div>
+      </div>
+    </div>
+
+    <div class="do-dont">
+      <div class="dd do">
+        <h4>Do</h4>
+        <ul>
+          <li>Keep clear space ≥ the height of the marker dot on all sides</li>
+          <li>Minimum size: 24px (icon), 120px wide (wordmark)</li>
+          <li>Use the reversed version on red or dark backgrounds</li>
+        </ul>
+      </div>
+      <div class="dd dont">
+        <h4>Don't</h4>
+        <ul>
+          <li>Recolor the mark outside the brand red / white pairing</li>
+          <li>Stretch, rotate, or add shadows to the wordmark</li>
+          <li>Place the squircle on a busy photo without contrast</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR -->
+  <div class="card">
+    <h2>02 — Color</h2>
+    <div class="sub">Palette</div>
+    <div class="subhead">Primary — Brand Red</div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#D0021B"></div><div class="info"><div class="nm">Brand Red</div><div class="hx">#D0021B</div><div class="use">Primary actions, brand</div></div></div>
+      <div class="sw"><div class="chip" style="background:#A80016"></div><div class="info"><div class="nm">Red Dark</div><div class="hx">#A80016</div><div class="use">Gradients, pressed</div></div></div>
+      <div class="sw"><div class="chip" style="background:#E8344A"></div><div class="info"><div class="nm">Red Mid</div><div class="hx">#E8344A</div><div class="use">Gradient top, accents</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FDECEA;border-bottom:1px solid var(--border)"></div><div class="info"><div class="nm">Red Light</div><div class="hx">#FDECEA</div><div class="use">Tinted fills, splash bg</div></div></div>
+    </div>
+
+    <div class="subhead">Neutrals — iOS surfaces &amp; text</div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#F2F2F7;border-bottom:1px solid var(--border)"></div><div class="info"><div class="nm">Background</div><div class="hx">#F2F2F7</div><div class="use">App / page canvas</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid var(--border)"></div><div class="info"><div class="nm">Card</div><div class="hx">#FFFFFF</div><div class="use">Cards, sheets</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1C1C1E"></div><div class="info"><div class="nm">Text</div><div class="hx">#1C1C1E</div><div class="use">Primary text</div></div></div>
+      <div class="sw"><div class="chip" style="background:#8E8E93"></div><div class="info"><div class="nm">Text Tertiary</div><div class="hx">#8E8E93</div><div class="use">Captions, hints</div></div></div>
+    </div>
+
+    <div class="subhead">System accents</div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#34C759"></div><div class="info"><div class="nm">Green</div><div class="hx">#34C759</div><div class="use">Success, positive</div></div></div>
+      <div class="sw"><div class="chip" style="background:#FF9500"></div><div class="info"><div class="nm">Amber</div><div class="hx">#FF9500</div><div class="use">Warning, upcoming</div></div></div>
+      <div class="sw"><div class="chip" style="background:#007AFF"></div><div class="info"><div class="nm">Blue</div><div class="hx">#007AFF</div><div class="use">Links, info</div></div></div>
+      <div class="sw"><div class="chip" style="background:#E5E5EA;border-bottom:1px solid var(--border)"></div><div class="info"><div class="nm">Border</div><div class="hx">#E5E5EA</div><div class="use">Dividers, outlines</div></div></div>
+    </div>
+  </div>
+
+  <!-- TYPE + SYSTEM -->
+  <div class="grid2">
+    <div class="card">
+      <h2>03 — Typography</h2>
+      <div class="sub">System font stack</div>
+      <p class="lede" style="margin-bottom:6px;">Uses the native system UI font — fast, familiar, and free. Thai support via Noto Sans Thai.</p>
+      <div class="type-spec"><span class="label">Stack</span><code class="inline">-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif</code></div>
+      <div style="padding:14px 0 4px;">
+        <div style="font-size:30px;font-weight:700;letter-spacing:-.5px;">Track every mile</div>
+        <div class="type-spec" style="border-top:1px solid var(--border);margin-top:8px;"><span class="label">Title</span><span>Bold · tight</span><span class="meta">700 / -0.5px</span></div>
+        <div style="font-size:17px;font-weight:600;margin-top:12px;">Earnings &amp; fuel, in seconds</div>
+        <div class="type-spec"><span class="label">Heading</span><span>Semibold</span><span class="meta">600</span></div>
+        <div style="font-size:15px;margin-top:12px;color:var(--text2);">Body copy is set at 15–16px with generous line height for readability on the road.</div>
+        <div class="type-spec"><span class="label">Body</span><span>Regular</span><span class="meta">400 / 1.5</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>04 — System</h2>
+      <div class="sub">Shape, voice &amp; motion</div>
+      <div class="type-spec"><span class="label">Corner radius</span><span>Cards 14px · controls 10px</span></div>
+      <div class="type-spec"><span class="label">Icon shape</span><span>iOS squircle, 115/512 corner</span></div>
+      <div class="type-spec"><span class="label">Elevation</span><span>Soft shadow, low spread</span></div>
+      <div class="type-spec"><span class="label">Theme color</span><span><code class="inline">#D0021B</code> · splash <code class="inline">#FDECEA</code></span></div>
+      <div class="type-spec"><span class="label">Voice</span><span>Plain, practical, driver-first</span></div>
+      <p class="lede" style="margin-top:16px;">Tone: talk to a working driver, not an accountant. Short sentences, real numbers, no jargon. "Track your money," not "financial management."</p>
+    </div>
+  </div>
+
+  <div class="foot">DriverLog Corporate Identity · v1.0 · driverlog.link · Assets in <code class="inline">/brand</code></div>
+</div>
+</body>
+</html>

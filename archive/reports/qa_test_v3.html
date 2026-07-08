@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Driver log book</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3349895945204021" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#D0021B;--red-dark:#A80016;--red-light:#FDECEA;--red-mid:#E8344A;--red-border:#F5C6C6;
+  --bg:#F2F2F7;--card:#fff;--border:#E5E5EA;--border-mid:#C7C7CC;
+  --text:#1C1C1E;--text2:#3C3C43;--text3:#8E8E93;--text4:#AEAEB2;
+  --green:#34C759;--amber:#FF9500;--blue:#007AFF;
+  --radius:14px;--radius-sm:10px;--nav:60px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;position:relative;}
+/* Nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-top:0.5px solid var(--border);display:none;z-index:100;padding-bottom:env(safe-area-inset-bottom,0);}
+body.authed .nav{display:flex;}
+.nav-btn{flex:1;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;position:relative;}
+.nav-btn svg{width:24px;height:24px;stroke:var(--text3);stroke-width:1.8;fill:none;transition:stroke .15s;}
+.nav-btn span{font-size:10px;color:var(--text3);font-weight:500;transition:color .15s;}
+.nav-btn.active svg{stroke:var(--red);}
+.nav-btn.active span{color:var(--red);}
+/* Screens */
+.screen{display:none;min-height:100vh;padding-bottom:calc(var(--nav) + 20px);}
+.screen.active{display:block;}
+/* Header */
+.hdr{background:var(--red);padding:50px 20px 18px;color:#fff;}
+.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.3px;}
+.hdr-sub{font-size:13px;opacity:.75;margin-top:2px;}
+.avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;border:none;cursor:pointer;font-family:inherit;}
+.lang-toggle{display:flex;background:rgba(255,255,255,.18);border-radius:16px;padding:2px;gap:2px;}
+.lang-opt{border:none;background:none;font-family:inherit;font-size:11px;font-weight:700;padding:5px 10px;border-radius:14px;cursor:pointer;color:rgba(255,255,255,.75);height:28px;line-height:18px;transition:all .15s;}
+.lang-opt.active{background:#fff;color:var(--red);}
+.hdr-plain{background:var(--red);padding:50px 20px 16px;color:#fff;font-size:20px;font-weight:700;}
+/* Auth screen */
+.auth{display:none;min-height:100vh;flex-direction:column;background:linear-gradient(160deg,var(--red) 0%,var(--red-dark) 100%);}
+.auth.active{display:flex;}
+.auth-hero{padding:90px 28px 36px;color:#fff;text-align:center;}
+.auth-logo{width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:36px;}
+.auth-hero h1{font-size:30px;font-weight:800;letter-spacing:-.5px;}
+.auth-hero p{font-size:14px;opacity:.8;margin-top:6px;}
+.auth-card{background:var(--bg);border-radius:24px 24px 0 0;flex:1;padding:24px 20px calc(env(safe-area-inset-bottom,0) + 32px);}
+.auth-tabs{display:flex;background:#E4E4E9;border-radius:12px;padding:3px;margin-bottom:20px;}
+.auth-tab{flex:1;padding:9px;border:none;background:none;border-radius:9px;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;}
+.auth-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1);}
+.auth-field{margin-bottom:12px;}
+.auth-field label{display:block;font-size:12px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px;}
+.auth-field input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;font-family:inherit;color:var(--text);background:#fff;outline:none;transition:border-color .15s;}
+.auth-field input:focus{border-color:var(--red);}
+.auth-err{display:none;background:var(--red-light);border:1px solid var(--red-border);color:var(--red-dark);border-radius:var(--radius-sm);padding:11px 14px;font-size:13px;font-weight:500;margin-bottom:12px;}
+.auth-err.show{display:block;}
+.auth-btn{width:100%;padding:15px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px;}
+.auth-btn:active{background:var(--red-dark);}
+.auth-btn.guest{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);margin-top:12px;}
+.auth-btn.guest:active{background:rgba(255,255,255,.3);}
+.auth-hint{text-align:center;font-size:12px;color:var(--text3);margin-top:16px;line-height:1.5;}
+/* Period tabs */
+.period-bar{background:var(--red);padding:0 16px 14px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.period-bar::-webkit-scrollbar{display:none;}
+.p-tab{padding:6px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);font-size:13px;font-weight:500;color:rgba(255,255,255,.8);white-space:nowrap;cursor:pointer;background:none;transition:all .15s;}
+.p-tab.active{background:#fff;color:var(--red);border-color:#fff;}
+/* Content */
+.content{padding:16px;}
+/* Hero */
+.hero{background:var(--red);margin:0 16px 16px;border-radius:var(--radius);padding:20px;color:#fff;}
+.hero-label{font-size:12px;opacity:.75;margin-bottom:4px;}
+.hero-amt{font-size:38px;font-weight:800;letter-spacing:-1px;margin-bottom:14px;}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;}
+.hero-stat-label{font-size:11px;opacity:.7;}
+.hero-stat-val{font-size:15px;font-weight:600;margin-top:1px;}
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{background:var(--card);border-radius:var(--radius-sm);padding:14px;border:0.5px solid var(--border);}
+.stat-icon{font-size:18px;margin-bottom:6px;}
+.stat-label{font-size:11px;color:var(--text3);font-weight:500;margin-bottom:4px;}
+.stat-val{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.5px;}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;}
+.badge-good{background:#D1FAE5;color:#065F46;}
+.badge-warn{background:#FEF3C7;color:#92400E;}
+.badge-bad{background:#FEE2E2;color:#991B1B;}
+/* Section */
+.section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:10px;}
+/* Chart card */
+.chart-card{background:var(--card);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;border:0.5px solid var(--border);}
+.chart-wrap{height:130px;position:relative;margin-top:8px;}
+/* List rows */
+.list-card{background:var(--card);border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border);margin-bottom:16px;}
+.list-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:0.5px solid var(--border);}
+.list-row:last-child{border-bottom:none;}
+.list-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.list-main{flex:1;min-width:0;}
+.list-title{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.list-sub{font-size:12px;color:var(--text3);margin-top:1px;}
+.list-right{text-align:right;flex-shrink:0;}
+.list-amt{font-size:15px;font-weight:700;}
+.list-amt-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.amt-pos{color:var(--red);}
+/* Service pills */
+.service-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.svc-pill{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.svc-name{font-size:13px;color:var(--text2);font-weight:500;}
+.svc-amt{font-size:15px;font-weight:700;color:var(--text);}
+/* Insight rows */
+.insight-card{background:var(--card);border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border);margin-bottom:16px;}
+.insight-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--border);}
+.insight-row:last-child{border-bottom:none;}
+.insight-row.highlight{background:var(--red-light);}
+.insight-label{font-size:13px;color:var(--text2);}
+.insight-val{font-size:14px;font-weight:700;color:var(--text);}
+/* Forms */
+.form-section{background:var(--card);border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border);margin-bottom:16px;}
+.form-header{padding:12px 16px;border-bottom:0.5px solid var(--border);font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:var(--bg);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.field{padding:0 16px;border-bottom:0.5px solid var(--border);}
+.field:last-child{border-bottom:none;}
+.field-half{padding:0 10px 0 16px;border-bottom:0.5px solid var(--border);border-right:0.5px solid var(--border);}
+.field-half:last-child{padding:0 16px 0 10px;border-right:none;}
+.field label,.field-half label{display:block;font-size:11px;font-weight:600;color:var(--text3);padding-top:11px;text-transform:uppercase;letter-spacing:.3px;}
+.field input,.field select,.field-half input,.field-half select{width:100%;border:none;outline:none;font-size:16px;font-family:inherit;color:var(--text);padding:4px 0 11px;background:transparent;}
+.field select,.field-half select{-webkit-appearance:none;}
+/* Service selector */
+.svc-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;}
+.svc-opt{padding:10px;border-radius:10px;border:1.5px solid var(--border);text-align:center;font-size:13px;cursor:pointer;background:#fff;color:var(--text2);font-weight:500;transition:all .15s;}
+.svc-opt.sel{border-color:var(--red);background:var(--red-light);color:var(--red-dark);}
+/* Provider selector */
+.provider-selector{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px 14px;}
+.provider-opt{padding:8px 4px;border-radius:10px;border:1.5px solid var(--border);text-align:center;font-size:11px;cursor:pointer;background:#fff;color:var(--text2);font-weight:500;transition:all .15s;}
+.provider-opt.sel{border-color:var(--red);background:var(--red-light);color:var(--red-dark);}
+/* Hours worked box */
+.hours-box{margin:0 16px 12px;background:var(--red-light);border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+.hours-box-label{font-size:14px;color:var(--red-dark);font-weight:600;}
+.hours-box-val{font-size:20px;font-weight:800;color:var(--red);}
+/* Net rev box */
+.net-box{margin:0 16px 12px;background:var(--red-light);border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
+.net-box-label{font-size:14px;color:var(--red-dark);font-weight:600;}
+.net-box-val{font-size:26px;font-weight:800;color:var(--red);}
+/* Submit btn */
+.btn-submit{margin:0 16px 16px;width:calc(100% - 32px);padding:15px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-submit:active{background:var(--red-dark);}
+/* Empty state */
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty p{font-size:15px;}
+/* Summary banner */
+.summary-banner{background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.sum-item{text-align:center;}
+.sum-label{font-size:11px;color:var(--text3);font-weight:500;}
+.sum-val{font-size:17px;font-weight:700;color:var(--red);margin-top:2px;}
+/* Settings */
+.settings-list{background:var(--card);border-radius:var(--radius-sm);overflow:hidden;border:0.5px solid var(--border);margin-bottom:20px;}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:0.5px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:15px;color:var(--text);}
+.settings-row select,.settings-row input{border:none;font-size:15px;color:var(--text3);background:transparent;font-family:inherit;text-align:right;outline:none;}
+.account-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:0.5px solid var(--border);}
+.account-avatar{width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;}
+.account-name{font-size:16px;font-weight:600;color:var(--text);}
+.account-sub{font-size:12px;color:var(--text3);margin-top:1px;}
+/* Toggle */
+.toggle{width:51px;height:31px;background:var(--border-mid);border-radius:15.5px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';width:27px;height:27px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .2s;box-shadow:0 2px 4px rgba(0,0,0,.2);}
+.toggle.on::after{transform:translateX(20px);}
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--nav) + 16px);right:16px;width:56px;height:56px;background:var(--red);border-radius:50%;border:none;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:99;box-shadow:0 4px 14px rgba(208,2,27,.4);}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:430px;margin:0 auto;max-height:90vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px);}
+.modal-handle{width:40px;height:4px;background:var(--border-mid);border-radius:2px;margin:12px auto 16px;}
+.modal-title{font-size:18px;font-weight:700;padding:0 20px 16px;}
+/* Delete btn */
+.btn-delete{background:none;border:none;padding:6px;cursor:pointer;color:var(--text3);}
+.btn-delete svg{width:20px;height:20px;stroke:var(--text3);stroke-width:1.8;fill:none;}
+.btn-edit{background:none;border:none;padding:6px;cursor:pointer;}
+.btn-edit svg{width:20px;height:20px;stroke:var(--text3);stroke-width:1.8;fill:none;}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 22px);background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;}
+/* Toast */
+.toast{position:fixed;bottom:calc(var(--nav) + 20px);left:50%;transform:translateX(-50%) translateY(20px);background:#1C1C1E;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:500;z-index:300;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* Logout btn */
+.btn-logout{background:none;border:1.5px solid var(--red);color:var(--red);border-radius:var(--radius-sm);padding:13px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;width:100%;margin-bottom:20px;}
+.btn-logout:active{background:var(--red-light);}
+/* Export menu */
+.export-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.export-btns button{background:none;border:1.5px solid var(--red);color:var(--red);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+.export-btns button:active{background:var(--red-light);}
+</style>
+</head>
+<body>
+
+<!-- AUTH / LOGIN -->
+<div class="auth active" id="s-auth">
+  <div class="auth-hero">
+    <div class="auth-logo">🚗</div>
+    <h1>Driver log book</h1>
+    <p>บันทึกรายได้ น้ำมัน และสถิติการขับรถ</p>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="setAuthMode('login')">Log in</button>
+      <button class="auth-tab" id="tab-register" onclick="setAuthMode('register')">Create account</button>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <div class="auth-field">
+      <label for="auth-user">Username</label>
+      <input type="text" id="auth-user" autocomplete="username" placeholder="e.g. grit" autocapitalize="none">
+    </div>
+    <div class="auth-field">
+      <label for="auth-pass">Password</label>
+      <input type="password" id="auth-pass" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <div class="auth-field" id="auth-confirm-wrap" style="display:none">
+      <label for="auth-confirm">Confirm password</label>
+      <input type="password" id="auth-confirm" autocomplete="new-password" placeholder="••••••••">
+    </div>
+    <button class="auth-btn" id="auth-submit" onclick="submitAuth()">Log in</button>
+    <button class="auth-btn guest" onclick="loginGuest()">Try as guest</button>
+    <div class="auth-hint">Accounts are stored only on this device.<br>Each user gets their own private sessions &amp; fuel log.<br><br>Created by Grit · Powered by Claude</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen" id="s-dash">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <h1 id="dash-greeting">สวัสดี!</h1>
+        <div class="hdr-sub" id="dash-date">—</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <button class="avatar" id="dash-avatar" onclick="switchScreen('settings')">G</button>
+        <div class="lang-toggle" id="lang-toggle">
+          <button class="lang-opt" data-lang="th" onclick="setLangToggle('th')">TH</button>
+          <button class="lang-opt" data-lang="en" onclick="setLangToggle('en')">EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="period-bar" id="period-bar">
+    <button class="p-tab active" data-period="today">Today</button>
+    <button class="p-tab" data-period="week">This week</button>
+    <button class="p-tab" data-period="month">This month</button>
+    <button class="p-tab" data-period="all">All time</button>
+    <button class="p-tab" data-period="custom">Custom</button>
+  </div>
+  <div id="custom-range" style="display:none;background:var(--red);padding:0 16px 12px;gap:8px;align-items:center;">
+    <input type="date" id="range-start" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:7px 10px;color:#fff;font-size:13px;font-family:inherit;flex:1;">
+    <span style="color:rgba(255,255,255,.7);font-size:13px;">to</span>
+    <input type="date" id="range-end" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:7px 10px;color:#fff;font-size:13px;font-family:inherit;flex:1;">
+  </div>
+  <div class="hero" id="hero-card">
+    <div class="hero-label" id="hero-label">Net revenue — Today</div>
+    <div class="hero-amt" id="hero-amt">฿0</div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-label">Revenue</div><div class="hero-stat-val" id="h-rev">฿0</div></div>
+      <div><div class="hero-stat-label">Tips</div><div class="hero-stat-val" id="h-tip">฿0</div></div>
+      <div><div class="hero-stat-label">Fuel exp</div><div class="hero-stat-val" id="h-exp">฿0</div></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card"><div class="stat-icon">🛣️</div><div class="stat-label">Distance</div><div class="stat-val" id="g-dist">—</div><div class="stat-sub" id="g-sessions">—</div></div>
+      <div class="stat-card"><div class="stat-icon">⛽</div><div class="stat-label">Fuel cost ratio</div><div class="stat-val" id="g-ratio">—</div><div class="stat-sub" id="g-ratio-badge"></div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">Avg / session</div><div class="stat-val" id="g-avg">—</div><div class="stat-sub">net revenue</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Total revenue</div><div class="stat-val" id="g-totrev">—</div><div class="stat-sub">before expenses</div></div>
+      <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-label">Earnings / hour</div><div class="stat-val" id="g-eph">—</div><div class="stat-sub" id="g-eph-sub">no timed sessions</div></div>
+    </div>
+    <div class="section-title">Earnings trend</div>
+    <div class="chart-card"><div class="chart-wrap"><canvas id="trend-chart"></canvas></div></div>
+    <div class="section-title">By service type</div>
+    <div class="service-grid" id="svc-breakdown"></div>
+    <div class="section-title">Best time to drive</div>
+    <div class="insight-card" id="time-insights"></div>
+    <div class="section-title">Top earning days</div>
+    <div class="insight-card" id="day-insights"></div>
+  </div>
+</div>
+
+<!-- SESSIONS -->
+<div class="screen" id="s-sessions">
+  <div class="hdr-plain">Sessions</div>
+  <div class="content" id="sessions-list"></div>
+</div>
+
+<!-- FUEL LOG -->
+<div class="screen" id="s-fuel">
+  <div class="hdr-plain">Fuel log</div>
+  <div class="content">
+    <div class="summary-banner" id="fuel-summary"></div>
+    <div class="section-title">Refill history</div>
+    <div id="fuel-list"></div>
+    <div class="section-title">Add refill</div>
+    <div class="form-section">
+      <div class="field"><label>Gas station</label><input type="text" id="f-station" placeholder="e.g. PTT สาขาลาดพร้าว"></div>
+      <div class="form-row">
+        <div class="field-half"><label>Liters</label><input type="number" id="f-liters" placeholder="0" step="0.1" inputmode="decimal"></div>
+        <div class="field-half"><label>Total price (฿)</label><input type="number" id="f-fprice" placeholder="0" inputmode="decimal"></div>
+      </div>
+      <div class="field"><label>Date</label><input type="date" id="f-fdate"></div>
+    </div>
+    <button class="btn-submit" onclick="saveFuel()">Save refill</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="s-settings">
+  <div class="hdr-plain">Settings</div>
+  <div class="content">
+    <div class="section-title">Account</div>
+    <div class="settings-list">
+      <div class="account-row">
+        <div class="account-avatar" id="acct-avatar">G</div>
+        <div>
+          <div class="account-name" id="acct-name">—</div>
+          <div class="account-sub" id="acct-since">Local account on this device</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Preferences</div>
+    <div class="settings-list">
+      <div class="settings-row">
+        <span class="settings-label">Language</span>
+        <select id="set-lang" onchange="saveSetting('lang',this.value);applyLang()">
+          <option value="en">English</option>
+          <option value="th">ภาษาไทย</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Distance unit</span>
+        <select id="set-unit" onchange="saveSetting('unit',this.value)">
+          <option value="km">Kilometers (km)</option>
+          <option value="mi">Miles (mi)</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Currency</span>
+        <span style="color:var(--text3);font-size:15px;">THB (฿)</span>
+      </div>
+    </div>
+    <div class="section-title">Export data</div>
+    <div class="settings-list" style="padding: 12px;">
+      <div class="export-btns">
+        <button onclick="exportCSV()">📊 CSV</button>
+        <button onclick="exportImage()">📷 Image</button>
+      </div>
+    </div>
+    <div class="section-title">About</div>
+    <div class="settings-list">
+      <div class="settings-row"><span class="settings-label">App</span><span style="color:var(--text3)">Driver log book</span></div>
+      <div class="settings-row"><span class="settings-label">Version</span><span style="color:var(--text3)">2.0.0</span></div>
+      <div class="settings-row"><span class="settings-label">Total sessions</span><span id="set-count" style="color:var(--text3)">—</span></div>
+      <div class="settings-row"><span class="settings-label">Created by</span><span style="color:var(--text3)">Grit · Powered by Claude</span></div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Log out</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" id="nav-dash" onclick="switchScreen('dash')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-btn" id="nav-sessions" onclick="switchScreen('sessions')">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+    <span>Sessions</span>
+    <div class="nav-badge" id="sessions-badge" style="display:none"></div>
+  </button>
+  <button class="nav-btn" id="nav-fuel" onclick="switchScreen('fuel')">
+    <svg viewBox="0 0 24 24"><path d="M3 22V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14"/><line x1="3" y1="22" x2="15" y2="22"/><path d="M15 8h3l2 2v6.5a1.5 1.5 0 0 1-3 0V14h-2"/><line x1="6" y1="12" x2="12" y2="12"/></svg>
+    <span>Fuel</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="switchScreen('settings')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<!-- ADD SESSION MODAL -->
+<div class="modal-overlay" id="modal-session">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Log session</div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header">Provider</div>
+      <div class="provider-selector">
+        <div class="provider-opt sel" data-provider="Grab" onclick="selProvider(this)">🚗 Grab</div>
+        <div class="provider-opt" data-provider="Lineman" onclick="selProvider(this)">🛵 Lineman</div>
+        <div class="provider-opt" data-provider="Bolt" onclick="selProvider(this)">⚡ Bolt</div>
+        <div class="provider-opt" data-provider="Shopee" onclick="selProvider(this)">🛍️ Shopee</div>
+        <div class="provider-opt" data-provider="Other" onclick="selProvider(this)">➕ Other</div>
+      </div>
+      <div class="svc-selector" id="svc-subtype-row">
+        <div class="svc-opt sel" data-svc="GrabCar" onclick="selSvc(this)">🚗 GrabCar</div>
+        <div class="svc-opt" data-svc="GrabFood" onclick="selSvc(this)">🍔 GrabFood</div>
+        <div class="svc-opt" data-svc="GrabBike" onclick="selSvc(this)">🏍️ GrabBike</div>
+        <div class="svc-opt" data-svc="GrabExpress" onclick="selSvc(this)">📦 GrabExpress</div>
+      </div>
+      <div class="field" id="other-provider-row" style="display:none">
+        <label>Custom provider name</label>
+        <input type="text" id="s-other-provider" placeholder="e.g. Taxi, Uber, personal delivery">
+      </div>
+    </div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header">Trip details</div>
+      <div class="field"><label>Date</label><input type="date" id="s-date"></div>
+      <div class="form-row">
+        <div class="field-half"><label>Distance (km)</label><input type="number" id="s-dist" placeholder="0" step="0.1" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label>Consumption (km/L)</label><input type="number" id="s-cons" placeholder="0" step="0.1" inputmode="decimal" oninput="calcSNet()"></div>
+      </div>
+      <div class="form-row">
+        <div class="field-half"><label>Oil price (฿/L)</label><input type="number" id="s-oil" placeholder="0" step="0.01" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label>Fuel expense (฿)</label><input type="number" id="s-exp" placeholder="auto" step="0.01" inputmode="decimal" oninput="calcSNet(false)"></div>
+      </div>
+    </div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header">Working time</div>
+      <div class="form-row">
+        <div class="field-half"><label>Start time</label><input type="time" id="s-start" oninput="calcHours()"></div>
+        <div class="field-half"><label>End time</label><input type="time" id="s-end" oninput="calcHours()"></div>
+      </div>
+    </div>
+    <div class="hours-box"><div class="hours-box-label">Hours worked</div><div class="hours-box-val" id="s-hours-preview">—</div></div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header">Revenue</div>
+      <div class="form-row">
+        <div class="field-half"><label>Revenue (฿)</label><input type="number" id="s-rev" placeholder="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label>Extra tip (฿)</label><input type="number" id="s-tip" placeholder="0" inputmode="decimal" oninput="calcSNet()"></div>
+      </div>
+    </div>
+    <div class="net-box"><div class="net-box-label">Net revenue</div><div class="net-box-val" id="s-net">฿ 0</div></div>
+    <input type="hidden" id="s-edit-id">
+    <button class="btn-submit" onclick="saveSession()">Save session</button>
+  </div>
+</div>
+
+<!-- FAB (shown on sessions screen) -->
+<button class="fab" id="fab" style="display:none" onclick="openAddSession()">+</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DB ───────────────────────────────────────────────────────────────
+let db;
+const DB_NAME = 'gritdrive-v2', DB_VER = 1;
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('users')) {
+        const u = d.createObjectStore('users', {keyPath:'id', autoIncrement:true});
+        u.createIndex('username', 'username', {unique:true});
+      }
+      if (!d.objectStoreNames.contains('sessions'))
+        d.createObjectStore('sessions', {keyPath:'id', autoIncrement:true});
+      if (!d.objectStoreNames.contains('fuel'))
+        d.createObjectStore('fuel', {keyPath:'id', autoIncrement:true});
+      if (!d.objectStoreNames.contains('settings'))
+        d.createObjectStore('settings', {keyPath:'key'});
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbAll(store) {
+  return new Promise(res => {
+    const tx = db.transaction(store, 'readonly');
+    tx.objectStore(store).getAll().onsuccess = e => res(e.target.result);
+  });
+}
+function dbPut(store, obj) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).put(obj);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function dbAdd(store, obj) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, 'readwrite');
+    const req = tx.objectStore(store).add(obj);
+    req.onsuccess = () => res(req.result);
+    req.onerror = e => { e.preventDefault(); rej(req.error); };
+  });
+}
+function dbDel(store, id) {
+  return new Promise(res => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).delete(id).onsuccess = () => res();
+  });
+}
+function dbGetByUsername(username) {
+  return new Promise(res => {
+    const tx = db.transaction('users', 'readonly');
+    tx.objectStore('users').index('username').get(username).onsuccess = e => res(e.target.result);
+  });
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────
+const SESSION_KEY = 'gritdrive_uid';
+let currentUser = null;
+let authMode = 'login';
+let isGuest = false;
+
+async function sha256hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function randomSalt() {
+  const a = new Uint8Array(16);
+  crypto.getRandomValues(a);
+  return [...a].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function hashPassword(password, salt) {
+  return sha256hex(salt + ':' + password);
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('tab-register').classList.toggle('active', mode === 'register');
+  document.getElementById('auth-confirm-wrap').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-submit').textContent = mode === 'register' ? 'Create account' : 'Log in';
+  document.getElementById('auth-pass').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+  authError('');
+}
+function authError(msg) {
+  const el = document.getElementById('auth-err');
+  el.textContent = msg;
+  el.classList.toggle('show', !!msg);
+}
+
+async function loginGuest() {
+  isGuest = true;
+  currentUser = {id: 0, username: 'Guest'};
+  localStorage.setItem(SESSION_KEY, 'guest');
+  await enterApp();
+  toast('Welcome, Guest!');
+}
+
+async function submitAuth() {
+  const username = document.getElementById('auth-user').value.trim().toLowerCase();
+  const password = document.getElementById('auth-pass').value;
+  if (!username || username.length < 3) { authError('Username must be at least 3 characters.'); return; }
+  if (!/^[a-z0-9_.-]+$/.test(username)) { authError('Username can only contain letters, numbers, _ . -'); return; }
+  if (!password || password.length < 4) { authError('Password must be at least 4 characters.'); return; }
+
+  if (authMode === 'register') {
+    const confirm = document.getElementById('auth-confirm').value;
+    if (password !== confirm) { authError('Passwords do not match.'); return; }
+    const existing = await dbGetByUsername(username);
+    if (existing) { authError('That username is already taken on this device.'); return; }
+    const salt = randomSalt();
+    const hash = await hashPassword(password, salt);
+    const id = await dbAdd('users', {username, salt, hash, createdAt: new Date().toISOString()});
+    currentUser = {id, username};
+    isGuest = false;
+    localStorage.setItem(SESSION_KEY, String(id));
+    await enterApp();
+    toast('Welcome, ' + username + '!');
+  } else {
+    const user = await dbGetByUsername(username);
+    if (!user) { authError('No account with that username on this device.'); return; }
+    const hash = await hashPassword(password, user.salt);
+    if (hash !== user.hash) { authError('Incorrect password.'); return; }
+    currentUser = {id: user.id, username: user.username};
+    isGuest = false;
+    localStorage.setItem(SESSION_KEY, String(user.id));
+    await enterApp();
+    toast('Welcome back, ' + user.username + '!');
+  }
+}
+
+async function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  isGuest = false;
+  sessions = []; fuels = []; settings = {lang:'th', unit:'km'};
+  if (trendChart) { trendChart.destroy(); trendChart = null; }
+  document.getElementById('auth-user').value = '';
+  document.getElementById('auth-pass').value = '';
+  document.getElementById('auth-confirm').value = '';
+  setAuthMode('login');
+  document.body.classList.remove('authed');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('fab').style.display = 'none';
+  document.getElementById('s-auth').classList.add('active');
+  toast('Logged out');
+}
+
+// ─── STATE ────────────────────────────────────────────────────────────
+let sessions = [], fuels = [], settings = {lang:'th', unit:'km'};
+let currentPeriod = 'today';
+let trendChart = null;
+const SVC_ICON = {GrabCar:'🚗',GrabFood:'🍔',GrabBike:'🏍️',GrabExpress:'📦',Lineman:'🛵',Bolt:'⚡',Shopee:'🛍️'};
+const SVC_COLOR = {GrabCar:'#FEF3C7',GrabFood:'#DBEAFE',GrabBike:'#FCE7F3',GrabExpress:'#D1FAE5',Lineman:'#E0E7FF',Bolt:'#FEF9C3',Shopee:'#FFE4E6'};
+
+// ─── INIT ─────────────────────────────────────────────────────────────
+async function boot() {
+  await openDB();
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (raw === 'guest') {
+    isGuest = true;
+    currentUser = {id: 0, username: 'Guest'};
+    await enterApp();
+    return;
+  }
+  const uid = parseInt(raw);
+  if (uid) {
+    const users = await dbAll('users');
+    const u = users.find(x => x.id === uid);
+    if (u) {
+      currentUser = {id: u.id, username: u.username};
+      isGuest = false;
+      await enterApp();
+      return;
+    }
+    localStorage.removeItem(SESSION_KEY);
+  }
+  document.getElementById('s-auth').classList.add('active');
+}
+
+async function enterApp() {
+  document.getElementById('s-auth').classList.remove('active');
+  document.body.classList.add('authed');
+
+  settings = {lang:'th', unit:'km'};
+  const sAll = await dbAll('settings');
+  const prefix = isGuest ? 'guest:' : (currentUser.id + ':');
+  sAll.forEach(s => { if (s.key.startsWith(prefix)) settings[s.key.slice(prefix.length)] = s.value; });
+
+  await reload();
+  setToday();
+  applyLang();
+  applyUser();
+  document.getElementById('set-lang').value = settings.lang || 'th';
+  document.getElementById('set-unit').value = settings.unit || 'km';
+  document.getElementById('f-fdate').value = todayISO();
+  document.getElementById('s-date').value = todayISO();
+  switchScreen('dash');
+}
+
+function applyUser() {
+  const name = currentUser.username;
+  const initial = name.charAt(0).toUpperCase();
+  document.getElementById('dash-avatar').textContent = initial;
+  document.getElementById('acct-avatar').textContent = initial;
+  document.getElementById('acct-name').textContent = name + (isGuest ? ' (temporary)' : '');
+  const logoutBtn = document.querySelector('.btn-logout');
+  if (logoutBtn) logoutBtn.style.display = isGuest ? 'none' : 'block';
+}
+
+async function reload() {
+  const uid = isGuest ? 'guest' : currentUser.id;
+  sessions = (await dbAll('sessions')).filter(s => s.uid === uid);
+  for (const s of sessions) {
+    if (s.provider === undefined) {
+      s.provider = 'Grab';
+      await dbPut('sessions', s);
+    }
+  }
+  sessions.sort((a,b) => b.date.localeCompare(a.date));
+  fuels = (await dbAll('fuel')).filter(f => f.uid === uid);
+  fuels.sort((a,b) => b.date.localeCompare(a.date));
+  renderDashboard();
+  renderSessions();
+  renderFuel();
+  document.getElementById('set-count').textContent = sessions.length;
+  const badge = document.getElementById('sessions-badge');
+  if (sessions.length > 0) {
+    badge.textContent = sessions.length;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ─── DATES ────────────────────────────────────────────────────────────
+function todayISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function setToday() {
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('dash-date').textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function filterByPeriod(period) {
+  const today = todayISO();
+  const d = new Date();
+  if (period === 'today') return sessions.filter(s => s.date === today);
+  if (period === 'week') {
+    const start = new Date(d); start.setDate(d.getDate() - d.getDay());
+    const startISO = `${start.getFullYear()}-${String(start.getMonth()+1).padStart(2,'0')}-${String(start.getDate()).padStart(2,'0')}`;
+    return sessions.filter(s => s.date >= startISO && s.date <= today);
+  }
+  if (period === 'month') {
+    const m = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    return sessions.filter(s => s.date.startsWith(m));
+  }
+  if (period === 'custom') {
+    const s = document.getElementById('range-start').value;
+    const e = document.getElementById('range-end').value;
+    if (!s || !e) return sessions;
+    return sessions.filter(x => x.date >= s && x.date <= e);
+  }
+  return sessions; // all
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────
+function renderDashboard() {
+  const filtered = filterByPeriod(currentPeriod);
+  const totalNet = filtered.reduce((a,s) => a + (s.netRev||0), 0);
+  const totalRev = filtered.reduce((a,s) => a + s.rev, 0);
+  const totalTip = filtered.reduce((a,s) => a + (s.tip||0), 0);
+  const totalExp = filtered.reduce((a,s) => a + s.exp, 0);
+  const totalDist = filtered.reduce((a,s) => a + s.distance, 0);
+  const unit = settings.unit === 'mi' ? 'mi' : 'km';
+  const distVal = settings.unit === 'mi' ? totalDist * 0.621371 : totalDist;
+
+  const periodLabels = {today:'Today',week:'This week',month:'This month',all:'All time',custom:'Custom range'};
+  document.getElementById('hero-label').textContent = `Net revenue — ${periodLabels[currentPeriod]||''}`;
+  document.getElementById('hero-amt').textContent = '฿' + fmt(totalNet);
+  document.getElementById('h-rev').textContent = '฿' + fmt(totalRev);
+  document.getElementById('h-tip').textContent = '฿' + fmt(totalTip);
+  document.getElementById('h-exp').textContent = '฿' + fmt(totalExp);
+
+  document.getElementById('g-dist').textContent = fmt(distVal,1) + ' ' + unit;
+  document.getElementById('g-sessions').textContent = `${filtered.length} session${filtered.length!==1?'s':''}`;
+
+  const ratio = totalRev > 0 ? (totalExp / totalRev * 100) : 0;
+  document.getElementById('g-ratio').textContent = fmt(ratio,1) + '%';
+  const badge = ratio < 20 ? '<span class="badge badge-good">Good</span>'
+    : ratio < 35 ? '<span class="badge badge-warn">Watch it</span>'
+    : '<span class="badge badge-bad">High</span>';
+  document.getElementById('g-ratio-badge').innerHTML = badge;
+
+  const avgNet = filtered.length > 0 ? totalNet / filtered.length : 0;
+  document.getElementById('g-avg').textContent = '฿' + fmt(avgNet);
+  document.getElementById('g-totrev').textContent = '฿' + fmt(totalRev + totalTip);
+
+  const timedSessions = filtered.filter(s => s.hoursWorked != null);
+  const timedNet = timedSessions.reduce((a,s) => a + (s.netRev||0), 0);
+  const timedHours = timedSessions.reduce((a,s) => a + s.hoursWorked, 0);
+  const eph = timedHours > 0 ? timedNet / timedHours : null;
+  document.getElementById('g-eph').textContent = eph !== null ? '฿' + fmt(eph) : '—';
+  document.getElementById('g-eph-sub').textContent = `${timedSessions.length} session${timedSessions.length!==1?'s':''} timed`;
+
+  renderTrend(filtered);
+  renderSvcBreakdown(filtered);
+  renderTimeInsights(filtered);
+  renderDayInsights(filtered);
+}
+
+function renderTrend(filtered) {
+  const byDate = {};
+  filtered.forEach(s => {
+    byDate[s.date] = (byDate[s.date]||0) + (s.netRev||0);
+  });
+  const sortedDates = Object.keys(byDate).sort();
+  const labels = sortedDates.map(d => {
+    const parts = d.split('-');
+    return `${parts[2]}/${parts[1]}`;
+  });
+  const data = sortedDates.map(d => parseFloat(byDate[d].toFixed(2)));
+
+  if (trendChart) trendChart.destroy();
+  const ctx = document.getElementById('trend-chart').getContext('2d');
+  trendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets:[{
+        data,
+        backgroundColor: data.map((v,i) => i === data.length-1 ? '#D0021B' : '#F5C6C6'),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'฿'+fmt(c.parsed.y)}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10},color:'#8E8E93',maxTicksLimit:7}},
+        y:{grid:{color:'#F2F2F7'},ticks:{font:{size:10},color:'#8E8E93',callback:v=>'฿'+fmt(v)}}
+      }
+    }
+  });
+}
+
+function renderSvcBreakdown(filtered) {
+  const byType = {};
+  filtered.forEach(s => {
+    byType[s.serviceType] = (byType[s.serviceType]||0) + s.rev + (s.tip||0);
+  });
+  const el = document.getElementById('svc-breakdown');
+  if (Object.keys(byType).length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+    `<div class="svc-pill"><span class="svc-name">${SVC_ICON[k]||'🚗'} ${k.replace('Grab','')}</span><span class="svc-amt">฿${fmt(v)}</span></div>`
+  ).join('');
+}
+
+function renderTimeInsights(filtered) {
+  const byDow = {};
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  filtered.forEach(s => {
+    const dow = DAYS[new Date(s.date+'T12:00:00').getDay()];
+    if (!byDow[dow]) byDow[dow] = {total:0,count:0};
+    byDow[dow].total += s.netRev||0;
+    byDow[dow].count++;
+  });
+  const el = document.getElementById('time-insights');
+  if (Object.keys(byDow).length === 0) { el.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:13px;text-align:center">No data yet</div>'; return; }
+  const sorted = Object.entries(byDow).sort((a,b) => (b[1].total/b[1].count) - (a[1].total/a[1].count));
+  const best = sorted[0][0];
+  el.innerHTML = sorted.map(([day, d]) =>
+    `<div class="insight-row${day===best?' highlight':''}">
+      <span class="insight-label">${day}${day===best?' 🔥':''}</span>
+      <span class="insight-val">฿${fmt(d.total/d.count)} / session</span>
+    </div>`
+  ).join('');
+}
+
+function renderDayInsights(filtered) {
+  const el = document.getElementById('day-insights');
+  if (filtered.length === 0) { el.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:13px;text-align:center">No data yet</div>'; return; }
+  const byDate = {};
+  filtered.forEach(s => {
+    byDate[s.date] = (byDate[s.date]||0) + (s.netRev||0);
+  });
+  const sorted = Object.entries(byDate).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  el.innerHTML = sorted.map(([date, net], i) => {
+    const d = new Date(date+'T12:00:00');
+    const label = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return `<div class="insight-row${i===0?' highlight':''}">
+      <span class="insight-label">${i===0?'🏆 ':''} ${label}</span>
+      <span class="insight-val">฿${fmt(net)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── SESSIONS ─────────────────────────────────────────────────────────
+function renderSessions() {
+  const el = document.getElementById('sessions-list');
+  if (sessions.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🚗</div><p>No sessions yet.<br>Tap + to log your first drive.</p></div>`;
+    return;
+  }
+  const groups = {};
+  sessions.forEach(s => {
+    const m = s.date.slice(0,7);
+    if (!groups[m]) groups[m] = [];
+    groups[m].push(s);
+  });
+  el.innerHTML = Object.entries(groups).sort((a,b)=>b[0].localeCompare(a[0])).map(([month, list]) => {
+    const [y,m] = month.split('-');
+    const monthLabel = new Date(+y, +m-1, 1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    const monthNet = list.reduce((a,s)=>a+(s.netRev||0),0);
+    return `<div class="section-title" style="display:flex;justify-content:space-between">
+      <span>${monthLabel}</span><span style="color:var(--red)">฿${fmt(monthNet)}</span>
+    </div>
+    <div class="list-card" style="margin-bottom:16px;">
+      ${list.map(s => `
+        <div class="list-row">
+          <div class="list-icon" style="background:${SVC_COLOR[s.serviceType]||'#F2F2F7'}">${SVC_ICON[s.serviceType]||'🚗'}</div>
+          <div class="list-main">
+            <div class="list-title">${s.serviceType} · ${fmtDate(s.date)}</div>
+            <div class="list-sub">${s.distance} km · ${s.consumption} km/L · ฿${fmt(s.exp)} fuel</div>
+          </div>
+          <div class="list-right">
+            <div class="list-amt amt-pos">฿${fmt(s.netRev||0)}</div>
+            <div class="list-amt-sub">rev ฿${fmt(s.rev)}${s.tip?'+฿'+fmt(s.tip):''}</div>
+          </div>
+          <button class="btn-edit" onclick="openEditSession(${s.id},event)">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-delete" onclick="deleteSession(${s.id},event)">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+async function openEditSession(id, e) {
+  e.stopPropagation();
+  const s = sessions.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('s-edit-id').value = id;
+  document.getElementById('modal-title').textContent = 'Edit session';
+  document.getElementById('s-date').value = s.date;
+  document.getElementById('s-dist').value = s.distance;
+  document.getElementById('s-cons').value = s.consumption;
+  document.getElementById('s-oil').value = s.oilPrice;
+  document.getElementById('s-exp').value = s.exp;
+  document.getElementById('s-rev').value = s.rev;
+  document.getElementById('s-tip').value = s.tip || 0;
+  document.getElementById('s-net').textContent = '฿ ' + fmt(s.netRev || 0);
+  const provider = s.provider || 'Grab';
+  document.querySelectorAll('.provider-opt').forEach(o => o.classList.remove('sel'));
+  const provEl = document.querySelector(`.provider-opt[data-provider="${provider}"]`);
+  if (provEl) provEl.classList.add('sel');
+  document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('sel'));
+  if (provider === 'Grab') {
+    document.getElementById('svc-subtype-row').style.display = '';
+    const svcEl = document.querySelector(`.svc-opt[data-svc="${s.subType || s.serviceType}"]`);
+    if (svcEl) svcEl.classList.add('sel');
+    else document.querySelector('.svc-opt[data-svc="GrabCar"]').classList.add('sel');
+  } else {
+    document.getElementById('svc-subtype-row').style.display = 'none';
+  }
+  document.getElementById('other-provider-row').style.display = provider === 'Other' ? '' : 'none';
+  document.getElementById('s-other-provider').value = provider === 'Other' ? (s.customProvider || s.serviceType || '') : '';
+  document.getElementById('s-start').value = s.startTime || '';
+  document.getElementById('s-end').value = s.endTime || '';
+  calcHours();
+  document.getElementById('modal-session').classList.add('open');
+}
+
+async function deleteSession(id, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this session?')) return;
+  if (!sessions.some(s => s.id === id)) return;
+  await dbDel('sessions', id);
+  await reload();
+  toast('Session deleted');
+}
+
+// ─── ADD SESSION ──────────────────────────────────────────────────────
+function openAddSession() {
+  document.getElementById('s-edit-id').value = '';
+  document.getElementById('modal-title').textContent = 'Log session';
+  document.getElementById('s-date').value = todayISO();
+  document.getElementById('s-dist').value = '';
+  document.getElementById('s-cons').value = '';
+  document.getElementById('s-oil').value = '';
+  document.getElementById('s-exp').value = '';
+  document.getElementById('s-rev').value = '';
+  document.getElementById('s-tip').value = '';
+  document.getElementById('s-net').textContent = '฿ 0';
+  document.querySelectorAll('.provider-opt').forEach(o => o.classList.remove('sel'));
+  document.querySelector('.provider-opt[data-provider="Grab"]').classList.add('sel');
+  document.getElementById('svc-subtype-row').style.display = '';
+  document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('sel'));
+  document.querySelector('.svc-opt[data-svc="GrabCar"]').classList.add('sel');
+  document.getElementById('other-provider-row').style.display = 'none';
+  document.getElementById('s-other-provider').value = '';
+  document.getElementById('s-start').value = '';
+  document.getElementById('s-end').value = '';
+  document.getElementById('s-hours-preview').textContent = '—';
+  document.getElementById('modal-session').classList.add('open');
+}
+
+function selSvc(el) {
+  document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function selProvider(el) {
+  document.querySelectorAll('.provider-opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+  const provider = el.dataset.provider;
+  document.getElementById('svc-subtype-row').style.display = provider === 'Grab' ? '' : 'none';
+  document.getElementById('other-provider-row').style.display = provider === 'Other' ? '' : 'none';
+  if (provider !== 'Other') document.getElementById('s-other-provider').value = '';
+}
+
+function calcHours() {
+  const startVal = document.getElementById('s-start').value;
+  const endVal = document.getElementById('s-end').value;
+  const preview = document.getElementById('s-hours-preview');
+  if (!startVal || !endVal) {
+    preview.textContent = '—';
+    return null;
+  }
+  const [sh, sm] = startVal.split(':').map(Number);
+  const [eh, em] = endVal.split(':').map(Number);
+  let hours = (eh + em/60) - (sh + sm/60);
+  if (hours < 0) hours += 24;
+  hours = Math.round(hours * 100) / 100;
+  preview.textContent = hours + 'h';
+  return hours;
+}
+
+function calcSNet(autoExp = true) {
+  const dist = parseFloat(document.getElementById('s-dist').value)||0;
+  const cons = parseFloat(document.getElementById('s-cons').value)||0;
+  const oil = parseFloat(document.getElementById('s-oil').value)||0;
+  if (autoExp && dist && cons && oil) {
+    const autoE = (dist/cons)*oil;
+    document.getElementById('s-exp').value = autoE.toFixed(2);
+  }
+  const exp = parseFloat(document.getElementById('s-exp').value)||0;
+  const rev = parseFloat(document.getElementById('s-rev').value)||0;
+  const tip = parseFloat(document.getElementById('s-tip').value)||0;
+  const net = rev + tip - exp;
+  document.getElementById('s-net').textContent = '฿ ' + fmt(net);
+}
+
+async function saveSession() {
+  const providerEl = document.querySelector('.provider-opt.sel');
+  const provider = providerEl ? providerEl.dataset.provider : 'Grab';
+  const svcEl = document.querySelector('.svc-opt.sel');
+  const subType = provider === 'Grab' ? (svcEl ? svcEl.dataset.svc : 'GrabCar') : null;
+  const customProvider = provider === 'Other' ? (document.getElementById('s-other-provider').value.trim() || 'Other') : null;
+  const svc = provider === 'Grab' ? subType : (provider === 'Other' ? customProvider : provider);
+  const date = document.getElementById('s-date').value;
+  const dist = parseFloat(document.getElementById('s-dist').value)||0;
+  const cons = parseFloat(document.getElementById('s-cons').value)||0;
+  const oil = parseFloat(document.getElementById('s-oil').value)||0;
+  const exp = parseFloat(document.getElementById('s-exp').value)||0;
+  const rev = parseFloat(document.getElementById('s-rev').value)||0;
+  const tip = parseFloat(document.getElementById('s-tip').value)||0;
+  const startTime = document.getElementById('s-start').value;
+  const endTime = document.getElementById('s-end').value;
+  const hoursWorked = calcHours();
+  if (!date) { toast('Please enter a date'); return; }
+  if (!rev || rev <= 0) { toast('Revenue must be greater than 0'); return; }
+  const uid = isGuest ? 'guest' : currentUser.id;
+  const obj = {uid, serviceType:svc, provider, subType, customProvider, date, distance:dist, consumption:cons, oilPrice:oil, exp, rev, tip, netRev: rev+tip-exp, startTime, endTime, hoursWorked};
+  const editId = document.getElementById('s-edit-id').value;
+  if (editId) {
+    const id = parseInt(editId);
+    if (!sessions.some(s => s.id === id)) return;
+    obj.id = id;
+  }
+  await dbPut('sessions', obj);
+  document.getElementById('modal-session').classList.remove('open');
+  await reload();
+  toast('Session saved!');
+}
+
+// ─── FUEL ─────────────────────────────────────────────────────────────
+function renderFuel() {
+  const totalSpent = fuels.reduce((a,f)=>a+f.price,0);
+  const totalLiters = fuels.reduce((a,f)=>a+f.liters,0);
+  const avgPer = totalLiters > 0 ? totalSpent/totalLiters : 0;
+  document.getElementById('fuel-summary').innerHTML = `
+    <div class="sum-item"><div class="sum-label">Total spent</div><div class="sum-val">฿${fmt(totalSpent)}</div></div>
+    <div class="sum-item"><div class="sum-label">Total liters</div><div class="sum-val">${fmt(totalLiters,1)} L</div></div>
+    <div class="sum-item"><div class="sum-label">Avg ฿/L</div><div class="sum-val">${avgPer>0?'฿'+fmt(avgPer,2):'—'}</div></div>`;
+  const el = document.getElementById('fuel-list');
+  if (fuels.length === 0) {
+    el.innerHTML = `<div class="empty" style="padding:24px 20px"><div class="empty-icon">⛽</div><p>No refills logged yet.</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="list-card" style="margin-bottom:16px;">${fuels.map(f=>`
+    <div class="list-row">
+      <div class="list-icon" style="background:#FEF3C7">⛽</div>
+      <div class="list-main">
+        <div class="list-title">${f.station||'Unknown station'}</div>
+        <div class="list-sub">${fmtDate(f.date)} · ${fmt(f.liters,1)} L</div>
+      </div>
+      <div class="list-right">
+        <div class="list-amt" style="color:var(--text)">฿${fmt(f.price)}</div>
+        <div class="list-amt-sub">${f.liters>0?'฿'+fmt(f.price/f.liters,2)+'/L':'—'}</div>
+      </div>
+      <button class="btn-delete" onclick="deleteFuel(${f.id},event)">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>`).join('')}</div>`;
+}
+
+async function saveFuel() {
+  const station = document.getElementById('f-station').value.trim();
+  const liters = parseFloat(document.getElementById('f-liters').value)||0;
+  const price = parseFloat(document.getElementById('f-fprice').value)||0;
+  const date = document.getElementById('f-fdate').value;
+  if (!date || !price) { toast('Please enter date and price'); return; }
+  const uid = isGuest ? 'guest' : currentUser.id;
+  await dbPut('fuel', {uid, station, liters, price, date});
+  document.getElementById('f-station').value = '';
+  document.getElementById('f-liters').value = '';
+  document.getElementById('f-fprice').value = '';
+  document.getElementById('f-fdate').value = todayISO();
+  await reload();
+  toast('Refill saved!');
+}
+
+async function deleteFuel(id, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this refill?')) return;
+  if (!fuels.some(f => f.id === id)) return;
+  await dbDel('fuel', id);
+  await reload();
+  toast('Deleted');
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────────
+function exportCSV() {
+  let csv = 'Date,Service,Distance (km),Consumption (km/L),Fuel Expense (฿),Revenue (฿),Tips (฿),Net Revenue (฿)\n';
+  sessions.forEach(s => {
+    csv += `"${s.date}","${s.serviceType}",${s.distance},${s.consumption},${s.exp},${s.rev},${s.tip||0},${s.netRev||0}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `driver-logbook-${currentUser.username}-${todayISO()}.csv`;
+  a.click();
+  toast('CSV exported!');
+}
+
+async function exportImage() {
+  const card = document.getElementById('hero-card');
+  try {
+    const canvas = await html2canvas(card, {backgroundColor: '#D0021B', scale: 2});
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `driver-summary-${currentUser.username}-${todayISO()}.png`;
+    link.click();
+    toast('Image exported!');
+  } catch(e) {
+    toast('Could not export image');
+  }
+}
+
+// ─── SETTINGS ─────────────────────────────────────────────────────────
+async function saveSetting(key, val) {
+  settings[key] = val;
+  const prefix = isGuest ? 'guest:' : (currentUser.id + ':');
+  await dbPut('settings', {key: prefix + key, value: val});
+  renderDashboard();
+}
+function applyLang() {
+  const th = settings.lang === 'th';
+  const name = currentUser ? currentUser.username : 'Driver';
+  document.getElementById('dash-greeting').textContent = th ? `สวัสดี, ${name}!` : `Hello, ${name}!`;
+  const labels = th ? ['แดชบอร์ด','เซสชัน','เติมน้ำมัน','ตั้งค่า'] : ['Dashboard','Sessions','Fuel','Settings'];
+  document.querySelectorAll('.nav-btn span').forEach((el,i) => el.textContent = labels[i]);
+  document.querySelectorAll('.lang-opt').forEach(el => el.classList.toggle('active', el.dataset.lang === (settings.lang || 'th')));
+}
+function setLangToggle(lang) {
+  settings.lang = lang;
+  saveSetting('lang', lang);
+  applyLang();
+  document.getElementById('set-lang').value = lang;
+}
+
+// ─── NAV / SCREEN ─────────────────────────────────────────────────────
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-'+name)?.classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  document.getElementById('fab').style.display = (name === 'sessions' || name === 'dash') ? 'flex' : 'none';
+  if (name === 'dash') renderDashboard();
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────
+function fmt(n, dec=0) {
+  return Number(n).toLocaleString('en',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+function fmtDate(iso) {
+  const d = new Date(iso+'T12:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// close modal on overlay click
+document.getElementById('modal-session').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('open');
+});
+
+// period buttons
+document.querySelectorAll('.p-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.p-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeriod = btn.dataset.period;
+    document.getElementById('custom-range').style.display = currentPeriod === 'custom' ? 'flex' : 'none';
+    renderDashboard();
+  });
+});
+document.getElementById('range-start').addEventListener('change', renderDashboard);
+document.getElementById('range-end').addEventListener('change', renderDashboard);
+
+// submit auth with Enter key
+['auth-user','auth-pass','auth-confirm'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitAuth();
+  });
+});
+
+// ─── START ─────────────────────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>

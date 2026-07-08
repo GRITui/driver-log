@@ -1,0 +1,23 @@
+# DriverLog Chat — hard deny for /chat/lib/.
+#
+# Nothing in this directory is ever meant to be fetched over HTTP: it holds the
+# session/auth/csrf/ratelimit helpers and the above-root config loader. Every
+# file here is include-only. This is the PRIMARY guard for lib/; the parent
+# /chat/.htaccess RewriteRule is the secondary belt.
+#
+# LiteSpeed (Hostinger) and Apache 2.2/2.4 all honor .htaccess here.
+
+# Apache 2.4 / current LiteSpeed.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+
+# Legacy syntax (Apache 2.2 or hosts without mod_authz_core / with
+# mod_access_compat only).
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>
+
+# No directory listing even if the deny above is somehow not applied.
+Options -Indexes

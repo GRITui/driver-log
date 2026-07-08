@@ -1,0 +1,18 @@
+{
+  "name": "drivee-orchestrator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Drivee local orchestrator: Phi-4-mini (Ollama) brain that delegates hard/vision turns to the local claude CLI via a built-in MCP server, fronted by an auth'd HTTP API.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "bcryptjs": "^2.4.3"
+  }
+}

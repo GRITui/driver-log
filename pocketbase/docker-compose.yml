@@ -1,0 +1,44 @@
+services:
+  pocketbase:
+    # Pinned so the import-schema format matches. Bump deliberately.
+    image: ghcr.io/muchobien/pocketbase:0.22.21
+    container_name: driverlog-pb
+    restart: unless-stopped
+    environment:
+      # First-run superuser (change these; used to log into the Admin UI at /_/)
+      PB_ADMIN_EMAIL: ${PB_ADMIN_EMAIL:-admin@driverlog.link}
+      PB_ADMIN_PASSWORD: ${PB_ADMIN_PASSWORD:-changeme_please_16chars}
+    volumes:
+      - ./pb_data:/pb_data          # SQLite DB + uploads (persist this!)
+      - ./pb_public:/pb_public      # optional static files
+      - ./pb_hooks:/pb_hooks        # optional JS hooks
+    expose:
+      - "8090"                      # internal only — reached by Caddy, NOT published to host
+    networks: [web]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8090/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    # Reverse proxy: terminates HTTPS (automatic Let's Encrypt) and forwards to PocketBase.
+    image: caddy:2
+    container_name: driverlog-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"                     # needed for the HTTP-01 TLS challenge + redirect
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data            # stores issued certificates (persist this!)
+      - caddy_config:/config
+    depends_on: [pocketbase]
+    networks: [web]
+
+networks:
+  web:
+
+volumes:
+  caddy_data:
+  caddy_config:

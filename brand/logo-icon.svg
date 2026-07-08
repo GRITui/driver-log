@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DriverLog app icon">
+  <defs>
+    <linearGradient id="dlBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8344A"/>
+      <stop offset="1" stop-color="#A80016"/>
+    </linearGradient>
+  </defs>
+  <!-- squircle background -->
+  <rect x="0" y="0" width="512" height="512" rx="115" fill="url(#dlBg)"/>
+  <!-- road ribbon (route that rises = earnings growth) -->
+  <path d="M 150 402
+           C 158 300, 250 224, 344 142
+           L 380 158
+           C 300 236, 300 318, 300 402
+           Z" fill="#ffffff"/>
+  <!-- dashed centre lane -->
+  <path d="M 224 400 C 234 302, 280 244, 360 156"
+        fill="none" stroke="#D0021B" stroke-width="15"
+        stroke-linecap="round" stroke-dasharray="4 34"/>
+  <!-- destination marker -->
+  <circle cx="360" cy="126" r="40" fill="#ffffff"/>
+  <circle cx="360" cy="126" r="16" fill="#D0021B"/>
+</svg>

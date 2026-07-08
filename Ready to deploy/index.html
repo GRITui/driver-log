@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>DriverLog — Driver Log Book</title>
+<meta name="description" content="Track earnings, fuel, and driving insights. Free, offline-first driver log book.">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D0021B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DriverLog">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
+<style>body{background:#F2F2F7;margin:0}</style>
+</head>
+<body>
+<!--
+  index.html is now just an entry-point redirector (kept because manifest.json's
+  start_url is "/" and old links may point at "/index.html"). It does no app work
+  itself — it just checks the session key and bounces to the right split page:
+    /app.html   — dashboard/sessions/fuel/settings (needs an active session)
+    /login.html — auth screen
+-->
+<script>
+  var raw = localStorage.getItem('gritdrive_uid');
+  location.replace(raw ? '/app.html' : '/login.html');
+</script>
+</body>
+</html>

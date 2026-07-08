@@ -1,0 +1,20 @@
+<svg width="560" height="150" viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DriverLog logo">
+  <defs>
+    <linearGradient id="dlBg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8344A"/>
+      <stop offset="1" stop-color="#A80016"/>
+    </linearGradient>
+  </defs>
+  <!-- icon -->
+  <g transform="translate(15,19) scale(0.2226)">
+    <rect x="0" y="0" width="512" height="512" rx="115" fill="url(#dlBg2)"/>
+    <path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#ffffff"/>
+    <path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#D0021B" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/>
+    <circle cx="360" cy="126" r="40" fill="#ffffff"/>
+    <circle cx="360" cy="126" r="16" fill="#D0021B"/>
+  </g>
+  <!-- wordmark -->
+  <text x="148" y="93" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="62" font-weight="700" letter-spacing="-1.5">
+    <tspan fill="#1C1C1E">Driver</tspan><tspan fill="#D0021B">Log</tspan>
+  </text>
+</svg>

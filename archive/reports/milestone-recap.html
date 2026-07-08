@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriverLog — Milestone Recap</title>
+<style>
+  :root {
+    --red:#D0021B; --red-dark:#A80016; --red-light:#FDECEA; --red-mid:#E8344A; --red-border:#F5C6C6;
+    --bg:#F2F2F7; --card:#fff; --border:#E5E5EA; --border-mid:#C7C7CC;
+    --text:#1C1C1E; --text2:#3C3C43; --text3:#8E8E93; --text4:#AEAEB2;
+    --green:#34C759; --amber:#FF9500; --blue:#007AFF;
+    --radius:14px; --radius-sm:10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans Thai', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.4;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+  }
+  .page {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.06);
+  }
+  header {
+    background: linear-gradient(120deg, var(--red-dark), var(--red));
+    color: #fff;
+    padding: 22px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo { width: 52px; height: 52px; flex-shrink: 0; }
+  .logo svg { width: 100%; height: 100%; display: block; }
+  header .title h1 { font-size: 25px; letter-spacing: -.5px; }
+  header .title p { font-size: 13px; opacity: .88; margin-top: 3px; }
+  header .meta { text-align: right; font-size: 12px; opacity: .92; }
+  header .meta .badge {
+    display: inline-block; background: rgba(255,255,255,.2);
+    padding: 5px 12px; border-radius: 999px; font-weight: 600;
+    font-size: 12px; margin-bottom: 6px;
+  }
+  .body { padding: 24px 30px 28px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+  .kpi { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .kpi .n { font-size: 24px; font-weight: 700; color: var(--red); }
+  .kpi .l { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-top: 3px; }
+
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 26px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+
+  .phase { display: flex; gap: 12px; margin-bottom: 13px; }
+  .dot { flex: 0 0 auto; width: 15px; height: 15px; border-radius: 50%; margin-top: 3px; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--green); background: var(--green); }
+  .phase .c .t { font-weight: 650; font-size: 14px; }
+  .phase .c .d { font-size: 12.5px; color: var(--text3); margin-top: 1px; }
+  .tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; margin-left: 7px; vertical-align: middle; }
+  .tag.done { background: #E4F9E9; color: #1F9E3D; }
+
+  .status-live, .status-next { border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px; }
+  .status-live { background: #F0FBF2; border: 1px solid #CDEED5; }
+  .status-next { background: #FFF6E9; border: 1px solid #FCE2B8; }
+  .status-live h3, .status-next h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .status-live h3 { color: #1F9E3D; }
+  .status-next h3 { color: #C56E00; }
+  .status-live ul, .status-next ul { list-style: none; }
+  .status-live li, .status-next li { font-size: 12.5px; padding: 3px 0 3px 20px; position: relative; }
+  .status-live li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .status-next li::before { content: "→"; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
+
+  .stack { font-size: 12px; color: var(--text3); }
+  .stack strong { color: var(--text); }
+  footer { border-top: 1px solid var(--border); padding: 12px 30px; font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; }
+  @media print { body { padding: 0; background: #fff; } .page { border: none; box-shadow: none; } }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="logo"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-label="DriverLog"><defs><linearGradient id="hb1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8344A"/><stop offset="1" stop-color="#A80016"/></linearGradient></defs><rect width="512" height="512" rx="115" fill="url(#hb1)"/><path d="M 150 402 C 158 300, 250 224, 344 142 L 380 158 C 300 236, 300 318, 300 402 Z" fill="#fff"/><path d="M 224 400 C 234 302, 280 244, 360 156" fill="none" stroke="#D0021B" stroke-width="15" stroke-linecap="round" stroke-dasharray="4 34"/><circle cx="360" cy="126" r="40" fill="#fff"/><circle cx="360" cy="126" r="16" fill="#D0021B"/></svg></div>
+        <div class="title">
+          <h1>DriverLog — Milestone Recap</h1>
+          <p>Offline-first earnings &amp; fuel tracker for gig drivers · driverlog.link</p>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="badge">P1–P4 Complete</div><br>
+        <div>Status as of July 2026</div>
+      </div>
+    </header>
+
+    <div class="body">
+      <div class="kpis">
+        <div class="kpi"><div class="n">4 / 4</div><div class="l">Roadmap phases shipped</div></div>
+        <div class="kpi"><div class="n">Live</div><div class="l">On driverlog.link</div></div>
+        <div class="kpi"><div class="n">PWA</div><div class="l">Installable + offline</div></div>
+        <div class="kpi"><div class="n">100%</div><div class="l">Local-first / private</div></div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <h2>Roadmap Progress</h2>
+          <div class="phase"><div class="dot"></div><div class="c"><div class="t">P1 — Core tracking app<span class="tag done">DONE</span></div><div class="d">Single-file web app: revenue, fuel log, and session tracking backed by IndexedDB (gritdrive-v2).</div></div></div>
+          <div class="phase"><div class="dot"></div><div class="c"><div class="t">P2 — Offline-first PWA<span class="tag done">DONE</span></div><div class="d">Service worker app-shell cache, installable manifest + icons, works fully offline.</div></div></div>
+          <div class="phase"><div class="dot"></div><div class="c"><div class="t">P3 — Sync engine plumbing<span class="tag done">DONE</span></div><div class="d">Outbox store, cuid/sid dedupe, soft-delete, last-write-wins — behind a swappable backend adapter.</div></div></div>
+          <div class="phase"><div class="dot"></div><div class="c"><div class="t">P4 — Accounts &amp; deploy<span class="tag done">DONE</span></div><div class="d">Local accounts + guest mode; static deploy pipeline to Hostinger; TWA packaging ready for Play Store.</div></div></div>
+        </div>
+
+        <div>
+          <div class="status-live">
+            <h3>Shipped &amp; Live</h3>
+            <ul>
+              <li>Deployed to driverlog.link (static, Hostinger)</li>
+              <li>Local accounts + guest mode working</li>
+              <li>PWA installable, offline-capable</li>
+              <li>TWA package ready (link.driverlog.twa)</li>
+            </ul>
+          </div>
+          <div class="status-next">
+            <h3>Next / Backlog</h3>
+            <ul>
+              <li>Cloud login &amp; cross-device sync</li>
+              <li>Host PocketBase on public HTTPS (VPS or Cloudflare Tunnel)</li>
+              <li>Set PB_URL + redeploy to activate sync</li>
+              <li>Play Store listing launch</li>
+            </ul>
+          </div>
+          <div class="stack">
+            <strong>Stack:</strong> Vanilla JS single-file app · IndexedDB · Service Worker · self-hosted Chart.js / html2canvas / PocketBase SDK · Docker (PocketBase, dormant).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>DriverLog Project · Milestone Recap</span>
+      <span>Cloud sync plumbing dormant (PB_URL empty) — re-enable when hosting is live</span>
+    </footer>
+  </div>
+</body>
+</html>

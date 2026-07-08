@@ -1,0 +1,48 @@
+# ============================================================
+# SECRETS — never commit tokens / credentials / hashes
+# (real secrets live OUTSIDE the repo: ~/.claude.json for API/OAuth
+#  tokens, and these gitignored env files — never in tracked files)
+# ============================================================
+*.env
+.env*
+config.env
+deploy.env
+# orchestrator runtime config holds the bcrypt password hash + secrets
+drivee-orchestrator/config.json
+# keep the safe template tracked:
+!drivee-orchestrator/config.example.json
+# any stray key material
+*.pem
+*.key
+*_token*
+*secret*
+
+# ============================================================
+# Runtime / logs / pids
+# ============================================================
+*.log
+*.pid
+drivee-orchestrator/.wrangler/
+
+# ============================================================
+# Dependencies
+# ============================================================
+node_modules/
+**/node_modules/
+
+# ============================================================
+# Build artifacts / bulky bundles / backups (not source)
+# ============================================================
+*.zip
+archive/zips/
+archive/build/
+archive/snapshots/
+
+# ============================================================
+# OS / editor junk
+# ============================================================
+.DS_Store
+**/.DS_Store
+Thumbs.db
+.idea/
+.vscode/
