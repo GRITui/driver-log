@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.6.9';   // bump on every deploy — 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.6.12';   // bump on every deploy — 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -501,6 +501,7 @@ const I18N = {
     weekly_recap: 'Weekly earnings recap', recap_this_week: 'This week so far', recap_shifts: 'Shifts',
     recap_vs_last_week: 'vs last week', recap_no_prev: 'No data for last week yet',
     vehicle: 'Vehicle', vehicle_placeholder: 'e.g. Honda Click 125i', all_vehicles: 'All vehicles',
+    fab_add_session: 'Log a new session', avatar_open_settings: 'Open settings', reminder_toggle_label: 'Toggle shift reminders',
     consent_text: 'We use cookies to show ads and understand basic usage. You can accept or reject non-essential cookies — the app works the same either way.',
     consent_accept: 'Accept', consent_reject: 'Reject', consent_thanks: 'Thanks!',
     ad_consent: 'Ad & cookie consent', consent_status_granted: 'Accepted · change', consent_status_denied: 'Rejected · change', consent_status_unset: 'Set preference',
@@ -575,6 +576,7 @@ const I18N = {
     weekly_recap: 'สรุปรายได้ประจำสัปดาห์', recap_this_week: 'สัปดาห์นี้ (จนถึงตอนนี้)', recap_shifts: 'รอบงาน',
     recap_vs_last_week: 'เทียบกับสัปดาห์ก่อน', recap_no_prev: 'ยังไม่มีข้อมูลสัปดาห์ก่อน',
     vehicle: 'ยานพาหนะ', vehicle_placeholder: 'เช่น Honda Click 125i', all_vehicles: 'ทุกคัน',
+    fab_add_session: 'บันทึกรอบใหม่', avatar_open_settings: 'เปิดการตั้งค่า', reminder_toggle_label: 'สลับการแจ้งเตือนกะทำงาน',
     consent_text: 'เราใช้คุกกี้เพื่อแสดงโฆษณาและทำความเข้าใจการใช้งานเบื้องต้น คุณสามารถยอมรับหรือปฏิเสธคุกกี้ที่ไม่จำเป็นได้ แอปทำงานเหมือนเดิมไม่ว่าจะเลือกแบบไหน',
     consent_accept: 'ยอมรับ', consent_reject: 'ปฏิเสธ', consent_thanks: 'ขอบคุณค่ะ',
     ad_consent: 'โฆษณาและคุกกี้', consent_status_granted: 'ยอมรับแล้ว · แก้ไข', consent_status_denied: 'ปฏิเสธแล้ว · แก้ไข', consent_status_unset: 'ตั้งค่า',
@@ -1644,6 +1646,9 @@ function applyLang() {
   });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
   });
 
   // auth-hint contains an inline HTML string with <br> line breaks
