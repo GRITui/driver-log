@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.6.9';   // bump on every deploy — 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.6.10';   // bump on every deploy — 2.6.10: inline per-field error highlighting for session/fuel form validation (input-error class + field-err text beside offending field, toast() kept for aria-live; SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -1194,6 +1194,7 @@ async function openEditSession(id, e) {
   e.stopPropagation();
   const s = sessions.find(x => x.id === id);
   if (!s) return;
+  clearFieldErrors(['s-date','s-rev','s-dist','s-cons','s-oil','s-exp','s-tip']);
   document.getElementById('s-edit-id').value = id;
   document.getElementById('modal-title').textContent = t('edit_session');
   document.getElementById('s-date').value = s.date;
@@ -1229,6 +1230,7 @@ async function deleteSession(id, e) {
 
 // ─── ADD SESSION ──────────────────────────────────────────────────────
 function openAddSession() {
+  clearFieldErrors(['s-date','s-rev','s-dist','s-cons','s-oil','s-exp','s-tip']);
   document.getElementById('s-edit-id').value = '';
   document.getElementById('modal-title').textContent = t('log_session');
   document.getElementById('s-date').value = todayISO();
@@ -1348,6 +1350,21 @@ function calcSNet(autoExp = true) {
   document.getElementById('s-net').textContent = '฿ ' + fmt(net);
 }
 
+function fieldError(id, msg) {
+  const input = document.getElementById(id);
+  if (input) input.classList.add('input-error');
+  const err = document.getElementById('err-' + id);
+  if (err) { err.textContent = msg; err.classList.add('show'); }
+}
+function clearFieldErrors(ids) {
+  ids.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.classList.remove('input-error');
+    const err = document.getElementById('err-' + id);
+    if (err) { err.textContent = ''; err.classList.remove('show'); }
+  });
+}
+
 async function saveSession() {
   const provEl = document.querySelector('.prov-selector .svc-opt.sel');
   const typeEl = document.querySelector('.type-selector .svc-opt.sel');
@@ -1364,9 +1381,18 @@ async function saveSession() {
   const rev = parseFloat(document.getElementById('s-rev').value)||0;
   const tip = parseFloat(document.getElementById('s-tip').value)||0;
   const vehicle = (document.getElementById('s-vehicle').value || '').trim();
-  if (!date) { toast(t('enter_date')); return; }
-  if (!rev || rev <= 0) { toast(t('rev_gt_zero')); return; }
-  if (dist < 0 || cons < 0 || oil < 0 || exp < 0 || tip < 0) { toast(t('neg_not_allowed')); return; }
+  clearFieldErrors(['s-date','s-rev','s-dist','s-cons','s-oil','s-exp','s-tip']);
+  if (!date) { toast(t('enter_date')); fieldError('s-date', t('enter_date')); return; }
+  if (!rev || rev <= 0) { toast(t('rev_gt_zero')); fieldError('s-rev', t('rev_gt_zero')); return; }
+  if (dist < 0 || cons < 0 || oil < 0 || exp < 0 || tip < 0) {
+    toast(t('neg_not_allowed'));
+    if (dist < 0) fieldError('s-dist', t('neg_not_allowed'));
+    if (cons < 0) fieldError('s-cons', t('neg_not_allowed'));
+    if (oil < 0) fieldError('s-oil', t('neg_not_allowed'));
+    if (exp < 0) fieldError('s-exp', t('neg_not_allowed'));
+    if (tip < 0) fieldError('s-tip', t('neg_not_allowed'));
+    return;
+  }
   const uid = isGuest ? 'guest' : currentUser.id;
   const obj = {uid, provider, serviceType:svc, date, endDate, startTime, endTime, distance:dist, consumption:cons, oilPrice:oil, exp, rev, tip, vehicle, netRev: rev+tip-exp};
   const editId = document.getElementById('s-edit-id').value;
@@ -1427,9 +1453,20 @@ async function saveFuel() {
   const liters = parseFloat(document.getElementById('f-liters').value)||0;
   const price = parseFloat(document.getElementById('f-fprice').value)||0;
   const date = document.getElementById('f-fdate').value;
-  if (!date || !price) { toast(t('enter_date_price')); return; }
-  if (liters < 0 || price < 0) { toast(t('neg_not_allowed')); return; }
-  if (!liters || liters <= 0) { toast(t('liters_gt_zero')); return; }
+  clearFieldErrors(['f-fdate','f-fprice','f-liters']);
+  if (!date || !price) {
+    toast(t('enter_date_price'));
+    if (!date) fieldError('f-fdate', t('enter_date_price'));
+    if (!price) fieldError('f-fprice', t('enter_date_price'));
+    return;
+  }
+  if (liters < 0 || price < 0) {
+    toast(t('neg_not_allowed'));
+    if (liters < 0) fieldError('f-liters', t('neg_not_allowed'));
+    if (price < 0) fieldError('f-fprice', t('neg_not_allowed'));
+    return;
+  }
+  if (!liters || liters <= 0) { toast(t('liters_gt_zero')); fieldError('f-liters', t('liters_gt_zero')); return; }
   const uid = isGuest ? 'guest' : currentUser.id;
   const obj = {uid, station, liters, price, date, cuid: cuid(), sid: null, updatedAt: nowISO(), deleted: false, dirty: true};
   const key = await dbPut('fuel', obj);
@@ -1716,6 +1753,7 @@ function switchScreen(name) {
   const fabEl = document.getElementById('fab');
   if (fabEl) fabEl.style.display = (name === 'sessions' || name === 'dash') ? 'flex' : 'none';
   if (name === 'dash') renderDashboard();
+  if (name === 'fuel') clearFieldErrors(['f-fdate','f-fprice','f-liters']);
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────

@@ -129,10 +129,10 @@
     <div class="form-section">
       <div class="field"><label data-i18n="gas_station">Gas station</label><input type="text" id="f-station" placeholder="e.g. PTT สาขาลาดพร้าว"></div>
       <div class="form-row">
-        <div class="field-half"><label data-i18n="liters">Liters</label><input type="number" id="f-liters" placeholder="0" step="0.1" min="0" inputmode="decimal"></div>
-        <div class="field-half"><label data-i18n="total_price">Total price (฿)</label><input type="number" id="f-fprice" placeholder="0" min="0" inputmode="decimal"></div>
+        <div class="field-half"><label data-i18n="liters">Liters</label><input type="number" id="f-liters" placeholder="0" step="0.1" min="0" inputmode="decimal"><span class="field-err" id="err-f-liters"></span></div>
+        <div class="field-half"><label data-i18n="total_price">Total price (฿)</label><input type="number" id="f-fprice" placeholder="0" min="0" inputmode="decimal"><span class="field-err" id="err-f-fprice"></span></div>
       </div>
-      <div class="field"><label data-i18n="date">Date</label><input type="date" id="f-fdate"></div>
+      <div class="field"><label data-i18n="date">Date</label><input type="date" id="f-fdate"><span class="field-err" id="err-f-fdate"></span></div>
     </div>
     <button class="btn-submit" onclick="saveFuel()" data-i18n="save_refill">Save refill</button>
   </div>
@@ -216,7 +216,7 @@
     <div class="section-title" data-i18n="about">About</div>
     <div class="settings-list">
       <div class="settings-row"><span class="settings-label" data-i18n="app_word">App</span><span style="color:var(--text3)">Driver log book</span></div>
-      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.6.9</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.6.10</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="total_sessions">Total sessions</span><span id="set-count" style="color:var(--text3)">—</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="created_by">Created by</span><span style="color:var(--text3)">Grit · Powered by Claude</span></div>
       <a class="settings-row" href="mailto:grit4game@gmail.com?subject=DriverLog%20feedback" style="text-decoration:none">
@@ -282,7 +282,7 @@
     </div>
     <div class="form-section" style="margin:0 16px 12px;">
       <div class="form-header" data-i18n="trip_details">Trip details</div>
-      <div class="field"><label data-i18n="date">Date</label><input type="date" id="s-date"></div>
+      <div class="field"><label data-i18n="date">Date</label><input type="date" id="s-date"><span class="field-err" id="err-s-date"></span></div>
       <div class="form-row">
         <div class="field-half"><label data-i18n="start_time">Start time</label><input type="time" id="s-start" step="900" oninput="calcDuration()"></div>
         <div class="field-half"><label data-i18n="end_time">End time</label><input type="time" id="s-end" step="900" oninput="calcDuration()"></div>
@@ -292,20 +292,20 @@
         <div class="field-half" style="display:flex;align-items:flex-end;padding-bottom:10px;"><span style="font-size:13px;color:var(--text3);"><span data-i18n="duration">Duration</span>: <b id="s-dur" style="color:var(--red)">—</b></span></div>
       </div>
       <div class="form-row">
-        <div class="field-half"><label data-i18n="distance_km">Distance (km)</label><input type="number" id="s-dist" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"></div>
-        <div class="field-half"><label data-i18n="consumption">Consumption (km/L)</label><input type="number" id="s-cons" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label data-i18n="distance_km">Distance (km)</label><input type="number" id="s-dist" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"><span class="field-err" id="err-s-dist"></span></div>
+        <div class="field-half"><label data-i18n="consumption">Consumption (km/L)</label><input type="number" id="s-cons" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"><span class="field-err" id="err-s-cons"></span></div>
       </div>
       <div class="form-row">
-        <div class="field-half"><label data-i18n="oil_price">Oil price (฿/L)</label><input type="number" id="s-oil" placeholder="0" step="0.01" min="0" inputmode="decimal" oninput="calcSNet()"></div>
-        <div class="field-half"><label data-i18n="fuel_expense">Fuel expense (฿)</label><input type="number" id="s-exp" placeholder="auto" step="0.01" min="0" inputmode="decimal" oninput="calcSNet(false)"></div>
+        <div class="field-half"><label data-i18n="oil_price">Oil price (฿/L)</label><input type="number" id="s-oil" placeholder="0" step="0.01" min="0" inputmode="decimal" oninput="calcSNet()"><span class="field-err" id="err-s-oil"></span></div>
+        <div class="field-half"><label data-i18n="fuel_expense">Fuel expense (฿)</label><input type="number" id="s-exp" placeholder="auto" step="0.01" min="0" inputmode="decimal" oninput="calcSNet(false)"><span class="field-err" id="err-s-exp"></span></div>
       </div>
       <div class="field"><label data-i18n="vehicle">Vehicle</label><input type="text" id="s-vehicle" data-i18n-ph="vehicle_placeholder" placeholder="e.g. Honda Click 125i"></div>
     </div>
     <div class="form-section" style="margin:0 16px 12px;">
       <div class="form-header" data-i18n="revenue">Revenue</div>
       <div class="form-row">
-        <div class="field-half"><label data-i18n="revenue_b">Revenue (฿)</label><input type="number" id="s-rev" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
-        <div class="field-half"><label data-i18n="extra_tip">Extra tip (฿)</label><input type="number" id="s-tip" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label data-i18n="revenue_b">Revenue (฿)</label><input type="number" id="s-rev" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"><span class="field-err" id="err-s-rev"></span></div>
+        <div class="field-half"><label data-i18n="extra_tip">Extra tip (฿)</label><input type="number" id="s-tip" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"><span class="field-err" id="err-s-tip"></span></div>
       </div>
     </div>
     <div class="net-box"><div class="net-box-label" data-i18n="net_revenue">Net revenue</div><div class="net-box-val" id="s-net">฿ 0</div></div>
