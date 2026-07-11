@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.6.3';   // bump on every deploy — 2.6.3: split login.html / app.html
+const APP_VERSION = '2.6.4';   // bump on every deploy — 2.6.4: LINE Login
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -86,6 +86,10 @@ const PBBackend = (() => {
     authed: () => { const c = client(); return !!(c && c.authStore.isValid); },
     uid: () => { const c = client(); return c && c.authStore.record ? c.authStore.record.id : null; },
     email: () => { const c = client(); return c && c.authStore.record ? c.authStore.record.email : ''; },
+    // LINE accounts often carry no real email (PocketBase fills in a
+    // synthetic placeholder for OAuth2 providers that don't return one) —
+    // prefer the profile name PocketBase copies from LINE's OIDC userinfo.
+    name: () => { const c = client(); return c && c.authStore.record ? (c.authStore.record.name || '') : ''; },
     token: () => { const c = client(); return c ? c.authStore.token : ''; },
     async signUp(email, password) {
       const c = client();
@@ -93,6 +97,11 @@ const PBBackend = (() => {
       return c.collection('users').authWithPassword(email, password);
     },
     signIn(email, password) { return client().collection('users').authWithPassword(email, password); },
+    // Requires a "oidc" OAuth2 provider configured in the PocketBase admin
+    // dashboard (Collections -> users -> Options -> OAuth2), pointed at
+    // LINE Login's OpenID Connect endpoints — see README.md. The PocketBase
+    // SDK handles the whole popup/redirect/code-exchange dance itself.
+    authWithLine() { return client().collection('users').authWithOAuth2({ provider: 'oidc' }); },
     signOut() { const c = client(); if (c) c.authStore.clear(); },
     // list records updated after ISO cursor (server-side filter on PB's `updated`)
     async list(collection, sinceISO) {
@@ -380,6 +389,27 @@ async function submitAuth() {
     location.href = '/app.html';
   }
 }
+// LINE Login — cloud-only (needs PocketBase to hold the LINE channel secret),
+// same 'pb:'+uid session shape submitAuth()'s cloud path already writes, so
+// restoreSession()/logout()/sync all just work unchanged for a LINE account.
+async function loginLine() {
+  if (!Sync.enabled()) { authError('LINE sign-in needs a server connected first.'); return; }
+  authError(''); setAuthBusy(true);
+  try {
+    await Sync.authWithLine();
+  } catch (err) {
+    setAuthBusy(false);
+    authError(prettyAuthError(err));
+    return;
+  }
+  currentUser = { id: Sync.uid(), username: Sync.name() || Sync.email() || 'Driver', email: Sync.email() };
+  isGuest = false;
+  localStorage.setItem(SESSION_KEY, 'pb:' + Sync.uid());
+  await writePbConfig();
+  sessionStorage.setItem('post_login_toast', t('welcome_back') + '!');
+  sessionStorage.setItem('post_login_fullsync', '1');
+  location.href = '/app.html';
+}
 function setAuthBusy(b) {
   const btn = document.getElementById('auth-submit');
   if (btn) { btn.disabled = b; btn.style.opacity = b ? '0.6' : '1'; }
@@ -578,8 +608,8 @@ async function restoreSession() {
   const raw = localStorage.getItem(SESSION_KEY);
   // Restore a cloud (PocketBase) session if the token is still valid
   if (raw && raw.startsWith('pb:') && Sync.enabled() && Sync.authed()) {
-    const email = Sync.email() || 'Driver';
-    currentUser = { id: Sync.uid(), username: email, email };
+    const email = Sync.email();
+    currentUser = { id: Sync.uid(), username: Sync.name() || email || 'Driver', email };
     isGuest = false;
     await writePbConfig();
     return true;
@@ -617,6 +647,11 @@ async function bootLogin() {
   if (await restoreSession()) { location.replace('/app.html'); return; }
   applyLang();
   showPostLoginToast();
+  // LINE sign-in needs PocketBase to hold the LINE channel secret — hide it
+  // in local-only mode (no PB_URL set) rather than show a button that can
+  // only ever fail.
+  const lineBtn = document.getElementById('auth-line');
+  if (lineBtn) lineBtn.style.display = Sync.enabled() ? '' : 'none';
 }
 
 // Entry point for app.html: no session → bounce to login.html.
