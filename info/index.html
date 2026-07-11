@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DriverLog — บันทึกทุกกะ รู้กำไรจริง | Info</title>
+<meta name="description" content="DriverLog บันทึกกะขับรถ คำนวณกำไรสุทธิอัตโนมัติ ฟรีตลอดไป — Free, offline-first shift logger for gig drivers." />
+<meta name="theme-color" content="#D0021B" />
+<link rel="icon" href="brand/favicon-64.png" sizes="64x64" />
+<link rel="icon" href="brand/logo-icon.svg" type="image/svg+xml" />
+<link rel="mask-icon" href="brand/logo-icon.svg" color="#D0021B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="ds-base.js"></script>
+<style>
+/* Page overrides on top of the Broadsheet base (_ds/…/styles.css): DriverLog's
+   own iOS type stack + strict red accent ramp, replacing the base's serif/cyan
+   defaults. Buttons, nav and the segmented control keep the base's structural
+   CSS and interaction states (hover/press/focus-visible) — only the tokens
+   they read change. */
+:root {
+  --dl-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Sukhumvit Set", "Noto Sans Thai", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--dl-font);
+  --font-body: var(--dl-font);
+  --font-heading-weight: 700;
+
+  --color-bg: #FAFAFA;
+  --color-surface: #F2F2F7;
+  --color-text: #1C1C1E;
+  --color-divider: color-mix(in srgb, #1C1C1E 10%, transparent);
+
+  --color-accent: #D0021B;
+  --color-accent-100: #FDECEA;
+  --color-accent-200: #FBD0CB;
+  --color-accent-300: #F5A8A0;
+  --color-accent-400: #EE7A6E;
+  --color-accent-500: #E8344A;
+  --color-accent-600: #D0021B;
+  --color-accent-700: #A80016;
+  --color-accent-800: #7A0F13;
+  --color-accent-900: #4D0A0C;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --edge: clamp(20px, 5vw, 72px);
+  --leading: 28px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: var(--dl-font); text-wrap: pretty; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--edge); }
+
+.muted-en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.muted-en-inline { font-size: 0.68em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+
+/* — nav (pinned) — */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  padding-inline: max(var(--edge), calc((100% - 1120px) / 2 + var(--edge)));
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s, box-shadow .2s;
+}
+.nav.is-pinned { border-color: var(--color-divider); box-shadow: 0 2px 12px color-mix(in srgb, #1C1C1E 6%, transparent); }
+.nav-logo { height: 26px; width: auto; display: block; }
+.nav a { white-space: nowrap; font-weight: 500; }
+.nav a:hover { color: var(--color-accent-700); }
+.nav .btn-primary { margin-left: var(--space-2, 10px); }
+@media (max-width: 560px) {
+  .nav a:not(.nav-cta) { display: none; }
+  .nav { gap: var(--space-3, 15px); }
+}
+
+/* — hero — */
+.hero { padding: calc(3.5 * var(--leading)) 0 calc(2.5 * var(--leading)); }
+.hero-rotator { position: relative; min-height: clamp(96px, 18vw, 176px); }
+.hero-rotator:focus-within .display,
+.hero-rotator:hover .display { animation-play-state: paused; }
+.display {
+  position: absolute; inset: 0 auto auto 0; width: 100%;
+  font-family: var(--dl-font); font-weight: 800;
+  font-size: clamp(34px, 5.4vw, 64px); line-height: 1.08;
+  letter-spacing: -0.02em; margin: 0; color: var(--color-text);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .5s ease, transform .5s ease;
+  pointer-events: none;
+}
+.display.is-active { opacity: 1; transform: translateY(0); pointer-events: auto; position: relative; }
+.display .line { display: block; }
+.display .num { color: var(--color-accent); }
+.display .num .unit { font-size: 0.5em; font-weight: 700; color: var(--color-text); }
+.display .sub-en { display: block; font-size: 0.32em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 10px; letter-spacing: 0; }
+.hero-dots { display: flex; gap: 8px; margin-top: var(--space-3, 15px); }
+.hero-dot { width: 8px; height: 8px; border-radius: 50%; border: none; padding: 0; background: var(--color-accent-200); cursor: pointer; }
+.hero-dot[aria-current="true"] { background: var(--color-accent); }
+.hero-dot:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.hero .copy { font-size: 17px; line-height: var(--leading); max-width: 56ch; margin: calc(1.5 * var(--leading)) 0 0; color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.hero .copy .en { display: block; font-size: 0.85em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+.hero .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: var(--leading); align-items: center; }
+
+/* — mission — */
+.mission { padding: calc(2 * var(--leading)) 0; }
+.mission-mark { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -0.015em; margin: 0; }
+.mission-mark .ink { color: var(--color-text); }
+.mission-mark .accent { color: var(--color-accent); }
+.mission-copy { font-size: 16px; line-height: var(--leading); max-width: 56ch; margin: calc(var(--leading) - 6px) 0 0; color: color-mix(in srgb, var(--color-text) 78%, transparent); }
+.mission-copy .en { display: block; font-size: 0.88em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+
+/* — features — */
+.features { padding: calc(2.5 * var(--leading)) 0; }
+.section-kicker { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 calc(var(--leading) - 8px); }
+.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(1.5 * var(--leading)) clamp(28px, 4vw, 64px); }
+.feature h3 { font-size: 18px; line-height: 1.3; margin: 0 0 6px; font-weight: 700; }
+.feature h3 .en { display: block; font-size: 0.7em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.feature p { font-size: 14.5px; line-height: 1.6; margin: 0; color: color-mix(in srgb, var(--color-text) 75%, transparent); }
+.feature-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+@media (max-width: 900px) { .feature-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .feature-grid { grid-template-columns: 1fr; } }
+
+/* — how it works — */
+.how { padding: calc(2.5 * var(--leading)) 0; }
+.how-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(24px, 3vw, 40px); margin-top: var(--leading); }
+.how-step h3 { font-size: 16px; line-height: 1.35; margin: calc(var(--leading) - 8px) 0 4px; font-weight: 700; }
+.how-step .step-num { font-size: 13px; font-weight: 800; color: var(--color-accent); }
+.how-step h3 .en { display: block; font-size: 0.75em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.how-step p { font-size: 13.5px; line-height: 1.55; color: color-mix(in srgb, var(--color-text) 72%, transparent); margin: 0; }
+@media (max-width: 900px) { .how-steps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .how-steps { grid-template-columns: 1fr; } }
+
+/* — app UI miniatures (exact tokens from site/styles.css) — */
+.app-mini { width: 100%; max-width: 208px; margin: 0 auto 14px; background: #fff; border-radius: 26px; overflow: hidden; box-shadow: 0 10px 28px rgba(28,28,30,.14), 0 1px 3px rgba(28,28,30,.08); border: 1px solid rgba(28,28,30,.06); }
+.app-mini .m-screen { background: #F2F2F7; min-height: 190px; }
+.app-mini .m-hdr { background: #D0021B; padding: 16px 12px 10px; color: #fff; }
+.app-mini .m-hdr-row { display: flex; justify-content: space-between; align-items: flex-start; }
+.app-mini .m-hdr h4 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: -0.2px; }
+.app-mini .m-hdr .m-sub { font-size: 8.5px; opacity: .75; margin-top: 2px; }
+.app-mini .m-avatar { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.28); flex-shrink: 0; }
+.app-mini .m-periods { display: flex; gap: 4px; padding: 8px 10px 0; }
+.app-mini .m-pill { font-size: 7px; font-weight: 500; padding: 3px 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,.4); color: rgba(255,255,255,.85); }
+.app-mini .m-pill.on { background: #fff; color: #D0021B; border-color: #fff; }
+.app-mini .m-hero { margin: 10px; background: linear-gradient(152deg,#FFF4F3 0%,#FDE9E7 100%); border: 1px solid #F5C6C6; border-radius: 12px; padding: 10px; }
+.app-mini .m-hero-label { font-size: 7.5px; color: #8E8E93; margin-bottom: 3px; }
+.app-mini .m-hero-amt { font-size: 18px; font-weight: 800; color: #1C1C1E; letter-spacing: -.4px; margin-bottom: 8px; }
+.app-mini .m-hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; }
+.app-mini .m-hero-stats span { display: block; font-size: 6.5px; color: #8E8E93; }
+.app-mini .m-hero-stats b { display: block; font-size: 9px; color: #1C1C1E; font-weight: 600; margin-top: 1px; }
+.app-mini .m-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0 10px 10px; }
+.app-mini .m-stat { background: #fff; border: 1px solid #E5E5EA; border-radius: 8px; padding: 8px; }
+.app-mini .m-stat .m-icon { font-size: 11px; }
+.app-mini .m-stat .m-lbl { font-size: 6.5px; color: #8E8E93; margin: 3px 0 2px; }
+.app-mini .m-stat .m-val { font-size: 11px; font-weight: 700; color: #1C1C1E; }
+.app-mini .m-modal { padding: 10px; }
+.app-mini .m-handle { width: 28px; height: 3px; background: #C7C7CC; border-radius: 2px; margin: 0 auto 8px; }
+.app-mini .m-title { font-size: 11px; font-weight: 700; color: #1C1C1E; margin-bottom: 8px; }
+.app-mini .m-svc-row { display: flex; gap: 4px; margin-bottom: 8px; }
+.app-mini .m-svc { flex: 1; text-align: center; font-size: 7px; font-weight: 500; padding: 6px 2px; border-radius: 7px; border: 1px solid #E5E5EA; color: #3C3C43; }
+.app-mini .m-svc.sel { border-color: #D0021B; background: #FDECEA; color: #A80016; }
+.app-mini .m-netbox { background: #FDECEA; border: 1px solid #F5C6C6; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; }
+.app-mini .m-netbox-lbl { font-size: 8px; color: #A80016; font-weight: 600; }
+.app-mini .m-netbox-val { font-size: 14px; color: #D0021B; font-weight: 800; }
+.app-mini .m-insight { margin: 10px; border: 1px solid #E5E5EA; border-radius: 10px; overflow: hidden; background: #fff; }
+.app-mini .m-i-row { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #E5E5EA; font-size: 9.5px; }
+.app-mini .m-i-row:last-child { border-bottom: none; }
+.app-mini .m-i-row.hl { background: #FDECEA; }
+.app-mini .m-i-row .m-i-lbl { color: #3C3C43; }
+.app-mini .m-i-row .m-i-val { font-weight: 700; color: #1C1C1E; }
+.app-mini .m-i-row.hl .m-i-val { color: #D0021B; }
+
+/* — quote — */
+.quote { padding: calc(2.5 * var(--leading)) 0; }
+.quote blockquote { font-family: var(--dl-font); font-style: italic; font-weight: 600; font-size: clamp(20px, 2.4vw, 28px); line-height: 1.5; max-width: 42ch; margin: 0; color: var(--color-text); }
+.quote .en { display: block; font-style: normal; font-weight: 500; font-size: 0.58em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 10px; }
+.quote figcaption { font-size: 14px; margin-top: var(--space-3, 15px); color: color-mix(in srgb, var(--color-text) 60%, transparent); }
+
+/* — close — */
+.close { padding: calc(2.5 * var(--leading)) 0 calc(2 * var(--leading)); }
+.close h2 { font-size: clamp(26px, 3.4vw, 38px); margin: 0; font-weight: 800; letter-spacing: -0.015em; }
+.close h2 .en { display: block; font-size: 0.42em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 8px; }
+.close .sub { font-size: 15.5px; line-height: var(--leading); color: color-mix(in srgb, var(--color-text) 75%, transparent); margin: calc(var(--leading) - 10px) 0 0; }
+.close .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: var(--leading); }
+.soon-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: color-mix(in srgb, var(--color-text) 55%, transparent); border: 1px solid var(--color-divider); border-radius: 20px; padding: 7px 14px; }
+
+/* — footer — */
+footer { padding: calc(2 * var(--leading)) 0; border-top: 1px solid var(--color-divider); }
+.footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.footer-logo { height: 22px; width: auto; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 65%, transparent); text-decoration: none; }
+.footer-links a:hover { color: var(--color-accent-700); }
+.footer-credit { font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 50%, transparent); margin-top: var(--leading); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="หลัก · Main">
+  <a href="#top" style="margin-right:auto;display:flex;align-items:center;">
+    <img class="nav-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+  </a>
+  <a href="#features">ฟีเจอร์<span class="muted-en-inline"> · Features</span></a>
+  <a href="#how">วิธีใช้<span class="muted-en-inline"> · How it works</span></a>
+  <a href="#quote">รีวิว<span class="muted-en-inline"> · Reviews</span></a>
+  <a href="https://driverlog.link/privacy/">นโยบาย<span class="muted-en-inline"> · Privacy</span></a>
+  <a class="btn btn-primary nav-cta" href="https://driverlog.link/app/">เปิดแอป<span class="muted-en-inline"> · Open app</span></a>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero" id="top">
+    <div class="hero-rotator" id="heroRotator">
+      <h1 class="display is-active" data-index="0">
+        <span class="line">บันทึกทุกกะ.</span>
+        <span class="line">รู้ว่ากะไหนคุ้ม.</span>
+        <span class="sub-en">Log every shift. Know which one paid.</span>
+      </h1>
+      <h1 class="display" data-index="1">
+        <span class="line">“กะนี้คุ้มไหม?”</span>
+        <span class="sub-en">“Was this shift worth it?”</span>
+      </h1>
+      <h1 class="display" data-index="2">
+        <span class="line num">฿121<span class="unit">/ชม.</span></span>
+        <span class="sub-en">Your real hourly rate — after fuel.</span>
+      </h1>
+    </div>
+    <div class="hero-dots" role="tablist" aria-label="เลือกข้อความ · Choose headline">
+      <button class="hero-dot" type="button" data-index="0" aria-current="true" aria-label="ข้อความ 1"></button>
+      <button class="hero-dot" type="button" data-index="1" aria-label="ข้อความ 2"></button>
+      <button class="hero-dot" type="button" data-index="2" aria-label="ข้อความ 3"></button>
+    </div>
+    <p class="copy">DriverLog คำนวณกำไรสุทธิให้อัตโนมัติ หลังหักค่าน้ำมัน ทุกกะ ทุกแอป ไม่ต้องนั่งกดเครื่องคิดเลขเอง
+      <span class="en">DriverLog nets out fuel automatically — every shift, every app, no calculator needed.</span>
+    </p>
+    <div class="row">
+      <a class="btn btn-primary" href="https://driverlog.link/app/">เปิดแอปฟรี <span class="muted-en-inline">· Open app</span></a>
+      <a class="btn btn-ghost" href="#how">ดูวิธีใช้ <span class="muted-en-inline">· See how it works</span></a>
+    </div>
+  </section>
+
+  <section class="mission">
+    <p class="mission-mark"><span class="ink">ฟรี</span><span class="accent">ตลอดไป</span> <span class="ink" style="font-size:.5em;font-weight:600;vertical-align:middle;">· Forever Free</span></p>
+    <p class="mission-copy">ไม่มีค่าสมัคร ไม่มีค่าธรรมเนียมรายเดือน ไม่มีระดับพรีเมียมที่ปิดกั้นฟีเจอร์หลัก DriverLog สร้างมาให้คนขับใช้งานได้เต็มรูปแบบโดยไม่เสียเงิน
+      <span class="en">No sign-up fee, no monthly charge, no premium tier gatekeeping what matters. Built for drivers to use in full, free.</span>
+    </p>
+  </section>
+
+  <section class="features" id="features">
+    <span class="section-kicker">ฟีเจอร์ · Features</span>
+    <div class="feature-grid">
+      <div class="feature">
+        <span class="feature-icon">⚡</span>
+        <h3>บันทึกไว<span class="en">Fast logging</span></h3>
+        <p>บันทึกกะได้ในไม่ถึง 30 วินาที เลือกผู้ให้บริการ ประเภทงาน กรอกรายได้ แล้วจบ</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">💰</span>
+        <h3>กำไรสุทธิอัตโนมัติ<span class="en">Auto net revenue</span></h3>
+        <p>หักค่าน้ำมันให้อัตโนมัติทุกครั้ง ตัวเลขที่เห็นคือกำไรจริงที่ได้ ไม่ต้องคำนวณเอง</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🏆</span>
+        <h3>รู้ว่าแอปไหนจ่ายดีสุด<span class="en">Best-paying app</span></h3>
+        <p>เทียบ Grab, Lineman, Bolt, Shopee และอื่นๆ แบบเคียงข้างกัน เป็นบาทต่อชั่วโมง</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">⛽</span>
+        <h3>ต้นทุนน้ำมันจริง<span class="en">True fuel cost</span></h3>
+        <p>ไม่ใช่ค่าประมาณ แต่คำนวณจากระยะทางและราคาน้ำมันที่กรอกจริงในแต่ละกะ</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🌙</span>
+        <h3>รองรับกะข้ามคืน<span class="en">Overnight shifts</span></h3>
+        <p>เริ่มกะวันนี้ จบกะพรุ่งนี้ก็บันทึกได้ปกติ ตัวเลขไม่พังแม้ข้ามวัน</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🔒</span>
+        <h3>ส่วนตัว ส่งออกได้<span class="en">Private &amp; exportable</span></h3>
+        <p>ข้อมูลเก็บอยู่ในเครื่องของคุณ ส่งออกเป็น CSV หรือสำรองข้อมูลได้ทุกเมื่อ</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <span class="section-kicker">วิธีใช้ · How it works</span>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="app-mini" aria-hidden="true">
+          <div class="m-screen">
+            <div class="m-hdr">
+              <div class="m-hdr-row">
+                <div><h4>สวัสดี!</h4><div class="m-sub">อังคาร 14 ก.ค.</div></div>
+                <div class="m-avatar"></div>
+              </div>
+            </div>
+            <div class="m-periods">
+              <span class="m-pill on">วันนี้</span>
+              <span class="m-pill">สัปดาห์นี้</span>
+              <span class="m-pill">เดือนนี้</span>
+            </div>
+            <div class="m-hero">
+              <div class="m-hero-label">รายได้สุทธิ — วันนี้</div>
+              <div class="m-hero-amt">฿0</div>
+              <div class="m-hero-stats">
+                <span>รายได้<b>฿0</b></span><span>ทิป<b>฿0</b></span><span>ค่าน้ำมัน<b>฿0</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="step-num">01</span>
+        <h3>เลือกผู้ให้บริการ แล้วเริ่มกะ<span class="en">Pick your provider, start the shift</span></h3>
+        <p>เปิดแอป เลือก Grab, Lineman, Bolt หรือแอปอื่น แล้วเริ่มขับได้ทันที</p>
+      </div>
+      <div class="how-step">
+        <div class="app-mini" aria-hidden="true">
+          <div class="m-screen">
+            <div class="m-modal">
+              <div class="m-handle"></div>
+              <div class="m-title">บันทึกกะ</div>
+              <div class="m-svc-row">
+                <span class="m-svc sel">Grab</span>
+                <span class="m-svc">Lineman</span>
+                <span class="m-svc">Bolt</span>
+              </div>
+              <div class="m-svc-row">
+                <span class="m-svc sel">🚗 รถ</span>
+                <span class="m-svc">🏍️ ไบค์</span>
+                <span class="m-svc">🍔 ฟู้ด</span>
+              </div>
+              <div class="m-netbox">
+                <span class="m-netbox-lbl">กำไรสุทธิ</span>
+                <span class="m-netbox-val">฿1,240</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="step-num">02</span>
+        <h3>จบกะ กรอกรายได้กับระยะทาง<span class="en">End the shift, log revenue &amp; distance</span></h3>
+        <p>กรอกรายได้ ระยะทาง และค่าน้ำมัน แอปคำนวณกำไรสุทธิให้ทันที</p>
+      </div>
+      <div class="how-step">
+        <div class="app-mini" aria-hidden="true">
+          <div class="m-screen">
+            <div class="m-hero" style="margin-top:10px;">
+              <div class="m-hero-label">รายได้สุทธิ — สัปดาห์นี้</div>
+              <div class="m-hero-amt">฿8,420</div>
+              <div class="m-hero-stats">
+                <span>รายได้<b>฿9,860</b></span><span>ทิป<b>฿310</b></span><span>ค่าน้ำมัน<b>฿1,750</b></span>
+              </div>
+            </div>
+            <div class="m-stats">
+              <div class="m-stat"><span class="m-icon">🛣️</span><div class="m-lbl">ระยะทาง</div><div class="m-val">312 กม.</div></div>
+              <div class="m-stat"><span class="m-icon">📊</span><div class="m-lbl">เฉลี่ย/กะ</div><div class="m-val">฿702</div></div>
+            </div>
+          </div>
+        </div>
+        <span class="step-num">03</span>
+        <h3>แอปคำนวณกำไรสุทธิให้ทันที<span class="en">DriverLog nets it out instantly</span></h3>
+        <p>ไม่ต้องกดเครื่องคิดเลข ทุกกะจะถูกหักค่าน้ำมันและรวมยอดให้อัตโนมัติ</p>
+      </div>
+      <div class="how-step">
+        <div class="app-mini" aria-hidden="true">
+          <div class="m-screen">
+            <div class="m-insight" style="margin-top:14px;">
+              <div class="m-i-row"><span class="m-i-lbl">จันทร์</span><span class="m-i-val">฿980</span></div>
+              <div class="m-i-row"><span class="m-i-lbl">อังคาร</span><span class="m-i-val">฿1,120</span></div>
+              <div class="m-i-row hl"><span class="m-i-lbl">ศุกร์ · สูงสุด</span><span class="m-i-val">฿1,640</span></div>
+            </div>
+          </div>
+        </div>
+        <span class="step-num">04</span>
+        <h3>ดูว่ากะไหน แอปไหนคุ้มสุด<span class="en">See which shift, which app, paid best</span></h3>
+        <p>Insight รายวันและรายแอป บอกให้รู้ว่าควรขับวันไหน เวลาไหน แอปไหนถึงคุ้มสุด</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote" id="quote">
+    <figure>
+      <blockquote>“ก่อนหน้านี้ผมไม่รู้เลยว่าขับ Grab หรือ Lineman คุ้มกว่ากัน จนมาลองบันทึกด้วย DriverLog ทุกกะ ถึงเห็นตัวเลขจริงเป็นครั้งแรก”
+        <span class="en">“I never knew whether Grab or Lineman actually paid better — until I logged every shift and saw the real numbers for the first time.”</span>
+      </blockquote>
+      <figcaption>— คุณเอก, คนขับ Grab มา 3 ปี <span class="muted-en-inline">· Ek, 3-year Grab driver</span></figcaption>
+    </figure>
+  </section>
+
+  <section class="close">
+    <h2>เริ่มบันทึกกะแรกวันนี้<span class="en">Start logging your first shift today</span></h2>
+    <p class="sub">ฟรีตลอดไป ไม่มีบัตรเครดิต ไม่มีเงื่อนไข <span class="muted-en-inline">· Forever free — no credit card, no catch.</span></p>
+    <div class="row">
+      <a class="btn btn-primary" href="https://driverlog.link/app/">เปิดแอป <span class="muted-en-inline">· Open app</span></a>
+      <span class="soon-tag">เร็วๆ นี้บน Google Play <span class="muted-en-inline">· Coming soon</span></span>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-row">
+      <img class="footer-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+      <div class="footer-links">
+        <a href="#features">ฟีเจอร์ · Features</a>
+        <a href="#how">วิธีใช้ · How it works</a>
+        <a href="#quote">รีวิว · Reviews</a>
+        <a href="https://driverlog.link/privacy/">นโยบายความเป็นส่วนตัว · Privacy</a>
+      </div>
+    </div>
+    <p class="footer-credit">© 2026 DriverLog · สร้างโดย Grit · ขับเคลื่อนด้วย Claude</p>
+  </footer>
+
+</div>
+
+<script>
+(() => {
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('is-pinned', scrollY > 4), { passive: true });
+
+  const slides = Array.from(document.querySelectorAll('.display'));
+  const dots = Array.from(document.querySelectorAll('.hero-dot'));
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let active = 0;
+  const show = (i) => {
+    active = i;
+    slides.forEach((s, idx) => s.classList.toggle('is-active', idx === i));
+    dots.forEach((d, idx) => d.setAttribute('aria-current', String(idx === i)));
+  };
+  dots.forEach((d) => d.addEventListener('click', () => show(Number(d.dataset.index))));
+  if (!reduceMotion) {
+    setInterval(() => show((active + 1) % slides.length), 10000);
+  }
+})();
+</script>
+</body>
+</html>
