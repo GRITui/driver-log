@@ -1,0 +1,32 @@
+name: Check status (scratch)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch info.driverlog.link and compare against repo's index.html
+        run: |
+          echo "===== live: https://info.driverlog.link/ ====="
+          curl -s -D - -o /tmp/live.html -w '\nHTTP_CODE:%{http_code}\n' --max-time 20 -A "Mozilla/5.0 (compatible; DriverLogStatusCheck/1.0)" "https://info.driverlog.link/?cachebust=$RANDOM"
+          echo "--- live <title> ---"
+          grep -o '<title>[^<]*</title>' /tmp/live.html || echo "(no title tag found)"
+          echo "--- live byte count ---"
+          wc -c /tmp/live.html
+          echo "--- live first 2000 bytes ---"
+          head -c 2000 /tmp/live.html
+          echo
+          echo "===== live: https://info.driverlog.link/index.html (explicit) ====="
+          curl -s -o /tmp/live2.html -w 'HTTP_CODE:%{http_code}\n' --max-time 20 "https://info.driverlog.link/index.html?cachebust=$RANDOM"
+          grep -o '<title>[^<]*</title>' /tmp/live2.html || echo "(no title tag found)"
+
+      - name: Checkout repo for comparison
+        uses: actions/checkout@v4
+
+      - name: Show repo's actual info/index.html title
+        run: grep -o '<title>[^<]*</title>' info/index.html
