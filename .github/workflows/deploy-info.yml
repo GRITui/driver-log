@@ -1,0 +1,57 @@
+name: Deploy info page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "info/**"
+      - ".github/workflows/deploy-info.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-info
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required secrets are set
+        run: |
+          missing=()
+          [ -z "${{ secrets.HOSTINGER_FTP_HOST }}" ] && missing+=("HOSTINGER_FTP_HOST")
+          [ -z "${{ secrets.HOSTINGER_FTP_USER }}" ] && missing+=("HOSTINGER_FTP_USER")
+          [ -z "${{ secrets.HOSTINGER_FTP_PASS }}" ] && missing+=("HOSTINGER_FTP_PASS")
+          [ -z "${{ secrets.HOSTINGER_INFO_FTP_DIR }}" ] && missing+=("HOSTINGER_INFO_FTP_DIR")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repo secrets: ${missing[*]} — add them under Settings > Secrets and variables > Actions before this workflow can deploy."
+            exit 1
+          fi
+
+      # Uploads info/ to the info.driverlog.link docroot over FTPS. Only
+      # uploads files that changed since the last run (state tracked in a
+      # dotfile the action writes to the remote dir) — never deletes
+      # anything else already on the server.
+      - name: Deploy info/ to Hostinger via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASS }}
+          protocol: ftps
+          local-dir: ./info/
+          server-dir: ${{ secrets.HOSTINGER_INFO_FTP_DIR }}
+          dangerous-clean-slate: false
+
+      - name: Verify live site
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://info.driverlog.link/ || echo "000")
+          echo "https://info.driverlog.link/ -> $code"
+          if [ "$code" != "200" ]; then
+            echo "::warning::info.driverlog.link did not return 200 (got $code) — check DNS/hosting if this is unexpected."
+          fi
