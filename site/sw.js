@@ -3,7 +3,8 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.6.16';  // v1.6.14: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH; APP_VERSION 2.6.9->2.6.10
+const SW_VERSION = 'v1.7.0';  // v1.7.0: PocketBase dropped entirely — cloud sync/auth now runs against this project's own Vercel api/ functions on Neon (see lib/db.js, lib/auth.js, api/auth-*.js, api/records-*.js, api/line-login-*.js); background sync now calls /api/records-* instead of PocketBase's REST convention, cached config moved from /__pb_cfg__ to /__api_cfg__; APP_VERSION 2.6.12->2.7.0
+// prior: v1.6.14: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH; APP_VERSION 2.6.9->2.6.10
 // prior: v1.6.13: personalized dashboard empty-state welcome title with first name (EN+TH); APP_VERSION 2.6.8->2.6.9
 // prior: v1.6.12: first-name capture at registration + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH); APP_VERSION 2.6.7->2.6.8
 // prior: v1.6.11 hero card readability + alignment restyle (styles.css: branded tint, dark high-contrast amount, even gap, dark-mode variant); APP_VERSION 2.6.6->2.6.7
@@ -29,7 +30,6 @@ const SHELL_ASSETS = [
   '/manifest.json',
   '/vendor/chart.umd.min.js',
   '/vendor/html2canvas.min.js',
-  '/vendor/pocketbase.umd.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/maskable-512.png',
@@ -38,7 +38,7 @@ const SHELL_ASSETS = [
 
 // Requests we must never serve from cache (live data / auth).
 function isApi(url) {
-  return url.pathname.startsWith('/api/')            // PocketBase REST/auth
+  return url.pathname.startsWith('/api/')            // this project's own auth/sync API
       || url.hostname.includes('pagead')             // ads
       || url.hostname.includes('googlesyndication');
 }
@@ -104,7 +104,7 @@ self.addEventListener('message', (e) => {
 });
 
 /* ─────────────────────────────────────────────────────────────
- * P3: Background Sync — drain the offline outbox to PocketBase.
+ * P3: Background Sync — drain the offline outbox to the Neon-backed API.
  * The page registers sync tag 'drain-outbox' after each write.
  * ───────────────────────────────────────────────────────────── */
 const OUTBOX_DB = 'gritdrive-v2';   // same IndexedDB the app uses
@@ -137,8 +137,8 @@ async function drainOutbox() {
   const items = await idbAll(db, OUTBOX_STORE);
   if (!items.length) return;
 
-  // Read PB config the page stashed in a cache entry (url + token).
-  const cfgResp = await caches.match('/__pb_cfg__');
+  // Read the API config the page stashed in a cache entry (url + token).
+  const cfgResp = await caches.match('/__api_cfg__');
   if (!cfgResp) return;               // not logged into an account → nothing to push
   const cfg = await cfgResp.json();
   if (!cfg.url || !cfg.token) return;
@@ -155,30 +155,24 @@ async function drainOutbox() {
 }
 
 async function pushOne(cfg, item) {
-  const base = `${cfg.url}/api/collections/${item.collection}/records`;
-  const headers = { 'Content-Type': 'application/json', 'Authorization': cfg.token };
-  let resp;
+  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.token };
   if (item.op === 'delete') {
     if (!item.sid) return true;       // never synced → nothing to delete server-side
-    resp = await fetch(`${base}/${item.sid}`, { method: 'DELETE', headers });
-    return resp.ok || resp.status === 404;
+    const q = new URLSearchParams({ collection: item.collection, sid: item.sid });
+    const resp = await fetch(`${cfg.url}/api/records-remove?${q}`, { method: 'DELETE', headers });
+    return resp.ok;                  // api/records-remove.js is a no-op success if already gone
   }
   let sid = item.sid;
   if (!sid && item.cuid) {            // dedupe: has this cuid already synced?
     try {
-      const q = `${base}?perPage=1&filter=` + encodeURIComponent(`cuid='${item.cuid}'`);
-      const found = await fetch(q, { headers });
-      if (found.ok) { const j = await found.json(); if (j.items && j.items[0]) sid = j.items[0].id; }
+      const q = new URLSearchParams({ collection: item.collection, cuid: item.cuid });
+      const found = await fetch(`${cfg.url}/api/records-find?${q}`, { headers });
+      if (found.ok) { const j = await found.json(); if (j.item) sid = j.item.id; }
     } catch { /* ignore, fall through to create */ }
   }
-  if (sid) {                          // update existing
-    resp = await fetch(`${base}/${sid}`, { method: 'PATCH', headers, body: JSON.stringify(item.data) });
-    if (resp.status === 404) resp = await fetch(base, { method: 'POST', headers, body: JSON.stringify(item.data) });
-  } else {                            // create
-    resp = await fetch(base, { method: 'POST', headers, body: JSON.stringify(item.data) });
-  }
-  // 400 with a duplicate cuid means another path already created it → treat as done
-  if (resp.status === 400) return true;
+  const resp = await fetch(`${cfg.url}/api/records-save`, {
+    method: 'POST', headers, body: JSON.stringify({ collection: item.collection, sid, data: item.data })
+  });
   return resp.ok;
 }
 

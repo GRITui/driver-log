@@ -1,0 +1,8 @@
+{
+  "name": "driver-log",
+  "private": true,
+  "description": "DriverLog — local-first driver log book. site/ is the deployed static app (no build step, no dependencies of its own — deployed separately to Hostinger). api/ holds the Vercel serverless functions that replace PocketBase: email/password + LINE OAuth2 auth, and CRUD sync for sessions/fuel against Neon (lib/db.js). Deliberately left without \"type\": \"module\" — Node's native require(esm) interop already loads the ESM `export default` syntax in api/*.js and lib/*.js fine without that flag.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}

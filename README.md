@@ -1,33 +1,48 @@
 # driver-log
 easy log for driver
 
-## LINE Login setup
+## Cloud backend setup (Vercel + Neon)
 
-"Log in with LINE" (`login.html`'s LINE button, `PBBackend.authWithLine()` in
-`app.js`) only works once cloud sync is on (`localStorage.pb_url` set) and a
-LINE OIDC provider is configured on the PocketBase server — this repo has no
-server-side code of its own for it, since the PocketBase JS SDK's
-`authWithOAuth2()` already handles the whole popup/redirect/token-exchange
-flow against whatever server `pb_url` points at.
+`site/` is the deployed static app (Hostinger + a Netlify mirror; no build
+step, no secrets of its own). Cloud sync/auth — email+password accounts,
+"Log in with LINE", and cross-device sync of sessions/fuel — runs against
+this repo's own `api/` serverless functions, deployed separately as a
+Vercel project, backed by a Neon Postgres database. PocketBase is not used
+anywhere in this project anymore.
 
-1. **LINE Developers Console** — create a channel of type **LINE Login**
-   (not Messaging API). Under that channel's "LINE Login" tab, add a
-   callback URL: `https://<your-pocketbase-domain>/api/oauth2-redirect`.
-   Note the Channel ID and Channel secret from "Basic settings".
-2. **PocketBase admin dashboard** — open the `users` collection → the gear
-   icon → **Options** → **OAuth2** → **Add provider** → choose **OIDC**, and
-   fill in:
-   - Client ID / Client Secret: the LINE Login channel's values from step 1
-   - Auth URL: `https://access.line.me/oauth2/v2.1/authorize`
-   - Token URL: `https://api.line.me/oauth2/v2.1/token`
-   - User info URL: `https://api.line.me/oauth2/v2.1/userinfo`
+1. **Create the Vercel project** from this repo. `vercel.json`'s
+   `outputDirectory: "site"` is only relevant if you also serve the static
+   app from the same Vercel project — most deployments just need `api/` and
+   `lib/` here, since `site/` is already deployed to Hostinger separately.
+2. **Connect Neon** — Vercel dashboard → the project → **Storage** →
+   **Connect Database** → Neon. This auto-provisions `DATABASE_URL`; don't
+   set it by hand (`lib/db.js` reads exactly that name).
+3. **Apply the schema** — open the Neon dashboard's **SQL Editor** and run
+   `sql/schema.sql` once, by hand. There's no migration runner in this
+   project; that file is the source of truth going forward.
+4. **Set the remaining env vars** (Vercel dashboard → **Settings** →
+   **Environment Variables**) — see `.env.example` for the full list and
+   what each one is for: `AUTH_TOKEN_SECRET` (this project's own session
+   tokens) plus, if you want "Log in with LINE" enabled,
+   `LINE_LOGIN_CHANNEL_ID` / `LINE_LOGIN_CHANNEL_SECRET` /
+   `LINE_LOGIN_CALLBACK_URL` / `LINE_LOGIN_STATE_SECRET`.
+5. **LINE Developers Console** (only needed for LINE login) — create a
+   channel of type **LINE Login** (not Messaging API). Under that channel's
+   "LINE Login" tab, add a callback URL matching
+   `LINE_LOGIN_CALLBACK_URL` exactly:
+   `https://<your-vercel-project>.vercel.app/api/line-login-callback`.
+   Note the Channel ID / Channel secret from "Basic settings".
+6. **Point the app at the API** — on each device/browser, or via a config
+   step you add to the app,
+   set `localStorage.api_url = 'https://<your-vercel-project>.vercel.app'`.
+   Cloud sync and "Log in with LINE" both stay off (local-only + guest mode)
+   until this is set, same as the old `pb_url` behaved.
 
-   Save. PocketBase names this provider `oidc` by default, which is what
-   `authWithLine()` requests — if you configure LINE as a *second* custom
-   OIDC provider alongside another one, update the `provider` name passed to
-   `authWithOAuth2()` in `app.js` to match (PocketBase supports `oidc`,
-   `oidc2`, `oidc3`, ...).
-3. LINE doesn't always return a verified email; PocketBase fills in a
-   synthetic placeholder in that case. The app already prefers the LINE
-   profile's display name (`Sync.name()`) over email for anything shown to
-   the driver, so this doesn't surface anywhere visible.
+### Why no server-side session store
+
+Auth tokens (`lib/auth.js`) and the LINE OAuth `state` round-trip
+(`lib/lineLogin.js`) are both self-contained, HMAC-signed, self-expiring
+blobs — nothing is looked up from a server-side sessions table. Losing or
+rotating `AUTH_TOKEN_SECRET` (or `LINE_LOGIN_STATE_SECRET`) invalidates
+every issued token/in-flight login at once; that's the deliberate
+trade-off for not needing a revocation list.
