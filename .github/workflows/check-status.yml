@@ -1,0 +1,19 @@
+name: Check status (scratch)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  list-ftp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List FTP docroot (read-only, no writes)
+        run: |
+          echo "===== root listing ====="
+          curl -s --connect-timeout 20 --max-time 30 --ftp-ssl -u "${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASS }}" "ftp://${{ secrets.HOSTINGER_FTP_HOST }}/" || echo "root list failed rc=$?"
+          echo
+          echo "===== public_html/ listing ====="
+          curl -s --connect-timeout 20 --max-time 30 --ftp-ssl -u "${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASS }}" "ftp://${{ secrets.HOSTINGER_FTP_HOST }}/public_html/" || echo "public_html list failed rc=$?"
