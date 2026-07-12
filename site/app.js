@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.6.12';   // bump on every deploy — 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.6.13';   // bump on every deploy — 2.6.13: "Log in with LINE" (PocketBase authWithOAuth2 against an admin-configured LINE OIDC provider — see README.md), cloud-sync accounts only; dashboard greeting personalizes from the LINE profile name when no firstName was captured (EN+TH; SW v1.6.17). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -86,6 +86,10 @@ const PBBackend = (() => {
     authed: () => { const c = client(); return !!(c && c.authStore.isValid); },
     uid: () => { const c = client(); return c && c.authStore.record ? c.authStore.record.id : null; },
     email: () => { const c = client(); return c && c.authStore.record ? c.authStore.record.email : ''; },
+    // LINE accounts often carry no real email (PocketBase fills in a
+    // synthetic placeholder for OAuth2 providers that don't return one) —
+    // prefer the profile name PocketBase copies from LINE's OIDC userinfo.
+    name: () => { const c = client(); return c && c.authStore.record ? (c.authStore.record.name || '') : ''; },
     token: () => { const c = client(); return c ? c.authStore.token : ''; },
     async signUp(email, password, firstName) {
       const c = client();
@@ -96,6 +100,11 @@ const PBBackend = (() => {
       return c.collection('users').authWithPassword(email, password);
     },
     signIn(email, password) { return client().collection('users').authWithPassword(email, password); },
+    // Requires a "oidc" OAuth2 provider configured in the PocketBase admin
+    // dashboard (Collections -> users -> Options -> OAuth2), pointed at
+    // LINE Login's OpenID Connect endpoints — see README.md. The PocketBase
+    // SDK handles the whole popup/redirect/code-exchange dance itself.
+    authWithLine() { return client().collection('users').authWithOAuth2({ provider: 'oidc' }); },
     signOut() { const c = client(); if (c) c.authStore.clear(); },
     // list records updated after ISO cursor (server-side filter on PB's `updated`)
     async list(collection, sinceISO) {
@@ -392,6 +401,33 @@ async function submitAuth() {
     location.href = '/app.html';
   }
 }
+// LINE Login — cloud-only (needs PocketBase to hold the LINE channel secret),
+// same 'pb:'+uid session shape submitAuth()'s cloud path already writes, so
+// restoreSession()/logout()/sync all just work unchanged for a LINE account.
+async function loginLine() {
+  if (!Sync.enabled()) { authError('LINE sign-in needs a server connected first.'); return; }
+  authError(''); setAuthBusy(true);
+  try {
+    await Sync.authWithLine();
+  } catch (err) {
+    setAuthBusy(false);
+    authError(prettyAuthError(err));
+    return;
+  }
+  const lineName = Sync.name();
+  currentUser = { id: Sync.uid(), username: lineName || Sync.email() || 'Driver', email: Sync.email(), firstName: lineName || '' };
+  // LINE accounts skip the register form entirely, so pb_firstName_<uid> is
+  // never set for them — seed it from the LINE profile name so the dashboard
+  // greeting ("Good afternoon, <name>") personalizes the same as a manually
+  // registered account.
+  if (lineName) localStorage.setItem('pb_firstName_' + Sync.uid(), lineName);
+  isGuest = false;
+  localStorage.setItem(SESSION_KEY, 'pb:' + Sync.uid());
+  await writePbConfig();
+  sessionStorage.setItem('post_login_toast', t('welcome_back') + '!');
+  sessionStorage.setItem('post_login_fullsync', '1');
+  location.href = '/app.html';
+}
 function setAuthBusy(b) {
   const btn = document.getElementById('auth-submit');
   if (btn) { btn.disabled = b; btn.style.opacity = b ? '0.6' : '1'; }
@@ -434,7 +470,7 @@ const SVC_ICON = TYPE_ICON, SVC_COLOR = TYPE_COLOR;
 const I18N = {
   en: {
     login: 'Log in', create_account: 'Create account', email: 'Email', password: 'Password',
-    confirm_password: 'Confirm password', login_guest: 'Login as Guest',
+    confirm_password: 'Confirm password', login_guest: 'Login as Guest', login_line: 'Log in with LINE',
     auth_hint: 'Create an account to save your log on this device.<br>Cloud sync across devices is coming soon.<br>Guest mode is temporary.',
     nav_dashboard: 'Dashboard', nav_sessions: 'Sessions', nav_fuel: 'Fuel', nav_settings: 'Settings',
     period_today: 'Today', period_week: 'This week', period_month: 'This month', period_all: 'All time',
@@ -509,7 +545,7 @@ const I18N = {
   },
   th: {
     login: 'เข้าสู่ระบบ', create_account: 'สร้างบัญชี', email: 'อีเมล', password: 'รหัสผ่าน',
-    confirm_password: 'ยืนยันรหัสผ่าน', login_guest: 'เข้าใช้แบบผู้เยี่ยมชม',
+    confirm_password: 'ยืนยันรหัสผ่าน', login_guest: 'เข้าใช้แบบผู้เยี่ยมชม', login_line: 'เข้าสู่ระบบด้วย LINE',
     auth_hint: 'สร้างบัญชีเพื่อบันทึกข้อมูลในเครื่องนี้<br>การซิงก์ข้ามอุปกรณ์กำลังจะมา<br>โหมดผู้เยี่ยมชมเป็นแบบชั่วคราว',
     nav_dashboard: 'แดชบอร์ด', nav_sessions: 'บันทึก', nav_fuel: 'เติมน้ำมัน', nav_settings: 'ตั้งค่า',
     period_today: 'วันนี้', period_week: 'สัปดาห์นี้', period_month: 'เดือนนี้', period_all: 'ทั้งหมด',
@@ -616,9 +652,9 @@ async function restoreSession() {
   const raw = localStorage.getItem(SESSION_KEY);
   // Restore a cloud (PocketBase) session if the token is still valid
   if (raw && raw.startsWith('pb:') && Sync.enabled() && Sync.authed()) {
-    const email = Sync.email() || 'Driver';
-    currentUser = { id: Sync.uid(), username: email, email };
-    currentUser.firstName = localStorage.getItem('pb_firstName_' + Sync.uid()) || '';
+    const email = Sync.email();
+    currentUser = { id: Sync.uid(), username: Sync.name() || email || 'Driver', email };
+    currentUser.firstName = localStorage.getItem('pb_firstName_' + Sync.uid()) || Sync.name() || '';
     isGuest = false;
     await writePbConfig();
     return true;
@@ -656,6 +692,11 @@ async function bootLogin() {
   if (await restoreSession()) { location.replace('/app.html'); return; }
   applyLang();
   showPostLoginToast();
+  // LINE sign-in needs PocketBase to hold the LINE channel secret — hide it
+  // in local-only mode (no PB_URL set) rather than show a button that can
+  // only ever fail.
+  const lineBtn = document.getElementById('auth-line');
+  if (lineBtn) lineBtn.style.display = Sync.enabled() ? '' : 'none';
 }
 
 // Entry point for app.html: no session → bounce to login.html.
