@@ -515,7 +515,7 @@ const I18N = {
     period_today: 'วันนี้', period_week: 'สัปดาห์นี้', period_month: 'เดือนนี้', period_all: 'ทั้งหมด',
     period_custom: 'กำหนดเอง', period_custom_range: 'ช่วงที่กำหนด', to: 'ถึง',
     net_revenue: 'รายได้สุทธิ', revenue: 'รายได้', tips: 'ทิป', fuel_exp: 'ค่าน้ำมัน',
-    distance: 'ระยะทาง', fuel_cost_ratio: 'สัดส่วนค่าน้ำมัน', avg_rev_per_trip: 'รายได้เฉลี่ย/เที่ยว',
+    distance: 'ระยะทาง', fuel_cost_ratio: 'สัดส่วนค่าน้ำมัน', avg_rev_per_trip: 'รายได้เฉลี่ย/งาน',
     net_revenue_lower: 'รายได้สุทธิ', total_revenue: 'รายได้รวม', before_expenses: 'ก่อนหักค่าใช้จ่าย',
     earnings_trend: 'แนวโน้มรายได้', by_service_type: 'แยกตามประเภทบริการ', best_time: 'ช่วงเวลาที่ดีที่สุด',
     top_days: 'วันที่รายได้สูงสุด', no_data: 'ยังไม่มีข้อมูล', ratio_good: 'ดี', ratio_watch: 'ระวัง',
