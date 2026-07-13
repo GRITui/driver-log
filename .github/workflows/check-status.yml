@@ -1,0 +1,17 @@
+name: Scratch check live status 4
+on:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verbose TLS/HTTP check
+        run: |
+          echo "--- driverlog.link verbose ---"
+          curl -v --max-time 20 https://driverlog.link/ 2>&1 | head -40 || true
+          echo
+          echo "--- info.driverlog.link verbose ---"
+          curl -v --max-time 20 https://info.driverlog.link/ 2>&1 | head -40 || true
+          echo
+          echo "--- driverlog.link plain HTTP (port 80) ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 15 http://driverlog.link/ || true
