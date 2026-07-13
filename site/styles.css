@@ -171,6 +171,11 @@ body.authed .nav{display:flex;}
 /* FAB */
 .fab-wrap{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:430px;bottom:calc(var(--nav) + 16px);pointer-events:none;z-index:99;}
 .fab{position:absolute;right:16px;bottom:0;width:56px;height:56px;background:var(--red);border-radius:50%;border:none;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 4px 14px rgba(208,2,27,.4);}
+.fab.fab-active-shift{font-size:0;}
+.fab-rec-dot{width:14px;height:14px;border-radius:50%;background:#fff;animation:fabPulse 1.4s ease-in-out infinite;}
+@keyframes fabPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(.75);}}
+.fab-timer{position:absolute;right:16px;bottom:68px;width:44px;height:44px;background:#fff;border-radius:50%;border:1.5px solid var(--red-border);color:var(--red);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 4px 12px rgba(0,0,0,.12);}
+.fab-timer:active{background:var(--red-light);}
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;}
 .modal-overlay.open{display:flex;}
@@ -210,6 +215,35 @@ body.authed .nav{display:flex;}
 .consent-accept{background:var(--red);color:#fff;}
 .consent-accept:active{background:var(--red-dark);}
 .consent-link{display:block;text-align:center;font-size:12px;color:var(--text3);text-decoration:underline;}
+
+/* Shift timer — a running shift with per-trip "laps", ending in a normal
+   logged session. Local-only for now: laps live in localStorage, not the
+   server (see site/app.js's SHIFT TIMER section). */
+.shift-timer-active .nav{display:none;}
+.timer-hero{background:linear-gradient(152deg,#FFF4F3 0%,#FDE9E7 100%);margin:16px 16px 0;border-radius:var(--radius);padding:24px 20px;border:0.5px solid var(--red-border);box-shadow:0 2px 10px rgba(208,2,27,.07);text-align:center;}
+[data-theme="dark"] .timer-hero{background:linear-gradient(152deg,#241113 0%,#1C1C1E 100%);border-color:#3A1113;}
+.rec-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(208,2,27,.1);color:var(--red-dark);font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:5px 10px 5px 8px;border-radius:20px;margin-bottom:14px;}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:recPulse 1.4s ease-in-out infinite;}
+@keyframes recPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.8);}}
+.timer-amt{font-size:44px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:var(--text);margin-bottom:4px;}
+.timer-sub{font-size:12px;color:var(--text3);margin-bottom:18px;}
+.timer-stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding-top:16px;border-top:0.5px solid var(--red-border);}
+.timer-stat-label{font-size:11px;color:var(--text3);}
+.timer-stat-val{font-size:17px;font-weight:700;margin-top:2px;color:var(--text);}
+.lap-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:0.5px solid var(--border);}
+.lap-row:last-child{border-bottom:none;}
+.lap-left{display:flex;align-items:center;}
+.lap-num{width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--text3);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0;}
+.lap-time{font-size:13px;color:var(--text2);font-weight:600;}
+.lap-meta{font-size:12px;color:var(--text3);}
+.lap-fare{font-size:14px;font-weight:700;color:var(--text);}
+.timer-actions{display:none;position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:430px;bottom:0;padding:14px 16px calc(env(safe-area-inset-bottom,0) + 14px);background:linear-gradient(180deg,rgba(242,242,247,0) 0%,var(--bg) 30%);gap:10px;z-index:99;}
+[data-theme="dark"] .timer-actions{background:linear-gradient(180deg,rgba(0,0,0,0) 0%,var(--bg) 30%);}
+.shift-timer-active .timer-actions{display:flex;}
+.btn-log-trip{flex:2;padding:15px;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-log-trip:active{background:var(--red-dark);}
+.btn-end-shift{flex:1;padding:15px;background:#fff;color:var(--red);border:1.5px solid var(--red-border);border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-end-shift:active{background:var(--red-light);}
 
 /* ============================================================
    Desktop / wide-screen layout (>=900px)

@@ -106,6 +106,80 @@
   </div>
 </div>
 
+<!-- SHIFT TIMER (a running shift; local-only for now, see site/app.js) -->
+<div class="screen" id="s-timer">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <h1 data-i18n="shift_in_progress">Shift in progress</h1>
+        <div class="hdr-sub" id="timer-prov-type">—</div>
+      </div>
+      <button class="avatar" data-i18n-aria="avatar_open_settings" onclick="switchScreen('settings')">G</button>
+    </div>
+  </div>
+  <div class="timer-hero">
+    <span class="rec-pill"><span class="rec-dot"></span><span data-i18n="recording">Recording</span></span>
+    <div class="timer-amt" id="timer-elapsed">0:00:00</div>
+    <div class="timer-sub" id="timer-meta">—</div>
+    <div class="timer-stats">
+      <div><div class="timer-stat-label" data-i18n="revenue_so_far">Revenue so far</div><div class="timer-stat-val" id="timer-rev">฿0</div></div>
+      <div><div class="timer-stat-label" data-i18n="avg_per_trip">Avg / trip</div><div class="timer-stat-val" id="timer-avg">—</div></div>
+    </div>
+  </div>
+  <div class="section-title" style="margin:20px 16px 10px;" data-i18n="trips_this_shift">Trips this shift</div>
+  <div class="insight-card" id="lap-list" style="margin:0 16px 100px;"></div>
+</div>
+<div class="timer-actions" id="timer-actions">
+  <button type="button" class="btn-log-trip" onclick="openLogTripModal()" data-i18n="log_trip">+ Log trip</button>
+  <button type="button" class="btn-end-shift" onclick="endShift()" data-i18n="end_shift">End shift</button>
+</div>
+
+<!-- START SHIFT MODAL -->
+<div class="modal-overlay" id="modal-start-shift">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="start-shift-title">
+    <button type="button" class="modal-close-x" aria-label="Close" onclick="closeStartShiftModal()">&#10005;</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="start-shift-title" data-i18n="start_shift">Start shift</div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header" data-i18n="select_provider">Select provider</div>
+      <div class="svc-selector prov-selector">
+        <div class="svc-opt sel" data-prov="Grab" onclick="selProv(this)">Grab</div>
+        <div class="svc-opt" data-prov="Lineman" onclick="selProv(this)">Lineman</div>
+        <div class="svc-opt" data-prov="Bolt" onclick="selProv(this)">Bolt</div>
+        <div class="svc-opt" data-prov="Shopee" onclick="selProv(this)">Shopee</div>
+        <div class="svc-opt" data-prov="Taxi" onclick="selProv(this)">Taxi</div>
+      </div>
+      <div class="form-header" data-i18n="service_type">Service type</div>
+      <div class="svc-selector type-selector">
+        <div class="svc-opt sel" data-type="Car" onclick="selType(this)">🚗 <span data-i18n="type_car">Car</span></div>
+        <div class="svc-opt" data-type="Bike" onclick="selType(this)">🏍️ <span data-i18n="type_bike">Bike</span></div>
+        <div class="svc-opt" data-type="Food" onclick="selType(this)">🍔 <span data-i18n="type_food">Food</span></div>
+        <div class="svc-opt" data-type="Express" onclick="selType(this)">📦 <span data-i18n="type_express">Express</span></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" onclick="closeStartShiftModal()" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn-submit" onclick="beginShift()" data-i18n="start_shift">Start shift</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG TRIP MODAL (during an active shift) -->
+<div class="modal-overlay" id="modal-log-trip">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="log-trip-title">
+    <button type="button" class="modal-close-x" aria-label="Close" onclick="closeLogTripModal()">&#10005;</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="log-trip-title" data-i18n="log_trip_title">Log a trip</div>
+    <div class="form-section" style="margin:0 16px 12px;">
+      <div class="field"><label data-i18n="trip_fare">Fare (฿)</label><input type="number" id="lt-fare" placeholder="0" min="0" step="0.01" inputmode="decimal"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" onclick="closeLogTripModal()" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn-submit" onclick="addLoggedTrip()" data-i18n="add_trip">Add</button>
+    </div>
+  </div>
+</div>
+
 <!-- SESSIONS -->
 <div class="screen" id="s-sessions">
   <div class="hdr-plain" data-i18n="sessions_title">Sessions</div>
@@ -215,7 +289,7 @@
     <div class="section-title" data-i18n="about">About</div>
     <div class="settings-list">
       <div class="settings-row"><span class="settings-label" data-i18n="app_word">App</span><span style="color:var(--text3)">Driver log book</span></div>
-      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.7.1</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.8.0</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="total_sessions">Total sessions</span><span id="set-count" style="color:var(--text3)">—</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="created_by">Created by</span><span style="color:var(--text3)">Grit · Powered by Claude</span></div>
       <a class="settings-row" href="mailto:grit4game@gmail.com?subject=DriverLog%20feedback" style="text-decoration:none">
@@ -316,8 +390,9 @@
   </div>
 </div>
 
-<!-- FAB (shown on sessions screen) -->
+<!-- FAB (shown on dashboard/sessions screens) -->
 <div class="fab-wrap">
+  <button class="fab-timer" id="fab-timer" style="display:none" data-i18n-aria="start_shift" onclick="openStartShiftModal()">▶</button>
   <button class="fab" id="fab" style="display:none" data-i18n-aria="fab_add_session" onclick="openAddSession()">+</button>
 </div>
 
