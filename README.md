@@ -3,17 +3,21 @@ easy log for driver
 
 ## Cloud backend setup (Vercel + Neon)
 
-`site/` is the deployed static app (Hostinger + a Netlify mirror; no build
-step, no secrets of its own). Cloud sync/auth — email+password accounts,
-"Log in with LINE", and cross-device sync of sessions/fuel — runs against
-this repo's own `api/` serverless functions, deployed separately as a
-Vercel project, backed by a Neon Postgres database. PocketBase is not used
-anywhere in this project anymore.
+One Vercel project serves everything: `site/` (driverlog.link), `info/`
+(info.driverlog.link), and this repo's own `api/` serverless functions
+(both domains' `/api/*`), backed by a Neon Postgres database — see
+`vercel.json`'s host-based rewrites. Hostinger's only remaining job is DNS
+(both domains point at Vercel; no FTP hosting, no Netlify mirror).
+PocketBase is not used anywhere in this project anymore.
 
-1. **Create the Vercel project** from this repo. `vercel.json`'s
-   `outputDirectory: "site"` is only relevant if you also serve the static
-   app from the same Vercel project — most deployments just need `api/` and
-   `lib/` here, since `site/` is already deployed to Hostinger separately.
+**Workflow:** changes are built on a branch, opened as a PR against `main`,
+and reviewed. Once a PR is approved and merged, Vercel deploys `main`
+automatically — there is no manual/local deploy step anymore.
+
+1. **Create the Vercel project** from this repo (root directory = repo
+   root, not `site/`) and connect it to GitHub so pushes to `main` deploy
+   automatically. Add `driverlog.link` and `info.driverlog.link` as custom
+   domains on the project.
 2. **Connect Neon** — Vercel dashboard → the project → **Storage** →
    **Connect Database** → Neon. This auto-provisions `DATABASE_URL`; don't
    set it by hand (`lib/db.js` reads exactly that name).
@@ -29,14 +33,14 @@ anywhere in this project anymore.
 5. **LINE Developers Console** (only needed for LINE login) — create a
    channel of type **LINE Login** (not Messaging API). Under that channel's
    "LINE Login" tab, add a callback URL matching
-   `LINE_LOGIN_CALLBACK_URL` exactly:
-   `https://<your-vercel-project>.vercel.app/api/line-login-callback`.
+   `LINE_LOGIN_CALLBACK_URL` exactly: `https://driverlog.link/api/line-login-callback`.
    Note the Channel ID / Channel secret from "Basic settings".
-6. **Point the app at the API** — on each device/browser, or via a config
-   step you add to the app,
-   set `localStorage.api_url = 'https://<your-vercel-project>.vercel.app'`.
-   Cloud sync and "Log in with LINE" both stay off (local-only + guest mode)
-   until this is set, same as the old `pb_url` behaved.
+
+Nothing device-side to configure: `site/`'s `API_URL` defaults to
+same-origin, so cloud sync and "Log in with LINE" work as soon as the
+project above is deployed with its env vars set — `localStorage.api_url`
+only needs setting to point a device at a *different* API host (e.g. local
+dev).
 
 ### Why no server-side session store
 

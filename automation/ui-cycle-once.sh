@@ -16,9 +16,11 @@ export PATH="/Users/grit/.local/bin:$PATH"
 PROJECT_DIR="/Users/grit/Claude/Projects/Driver Log"
 LOG_FILE="$PROJECT_DIR/automation/scheduler.log"
 cd "$PROJECT_DIR" || exit 1
-# Deploy-on-QA-pass (user directive "deploy all QA-passed feature"): deploy-site.sh
-# PUSHES non-chat changes when automation/deploy.env creds exist, else STAGES a zip.
-# It is cred-gated + non-destructive (never removes the live /chat or other files).
+# Deploy-on-QA-pass (user directive "deploy all QA-passed feature"): the FTP
+# deploy-site.sh script is retired (archive/retired-ftp-deploy-20260713/).
+# Deploys now happen via GitHub: push the branch, open a PR against main;
+# Vercel auto-deploys to driverlog.link/info.driverlog.link once it's
+# reviewed and merged. This script's job stops at "PR opened".
 
 iso() { date "+%Y-%m-%dT%H:%M:%S%z"; }
 log() { echo "[$(iso)] $*" >> "$LOG_FILE"; }
@@ -66,12 +68,10 @@ HARD RULES:
 - Version lockstep (APP_VERSION / #app-version fallback / SW_VERSION) whenever you touch app.js/app.html/sw.js.
 - Personalization/personal-data work: keep new fields OPTIONAL + ON-DEVICE; no new data leaves the device.
 
-DEPLOY (only after QA PASS, NON-CHAT only):
-  Run:  bash "/Users/grit/Claude/Projects/Driver Log/automation/deploy-site.sh"
-  It builds a chat-free copy and PUSHES to driverlog.link if automation/deploy.env creds exist (else it
-  stages a zip + logs "STAGED"), non-destructively (never removes the live /chat or other remote files),
-  and verifies an HTTP 200 after a push. Report exactly what it logged; only claim a live deploy if it
-  verified 200. NEVER deploy anything under site/chat/.
+SHIP (only after QA PASS, NON-CHAT only):
+  Push the branch and open a PR against main (gh CLI or the GitHub MCP tools). Do NOT push straight to
+  main and do NOT deploy directly — Vercel deploys automatically once a human approves and merges the
+  PR. Report the PR URL. NEVER include anything under site/chat/ in the diff.
 
 LOG: append one line to automation/dev-log.md: "ISO | agent(layer) | task | files touched | QA result |
 STAGED". Update docs/roadmap-next.md if a backlog item completed. End with a 2-3 sentence summary.

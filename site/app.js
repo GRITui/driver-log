@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.7.0';   // bump on every deploy — 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.7.1';   // bump on every deploy — 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -74,9 +74,11 @@ function dbGet(store, key) {
 // gone entirely. Swappable in principle (configure/signUp/signIn/signOut/
 // authed/uid/token/list/save/remove is still the shared interface); a
 // future backend just has to implement the same shape.
-// Configure the API's base URL once deployed, e.g.
-// localStorage.api_url = 'https://driverlog-api.vercel.app'
-const API_URL = localStorage.getItem('api_url') || '';   // '' → cloud sync off (local + guest only)
+// site/ and api/ deploy together from one Vercel project (see root
+// vercel.json), so the API is always same-origin — '' resolves fetches
+// against location.origin. Override only for local dev against a
+// different API host, e.g. localStorage.api_url = 'http://localhost:3000'
+const API_URL = localStorage.getItem('api_url') || '';
 const COLLECTION = { sessions: 'sessions', fuel: 'fuel', settings: 'settings' };
 const AUTH_CACHE_KEY = 'api_auth';   // {uid, token, email, firstName} — this backend's whole "session"
 const TOKEN_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;   // must match lib/auth.js's TOKEN_MAX_AGE_MS
@@ -111,7 +113,7 @@ async function apiFetch(path, opts = {}) {
 }
 
 const NeonBackend = {
-  enabled: () => !!API_URL,
+  enabled: () => true,   // api/ is always deployed alongside site/ in this project
   authed: () => {
     const auth = readAuthCache();
     if (!auth || !auth.uid || !auth.token) return false;

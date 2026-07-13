@@ -3,7 +3,8 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.7.0';  // v1.7.0: PocketBase dropped entirely — cloud sync/auth now runs against this project's own Vercel api/ functions on Neon (see lib/db.js, lib/auth.js, api/auth-*.js, api/records-*.js, api/line-login-*.js); background sync now calls /api/records-* instead of PocketBase's REST convention, cached config moved from /__pb_cfg__ to /__api_cfg__; APP_VERSION 2.6.12->2.7.0
+const SW_VERSION = 'v1.7.1';  // v1.7.1: same-origin api/ (single Vercel project for site/+info/+api/, Netlify mirror + Hostinger FTP retired); APP_VERSION 2.7.0->2.7.1
+// prior: v1.7.0: PocketBase dropped entirely — cloud sync/auth now runs against this project's own Vercel api/ functions on Neon (see lib/db.js, lib/auth.js, api/auth-*.js, api/records-*.js, api/line-login-*.js); background sync now calls /api/records-* instead of PocketBase's REST convention, cached config moved from /__pb_cfg__ to /__api_cfg__; APP_VERSION 2.6.12->2.7.0
 // prior: v1.6.14: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH; APP_VERSION 2.6.9->2.6.10
 // prior: v1.6.13: personalized dashboard empty-state welcome title with first name (EN+TH); APP_VERSION 2.6.8->2.6.9
 // prior: v1.6.12: first-name capture at registration + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH); APP_VERSION 2.6.7->2.6.8

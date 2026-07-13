@@ -6,16 +6,14 @@
  * `returnTo`) forward to api/line-login-callback.js (see lib/lineLogin.js's
  * header for why).
  *
- * The app is deployed at more than one origin (Hostinger + the Netlify
- * mirror). `returnTo` is which one the button was clicked from; it's
- * checked against an exact allowlist here (never trusted as-is) since it
- * ends up as a redirect target in the callback.
+ * The app is deployed at a single origin (driverlog.link, on Vercel).
+ * `returnTo` is checked against an exact allowlist here (never trusted
+ * as-is) since it ends up as a redirect target in the callback.
  */
 import { signState, buildAuthorizeUrl } from '../lib/lineLogin.js';
 
 const ALLOWED_RETURN_TO = [
   'https://driverlog.link/login.html',
-  'https://grit-driver.netlify.app/login.html',
 ];
 
 const STATE_COOKIE = 'line_login_nonce';
