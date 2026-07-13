@@ -1,0 +1,19 @@
+name: Scratch check live status 2
+on:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check driverlog.link + info.driverlog.link
+        run: |
+          echo "--- driverlog.link/ ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 20 https://driverlog.link/ || true
+          curl -sI --max-time 20 https://driverlog.link/ | head -20 || true
+          echo "--- driverlog.link/app.html ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 20 https://driverlog.link/app.html || true
+          echo "--- driverlog.link/api/auth-me ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 20 https://driverlog.link/api/auth-me || true
+          echo "--- info.driverlog.link/ ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 20 https://info.driverlog.link/ || true
+          curl -sI --max-time 20 https://info.driverlog.link/ | head -20 || true
