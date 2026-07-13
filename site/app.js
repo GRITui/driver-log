@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.8.0';   // bump on every deploy — 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.8.1';   // bump on every deploy — 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -555,8 +555,8 @@ const I18N = {
     period_today: 'Today', period_week: 'This week', period_month: 'This month', period_all: 'All time',
     period_custom: 'Custom', period_custom_range: 'Custom range', to: 'to',
     net_revenue: 'Net revenue', revenue: 'Revenue', tips: 'Tips', fuel_exp: 'Fuel exp',
-    distance: 'Distance', fuel_cost_ratio: 'Fuel cost ratio', avg_per_session: 'Avg / session',
-    net_revenue_lower: 'net revenue', total_revenue: 'Total revenue', before_expenses: 'before expenses',
+    distance: 'Distance', fuel_cost_ratio: 'Fuel cost ratio', avg_rev_per_trip: 'Avg revenue / trip',
+    total_revenue: 'Total revenue', before_expenses: 'before expenses',
     earnings_trend: 'Earnings trend', by_service_type: 'By service type', best_time: 'Best time to drive',
     top_days: 'Top earning days', no_data: 'No data yet', ratio_good: 'Good', ratio_watch: 'Watch it',
     ratio_high: 'High',
@@ -636,8 +636,8 @@ const I18N = {
     period_today: 'วันนี้', period_week: 'สัปดาห์นี้', period_month: 'เดือนนี้', period_all: 'ทั้งหมด',
     period_custom: 'กำหนดเอง', period_custom_range: 'ช่วงที่กำหนด', to: 'ถึง',
     net_revenue: 'รายได้สุทธิ', revenue: 'รายได้', tips: 'ทิป', fuel_exp: 'ค่าน้ำมัน',
-    distance: 'ระยะทาง', fuel_cost_ratio: 'สัดส่วนค่าน้ำมัน', avg_per_session: 'เฉลี่ย/รอบ',
-    net_revenue_lower: 'รายได้สุทธิ', total_revenue: 'รายได้รวม', before_expenses: 'ก่อนหักค่าใช้จ่าย',
+    distance: 'ระยะทาง', fuel_cost_ratio: 'สัดส่วนค่าน้ำมัน', avg_rev_per_trip: 'รายได้เฉลี่ย/งาน',
+    total_revenue: 'รายได้รวม', before_expenses: 'ก่อนหักค่าใช้จ่าย',
     earnings_trend: 'แนวโน้มรายได้', by_service_type: 'แยกตามประเภทบริการ', best_time: 'ช่วงเวลาที่ดีที่สุด',
     top_days: 'วันที่รายได้สูงสุด', no_data: 'ยังไม่มีข้อมูล', ratio_good: 'ดี', ratio_watch: 'ระวัง',
     ratio_high: 'สูง',
@@ -1034,8 +1034,8 @@ function renderDashboard() {
     : `<span class="badge badge-bad">${t('ratio_high')}</span>`;
   document.getElementById('g-ratio-badge').innerHTML = badge;
 
-  const avgNet = filtered.length > 0 ? totalNet / filtered.length : 0;
-  document.getElementById('g-avg').textContent = '฿' + fmt(avgNet);
+  const avgRevPerTrip = filtered.length > 0 ? totalRev / filtered.length : 0;
+  document.getElementById('g-avg').textContent = '฿' + fmt(avgRevPerTrip);
   document.getElementById('g-totrev').textContent = '฿' + fmt(totalRev + totalTip);
 
   renderProfitInsights(filtered, {grossRev: totalRev + totalTip, profit: totalNet, exp: totalExp, ratio, unit, distVal, totalHours, perHour});
