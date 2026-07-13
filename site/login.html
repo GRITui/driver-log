@@ -14,8 +14,6 @@
 <meta name="apple-mobile-web-app-title" content="DriverLog">
 <link rel="icon" href="/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/icons/apple-touch-180.png">
-<!-- self-hosted libs (offline-capable) — login only needs the PocketBase client -->
-<script src="/vendor/pocketbase.umd.js"></script>
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -48,6 +46,7 @@
       <input type="password" id="auth-confirm" autocomplete="new-password" placeholder="••••••••">
     </div>
     <button class="auth-btn" id="auth-submit" onclick="submitAuth()" data-i18n="login">Log in</button>
+    <button class="auth-btn line" id="auth-line" onclick="loginLine()" data-i18n="login_line">Log in with LINE</button>
     <button class="auth-btn guest" onclick="loginGuest()" data-i18n="login_guest">Login as Guest</button>
     <div class="auth-hint" id="auth-hint"><span id="auth-hint-text"></span><br><br>Created by Grit · Powered by Claude</div>
   </div>

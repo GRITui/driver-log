@@ -1,0 +1,20 @@
+# One Vercel project now serves site/ (driverlog.link), info/
+# (info.driverlog.link), and api/+lib/ (both domains' /api/*) — see
+# vercel.json. Everything else in this repo is dev-only tooling, historical
+# snapshots, or docs; keep it out of the public deployment.
+.claude/
+Backup/
+Ready to deploy/
+UAT/
+android/
+drivee-orchestrator/
+launch/
+brand/
+docs/
+sql/
+automation/
+archive/
+pocketbase/
+project-changelog-handshake.md
+.env.example
+README.md

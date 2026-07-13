@@ -3,8 +3,9 @@
 #
 # One-session task (2026-07-07): keep improving the DriverLog UI, PM-led with a
 # 4-level sub-agent hierarchy, token-optimized (local LLMs for grunt work), LOW
-# effort. On QA PASS, auto-deploy NON-CHAT changes via deploy-site.sh. NEVER
-# deploy site/chat/ (waits for the tunnel). Self-stops at 20:00 and exits.
+# effort. On QA PASS, stage NON-CHAT changes for a PR (deploys happen via
+# Vercel on merge to main, not from this script — see archive/retired-ftp-
+# deploy-20260713/). NEVER deploy site/chat/. Self-stops at 20:00 and exits.
 #
 # Launch detached:
 #   nohup ./automation/ui-deploy-loop.sh >/dev/null 2>&1 & disown
@@ -64,10 +65,9 @@ HARD RULES:
   device; loop in advisor-security/security-privacy for anything that would sync.
 
 STAGE (only after QA PASS, only for NON-CHAT changes) — STAGING ONLY, NEVER a live deploy:
-- Run:  bash "/Users/grit/Claude/Projects/Driver Log/automation/deploy-site.sh"
-  It runs with STAGE_ONLY=1 (exported by this loop): it builds a chat-free copy, writes a versioned
-  zip to archive/zips/, and logs "STAGED" — it does NOT push to driverlog.link. Report exactly what
-  it logged. NEVER claim anything was deployed live; the user wants everything staged, not deployed.
+- Commit to a feature branch and push it (do not open a PR from this loop — that's a separate, explicit
+  step). Log the branch/commit. NEVER push to main and never claim anything was deployed live: actual
+  deploys only happen via Vercel, after a PR against main is reviewed and merged by a human.
 
 LOG: append one line PER agent action to automation/dev-log.md:
   "ISO | agent(level) | task | files touched | QA result | deploy status".

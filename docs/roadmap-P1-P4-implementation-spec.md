@@ -1,7 +1,7 @@
 # DriverLog — P1–P4 Implementation Spec
 
-**Product:** DriverLog · [driverlog.link](https://driverlog.link) · Hosted on Hostinger
-**Current state:** Single-file HTML app (~58 KB), fully client-side, IndexedDB storage, no backend. Live at grit-driver.netlify.app / driverlog.link.
+**Product:** DriverLog · [driverlog.link](https://driverlog.link) · Hosted on Vercel, DNS at Hostinger
+**Current state:** Live at driverlog.link (single Vercel project serving `site/`+`info/`+`api/`; Neon-backed cloud sync/auth).
 **Scope of this doc:** Detailed, buildable specs for roadmap items **P1–P4** — login + sync, PWA→TWA Android app, offline + background sync, and Play Store launch.
 **Last updated:** July 2026
 
@@ -240,7 +240,7 @@ self.addEventListener('fetch', e => {
 
 ## 3. HTTPS
 
-TWA and service workers **require** HTTPS. Confirm Hostinger SSL is active and enforced (redirect http→https) on driverlog.link. Netlify already serves HTTPS for grit-driver.netlify.app; ensure the custom domain has a valid cert.
+TWA and service workers **require** HTTPS. Vercel issues and renews HTTPS certs automatically for custom domains (driverlog.link, info.driverlog.link) — confirm both show a valid cert in the Vercel dashboard's Domains tab and that http→https redirect is on.
 
 ## 4. Install prompt (custom)
 

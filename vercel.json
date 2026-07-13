@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "info.driverlog.link" }],
+      "destination": "/info/$1"
+    },
+    { "source": "/(.*)", "destination": "/site/$1" }
+  ]
+}

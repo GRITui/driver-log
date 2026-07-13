@@ -4,7 +4,7 @@
 
 **Driver Log Book** is a free, offline-first web app for gig economy drivers (Grab, food delivery, etc.) to track daily earnings, fuel costs, and driving insights. All data is stored locally on the device — no backend, no cloud, no subscriptions.
 
-**Live URL:** https://grit-driver.netlify.app/  
+**Live URL:** https://driverlog.link/ (Vercel; DNS at Hostinger)  
 **Created by:** Grit · Powered by Claude  
 **Current Version:** 2.0.0
 
@@ -58,8 +58,6 @@
 /gritdrive-v2/
 └── index.html          (58 KB, complete app)
 
-Deployment:
-└── driver-log-book.zip (14 KB, ready for Netlify)
 ```
 
 ---
@@ -170,21 +168,13 @@ Keys: `lang`, `unit` (km/mi)
 
 ## Deployment
 
-### Netlify (Recommended)
+### Vercel (current)
 
-1. **Extract** `driver-log-book.zip`
-2. **Drag & drop** the folder to Netlify App → Deploys, or use Netlify CLI:
-   ```bash
-   npm install -g netlify-cli
-   unzip driver-log-book.zip
-   netlify deploy --prod --dir=gritdrive-v2
-   ```
-3. **Done** — live at your Netlify URL
-
-### Alternative: GitHub Pages, Vercel, Static Host
-- Copy `index.html` to the root of your static host
-- Set index.html as the default document
-- No build step required
+One Vercel project serves `site/`, `info/`, and `api/` together (see root
+`vercel.json` and `README.md`'s "Cloud backend setup" section). Push a
+branch, open a PR against `main`; once it's reviewed and merged, Vercel
+deploys automatically. Hostinger only holds the DNS records pointing
+`driverlog.link` / `info.driverlog.link` at Vercel.
 
 ---
 
@@ -347,7 +337,7 @@ For questions or improvements, refer to the code comments or contact the origina
 - [ ] Test fuel log entry and deletion
 - [ ] Verify chart renders with data
 - [ ] Clear IndexedDB and start fresh (no corrupted state)
-- [ ] Deploy to Netlify/production host
+- [ ] Push branch → open PR → merge → verify Vercel auto-deploy
 - [ ] Share link with drivers to test
 
 ---
