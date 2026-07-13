@@ -16,7 +16,7 @@ Be the default financial + operations companion for on-demand workers — starti
 
 The app is live at [driverlog.link](https://driverlog.link) as an installable, offline-first PWA. Detailed status lives in `roadmap-agents.md`; against this roadmap's priorities:
 
-- **P1 Go native (Android/iOS):** 🟡 PWA→TWA path chosen and shipped — installable PWA with offline entry, service worker, and Play Store packaging assets ready. Play submission and any deeper native shell still pending. (iOS via PWA/Capacitor later.)
+- **P1 Go native (Android/iOS):** 🟡 PWA→Capacitor path chosen — installable PWA with offline entry, service worker, and a Capacitor Android shell (`android/`, remote mode) scaffolded with push-notification + geolocation plugins. Native build/signing, Play submission, and iOS (`npx cap add ios`, same codebase) still pending.
 - **P2 Cross-platform login:** 🟡 Login + a full sync engine (PocketBase, Firebase-swappable) are built; shipped **local-only** for now (accounts + guest work on-device). Cloud sync flips on once the backend is hosted.
 - **P3 Monetize (no subscription):** 🟢 In progress — AdSense ads live on the dashboard with EU consent policy (Consent Mode v2) adopted. Affiliate/partner + B2B levers still ahead.
 - **P4 Expand beyond drivers:** ⚪ Not started; sessions now carry a `provider` field as groundwork.

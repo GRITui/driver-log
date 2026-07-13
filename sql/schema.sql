@@ -25,6 +25,11 @@ create table if not exists users (
   -- always resolves back to the same account.
   line_sub       text unique,
   line_picture   text not null default '',
+  -- FCM device token from the Android app's push-notifications plugin (see
+  -- api/push-register.js). Null until the device registers; overwritten on
+  -- every register call, so this always holds the most recent device/token
+  -- pair, not a history. No sender is wired up yet — see that file's header.
+  push_token     text,
   created_at     timestamptz not null default now()
 );
 
@@ -70,3 +75,9 @@ create table if not exists fuel_logs (
   unique (user_id, cuid)
 );
 create index if not exists idx_fuel_logs_user_updated on fuel_logs (user_id, updated_at);
+
+-- ── Incremental changes (apply by hand against an ALREADY-provisioned
+-- database — `create table if not exists` above is a no-op once the table
+-- exists, so a new column on an existing table needs its own statement) ──
+-- 2026-07-13: push_token for the Capacitor Android push-notifications shell.
+alter table users add column if not exists push_token text;
