@@ -1,0 +1,12 @@
+{
+  "appId": "link.driverlog.twa",
+  "appName": "DriverLog",
+  "webDir": "site",
+  "server": {
+    "url": "https://driverlog.link",
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

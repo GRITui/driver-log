@@ -1,20 +1,21 @@
 # DriverLog — Android Roadmap (Web-Based App)
 
 **Approach:** Wrap the existing [driverlog.link](https://driverlog.link) website as an Android app — one codebase, no native rewrite.
-**Product:** DriverLog · Hosted on Hostinger
-**Last updated:** July 2026
+**Product:** DriverLog · Hosted on Vercel, DNS at Hostinger
+**Last updated:** 13 July 2026 — switched the packaging plan from TWA to Capacitor (see below); everything before Phase 3 is unaffected.
 
 ---
 
 ## The strategy in one line
 
-Turn the current website into an installable Android app by making it a **PWA (Progressive Web App)** first, then packaging it as a **TWA (Trusted Web Activity)** for the Google Play Store. Same site, same deploys — it just runs full-screen and installs like a native app.
+Turn the current website into an installable Android app by making it a **PWA (Progressive Web App)** first, then packaging it with **Capacitor** for the Google Play Store, configured in *remote mode* (`capacitor.config.json`'s `server.url` points at `https://driverlog.link`). Same site, same deploys — redeploying the website updates the installed app instantly, same as a TWA would, but Capacitor also gives access to native plugins (push notifications, geolocation) that a TWA can't provide.
 
-### Why this path (not native)
-- Reuses the website you already have — no separate Android codebase to maintain.
-- One deploy updates both web and app (the app loads your live site).
-- Fastest route to a Play Store listing.
-- Trade-off: some deep native features are limited. Covered in the "Known limits" section below.
+### Why Capacitor over a plain TWA
+- Still reuses the website you already have — no content fork, no bundled snapshot.
+- One deploy updates both web and app, same as TWA would have.
+- Unlocks native plugins: push notifications (FCM) and geolocation are already scaffolded (see `README.md`'s "Android app (Capacitor)" section).
+- Trade-off vs. TWA: a real native `android/` Gradle project now exists to maintain (rebuild needed for plugin/icon/version changes), and there's more first-time setup (Android Studio, signing keystore) than a TWA's near-zero native footprint.
+- The originally-planned TWA/Bubblewrap path is retired — see `archive/retired-twa-bubblewrap-20260713/`.
 
 ---
 
@@ -41,13 +42,20 @@ Drivers log entries mid-shift, often with no connection.
 
 ---
 
-## Phase 3 — Package as a Play Store app (TWA)
+## Phase 3 — Package as a Play Store app (Capacitor)
 Wrap the PWA so it installs from Google Play.
 
-- Use **PWABuilder** (easiest, web UI) or **Bubblewrap** (Google's CLI) to generate the TWA/Android package.
-- Add **Digital Asset Links** (`assetlinks.json` on your domain) so the app opens without a browser address bar — this proves you own driverlog.link.
-- Generate signed APK/AAB, create a **Google Play Developer account** ($25 one-time), and submit.
+- `android/` is already scaffolded (Capacitor, remote mode — see `README.md`'s
+  "Android app (Capacitor)" section for the exact build commands; needs
+  Android Studio/Gradle locally, not available in this dev sandbox).
+- Generate signed APK/AAB (`./gradlew bundleRelease`), create a **Google
+  Play Developer account** ($25 one-time; new personal accounts also need a
+  14-day/20-tester closed test before Production), and submit.
 - Prepare store listing: icon, screenshots, description, privacy policy (required).
+- Note: Capacitor apps don't need Digital Asset Links the way a TWA does
+  (there's no browser address bar to hide) — skip `assetlinks.json` unless
+  you later want Android App Links (opening `driverlog.link` URLs directly
+  in the app).
 
 **Outcome:** DriverLog is downloadable from the Play Store, full-screen, no browser chrome.
 
@@ -56,10 +64,16 @@ Wrap the PWA so it installs from Google Play.
 ## Phase 4 — Native-feeling features
 Close the gap between web and native.
 
-- **Push notifications** (Web Push / FCM) — shift reminders, "log your fuel," weekly earnings summary.
-- **Home-screen widget** — hardest via web; consider a thin native shell later if this becomes a priority.
-- **Camera / receipt capture** — use the browser file/camera input for photos of receipts.
-- **Geolocation** — request permission for mileage/trip logging.
+- **Push notifications (FCM)** — client-side registration is scaffolded
+  (`initPushNotifications()` in `site/app.js`, `api/push-register.js`
+  stores the device token). Still needed: a Firebase project
+  (`google-services.json`) and a send-push endpoint using an FCM server
+  key — see `README.md`.
+- **Home-screen widget** — still needs native code; not started.
+- **Camera / receipt capture** — not started; `@capacitor/camera` is the
+  natural plugin once this is prioritized.
+- **Geolocation** — plugin scaffolded (`getCurrentPositionNative()` in
+  `site/app.js`), not yet wired into any trip-mileage UI.
 - **Install prompt** — custom "Install app" button when the browser allows it.
 
 ---
@@ -79,7 +93,7 @@ Close the gap between web and native.
 |-------|-------|---------|
 | **1** | PWA foundation (manifest + service worker + HTTPS) | Installable from mobile browser |
 | **2** | Offline data + background sync | Works with no signal |
-| **3** | TWA packaging + Play Store submission | Downloadable app |
+| **3** | Capacitor packaging + Play Store submission | Downloadable app |
 | **4** | Push, camera, geolocation | Native-feeling |
 | **5** | Polish + soft launch → public launch | Live in Play Store |
 
@@ -89,19 +103,17 @@ Close the gap between web and native.
 Worth knowing up front so there are no surprises:
 
 - **True home-screen widgets** and deep OS integration need native code — plan a thin native shell if these become essential.
-- **Background GPS tracking** (continuous, app closed) is limited in a web wrapper — fine for on-demand "start/stop trip," not for always-on tracking.
-- **iOS PWA support** is weaker than Android — this roadmap is Android-first for that reason. iOS may later need a different wrapper (e.g. Capacitor).
-- If native needs grow, **Capacitor** is the natural next step: wraps the same web app but gives access to native plugins without a full rewrite.
+- **Background GPS tracking** (continuous, app closed) is limited even with Capacitor's Geolocation plugin — fine for on-demand "start/stop trip," not for always-on tracking.
+- **iOS**: Capacitor supports it (same web codebase, `npx cap add ios`), unlike the old TWA path — worth revisiting once Android ships, no separate wrapper decision needed this time.
 
 ---
 
 ## Tooling cheat-sheet
-- **PWABuilder** — packages PWA → Android app via web UI.
-- **Bubblewrap** — Google's CLI for TWA generation.
-- **Capacitor** — bridge to native features if/when the TWA hits limits.
+- **Capacitor** — native Android (and future iOS) shell around the live site; `android/` in this repo.
+- **PWABuilder** — alternative packaging tool, no longer the chosen path here (see the retired TWA plan).
 - **Lighthouse** — audits PWA readiness.
-- **Firebase Cloud Messaging (FCM)** — push notifications.
+- **Firebase Cloud Messaging (FCM)** — push notifications (needs its own Firebase project, not yet created).
 
 ---
 
-*Living document — Android-first, web-based. Revisit native shell only if widget/background-GPS needs emerge.*
+*Living document — Android-first, web-based, Capacitor-packaged. Revisit iOS once Android ships.*

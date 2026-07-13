@@ -481,6 +481,53 @@ async function logout() {
   location.href = '/login.html';
 }
 
+// ─── CAPACITOR NATIVE SHELL ───────────────────────────────────────────
+// site/ runs unmodified both as a plain website and inside the Android app
+// (Capacitor, remote mode — capacitor.config.json points at driverlog.link,
+// so this is the exact same deploy, not a bundled snapshot). The native
+// runtime auto-injects `window.Capacitor` with the plugins declared in
+// android/ (see android/app/build.gradle) *before* this script runs, so a
+// plain browser tab just never has `window.Capacitor` and every call below
+// is a no-op there — nothing here needs a bundler or a vendored script.
+const CapApp = (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())
+  ? window.Capacitor : null;
+
+// Registers this device for push (permission prompt on first call) and
+// hands the OS-issued token to the API so a future send-push endpoint can
+// target this device. Best-effort: any failure here must never block boot.
+// TODO(push): api/push-register.js + a push_token column on `users` are
+// scaffolded (see sql/schema.sql); actually *sending* a push still needs a
+// Firebase project (google-services.json + FCM server key env var) that
+// hasn't been created yet — safe to leave dormant until that exists.
+async function initPushNotifications() {
+  if (!CapApp || !CapApp.Plugins || !CapApp.Plugins.PushNotifications) return;
+  const PN = CapApp.Plugins.PushNotifications;
+  try {
+    const perm = await PN.requestPermissions();
+    if (perm.receive !== 'granted') return;
+    await PN.register();
+    PN.addListener('registration', async (token) => {
+      try {
+        if (Sync.enabled() && Sync.authed()) {
+          await apiFetch('/api/push-register', { method: 'POST', body: JSON.stringify({ token: token.value }) });
+        }
+      } catch { /* best-effort; retried next launch */ }
+    });
+    PN.addListener('registrationError', () => { /* ignore — push is optional */ });
+  } catch { /* permission denied or unsupported — push stays off */ }
+}
+
+// One-shot position read for a future trip-mileage feature (not wired into
+// any UI yet — this just confirms the plugin/permission plumbing works).
+async function getCurrentPositionNative() {
+  if (!CapApp || !CapApp.Plugins || !CapApp.Plugins.Geolocation) return null;
+  try {
+    const perm = await CapApp.Plugins.Geolocation.requestPermissions();
+    if (perm.location !== 'granted' && perm.coarseLocation !== 'granted') return null;
+    return await CapApp.Plugins.Geolocation.getCurrentPosition();
+  } catch { return null; }
+}
+
 // ─── STATE ────────────────────────────────────────────────────────────
 let sessions = [], fuels = [], settings = {lang:'th', unit:'km'};
 let currentPeriod = 'today';
@@ -746,6 +793,7 @@ async function bootApp() {
   }
   showPostLoginToast();
   initConsentBanner();
+  if (CapApp) initPushNotifications();   // native shell only; no-op on the web
 }
 
 // ─── CONSENT BANNER (EU User Consent Policy / Consent Mode v2) ───────────

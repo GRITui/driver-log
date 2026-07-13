@@ -50,3 +50,35 @@ blobs — nothing is looked up from a server-side sessions table. Losing or
 rotating `AUTH_TOKEN_SECRET` (or `LINE_LOGIN_STATE_SECRET`) invalidates
 every issued token/in-flight login at once; that's the deliberate
 trade-off for not needing a revocation list.
+
+## Android app (Capacitor)
+
+`android/` is a Capacitor-wrapped native shell around the live site — **not**
+a bundled snapshot. `capacitor.config.json` sets `server.url` to
+`https://driverlog.link`, so the installed app always shows whatever is
+currently deployed; redeploying the website updates the app instantly, same
+as the web. The native shell only needs rebuilding for things that aren't
+web content: icons/splash, plugin config, or a version bump for the Play
+Store.
+
+This repo has no Android SDK, so the actual build has to run on your
+machine:
+
+1. `npm install` (installs `@capacitor/*` alongside the existing `api/` deps).
+2. `npx cap sync android` — pulls in any plugin/config changes.
+3. `npx cap open android` (needs Android Studio) or `cd android && ./gradlew assembleDebug` for a local `.apk`, or `./gradlew bundleRelease` for a signed `.aab` to upload to Play Console.
+4. First real icon/splash pass: `npx @capacitor/assets generate --android` (needs source art — see `@capacitor/assets` docs). This failed to install in the sandboxed dev environment (needs a `sharp` binary from a GitHub release the sandbox proxy blocks) — run it locally instead.
+
+**Push notifications** (`@capacitor/push-notifications`) are scaffolded but
+dormant: the client registers for a token and posts it to
+`api/push-register.js` (stored on `users.push_token`), but nothing sends a
+push yet. To turn it on: create a Firebase project, drop
+`google-services.json` into `android/app/`, and add a `send-push` endpoint
+using an FCM server key (not built yet).
+
+**Geolocation** (`@capacitor/geolocation`) is scaffolded (`getCurrentPositionNative()`
+in `site/app.js`) but not wired into any UI — reserved for a future
+trip-mileage feature.
+
+The previous TWA/Bubblewrap packaging plan (thin Chrome-shell wrapper, no
+native plugins) is retired — see `archive/retired-twa-bubblewrap-20260713/`.
