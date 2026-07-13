@@ -1,0 +1,27 @@
+name: Smoke test avg-revenue-per-trip deploy
+on:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check driverlog.link + deployed app.js content
+        run: |
+          echo "--- driverlog.link/ ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 20 https://driverlog.link/
+          echo "--- driverlog.link/app.html ---"
+          curl -s -o /dev/null -w 'code=%{http_code}\n' --max-time 20 https://driverlog.link/app.html
+          echo "--- driverlog.link/app.js version + new stat key ---"
+          curl -s --max-time 20 https://driverlog.link/app.js -o /tmp/live-app.js
+          echo "APP_VERSION line:"
+          grep -o "const APP_VERSION = '[^']*'" /tmp/live-app.js
+          echo "avg_rev_per_trip present:"
+          grep -c "avg_rev_per_trip" /tmp/live-app.js || echo 0
+          echo "avg_per_session present (should be 0, confirms old key removed):"
+          grep -c "avg_per_session" /tmp/live-app.js || echo 0
+          echo "Thai label present:"
+          grep -o "รายได้เฉลี่ย/งาน" /tmp/live-app.js || echo "NOT FOUND"
+          echo "--- driverlog.link/app.html stat-grid card ---"
+          curl -s --max-time 20 https://driverlog.link/app.html | grep -o '<div class="stat-card"><div class="stat-icon">📊</div>[^<]*<div class="stat-label"[^>]*>[^<]*</div>' || echo "pattern not found"
+          echo "--- driverlog.link/sw.js version ---"
+          curl -s --max-time 20 https://driverlog.link/sw.js | grep -o "const SW_VERSION = '[^']*'"
