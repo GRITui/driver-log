@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.7.1';   // bump on every deploy — 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.8.0';   // bump on every deploy — 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -621,6 +621,11 @@ const I18N = {
     consent_accept: 'Accept', consent_reject: 'Reject', consent_thanks: 'Thanks!',
     ad_consent: 'Ad & cookie consent', consent_status_granted: 'Accepted · change', consent_status_denied: 'Rejected · change', consent_status_unset: 'Set preference',
     reminders: 'Reminders', shift_reminders: 'Shift reminders', shift_reminders_helper: 'Notifications require app permission (coming soon)',
+    start_shift: 'Start shift', shift_in_progress: 'Shift in progress', recording: 'Recording',
+    started: 'Started', trips_logged: 'trips logged', revenue_so_far: 'Revenue so far',
+    avg_per_trip: 'Avg / trip', trips_this_shift: 'Trips this shift', no_trips_yet: 'No trips logged yet',
+    log_trip: '+ Log trip', end_shift: 'End shift', since_last: '{m} min since last',
+    since_shift_start: 'since shift start', log_trip_title: 'Log a trip', trip_fare: 'Fare (฿)', add_trip: 'Add',
   },
   th: {
     login: 'เข้าสู่ระบบ', create_account: 'สร้างบัญชี', email: 'อีเมล', password: 'รหัสผ่าน',
@@ -697,6 +702,11 @@ const I18N = {
     consent_accept: 'ยอมรับ', consent_reject: 'ปฏิเสธ', consent_thanks: 'ขอบคุณค่ะ',
     ad_consent: 'โฆษณาและคุกกี้', consent_status_granted: 'ยอมรับแล้ว · แก้ไข', consent_status_denied: 'ปฏิเสธแล้ว · แก้ไข', consent_status_unset: 'ตั้งค่า',
     reminders: 'การแจ้งเตือน', shift_reminders: 'แจ้งเตือนกะ', shift_reminders_helper: 'ต้องได้รับอนุญาตจากแอป (เร็วๆ นี้)',
+    start_shift: 'เริ่มกะ', shift_in_progress: 'กะกำลังดำเนินอยู่', recording: 'กำลังบันทึก',
+    started: 'เริ่ม', trips_logged: 'งานที่บันทึก', revenue_so_far: 'รายได้จนถึงตอนนี้',
+    avg_per_trip: 'เฉลี่ย/งาน', trips_this_shift: 'งานในกะนี้', no_trips_yet: 'ยังไม่มีงานที่บันทึก',
+    log_trip: '+ บันทึกงาน', end_shift: 'จบกะ', since_last: '{m} นาทีจากงานก่อนหน้า',
+    since_shift_start: 'จากเริ่มกะ', log_trip_title: 'บันทึกงาน', trip_fare: 'ค่าโดยสาร (฿)', add_trip: 'เพิ่ม',
   }
 };
 function curLang() {
@@ -866,7 +876,9 @@ async function enterApp() {
   document.getElementById('f-fdate').value = todayISO();
   document.getElementById('s-date').value = todayISO();
   updateSyncStatus(navigator.onLine ? 'synced' : 'offline');
-  switchScreen('dash');
+  loadActiveShift();
+  updateFabForShift();
+  switchScreen(activeShift ? 'timer' : 'dash');
   pushAds();
   // pull cloud changes in the background (won't block first paint)
   if (!isGuest && Sync.enabled() && Sync.authed()) pullFromServer().then(reload);
@@ -1327,9 +1339,9 @@ async function openEditSession(id, e) {
   document.getElementById('s-vehicle').value = s.vehicle || '';
   document.getElementById('s-net').textContent = '฿ ' + fmt(s.netRev || 0);
   const nrm = normSvc(s);
-  document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('sel'));
-  (document.querySelector(`.prov-selector .svc-opt[data-prov="${nrm.provider}"]`) || document.querySelector('.prov-selector .svc-opt')).classList.add('sel');
-  (document.querySelector(`.type-selector .svc-opt[data-type="${nrm.type}"]`) || document.querySelector('.type-selector .svc-opt')).classList.add('sel');
+  document.querySelectorAll('#modal-session .svc-opt').forEach(o => o.classList.remove('sel'));
+  (document.querySelector(`#modal-session .prov-selector .svc-opt[data-prov="${nrm.provider}"]`) || document.querySelector('#modal-session .prov-selector .svc-opt')).classList.add('sel');
+  (document.querySelector(`#modal-session .type-selector .svc-opt[data-type="${nrm.type}"]`) || document.querySelector('#modal-session .type-selector .svc-opt')).classList.add('sel');
   calcDuration();
   openSessionModal();
 }
@@ -1362,9 +1374,9 @@ function openAddSession() {
   document.getElementById('s-tip').value = '';
   document.getElementById('s-vehicle').value = '';
   document.getElementById('s-net').textContent = '฿ 0';
-  document.querySelectorAll('.svc-opt').forEach(o => o.classList.remove('sel'));
-  document.querySelector('.prov-selector .svc-opt[data-prov="Grab"]').classList.add('sel');
-  document.querySelector('.type-selector .svc-opt[data-type="Car"]').classList.add('sel');
+  document.querySelectorAll('#modal-session .svc-opt').forEach(o => o.classList.remove('sel'));
+  document.querySelector('#modal-session .prov-selector .svc-opt[data-prov="Grab"]').classList.add('sel');
+  document.querySelector('#modal-session .type-selector .svc-opt[data-type="Car"]').classList.add('sel');
   openSessionModal();
 }
 
@@ -1455,8 +1467,8 @@ function calcSNet(autoExp = true) {
 }
 
 async function saveSession() {
-  const provEl = document.querySelector('.prov-selector .svc-opt.sel');
-  const typeEl = document.querySelector('.type-selector .svc-opt.sel');
+  const provEl = document.querySelector('#modal-session .prov-selector .svc-opt.sel');
+  const typeEl = document.querySelector('#modal-session .type-selector .svc-opt.sel');
   const provider = provEl ? provEl.dataset.prov : 'Grab';
   const svc = typeEl ? typeEl.dataset.type : 'Car';
   const date = document.getElementById('s-date').value;
@@ -1495,6 +1507,155 @@ async function saveSession() {
   closeSessionModal();
   await reload();
   toast(t('session_saved'));
+}
+
+// ─── SHIFT TIMER ────────────────────────────────────────────────────────
+// A running shift: start it, tap "+ Log trip" once per drop-off (auto-timestamped,
+// fare optional), then "End shift" hands everything to the normal Add Session
+// form (pre-filled) so it saves through the exact same saveSession() path.
+// Local-only for now — laps live in localStorage per account, not on the
+// server; only the finished session (with laps summed into its revenue)
+// syncs, same as any other session.
+let activeShift = null;   // {provider, type, startedAt (ISO), laps: [{ts (ISO), fare}]}
+let shiftTickHandle = null;
+
+function shiftKey() {
+  return 'active_shift_' + (isGuest ? 'guest' : (currentUser && currentUser.id));
+}
+function loadActiveShift() {
+  try { activeShift = JSON.parse(localStorage.getItem(shiftKey())) || null; } catch { activeShift = null; }
+}
+function saveActiveShift() {
+  if (activeShift) localStorage.setItem(shiftKey(), JSON.stringify(activeShift));
+  else localStorage.removeItem(shiftKey());
+}
+function hmOf(d) { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fmtElapsed(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const hh = Math.floor(s / 3600), mm = Math.floor((s % 3600) / 60), ss = s % 60;
+  return `${hh}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+
+function updateFabForShift() {
+  const fab = document.getElementById('fab');
+  const timerFab = document.getElementById('fab-timer');
+  if (!fab) return;
+  if (activeShift) {
+    fab.classList.add('fab-active-shift');
+    fab.innerHTML = '<span class="fab-rec-dot"></span>';
+    fab.onclick = () => switchScreen('timer');
+    if (timerFab) timerFab.style.display = 'none';
+  } else {
+    fab.classList.remove('fab-active-shift');
+    fab.textContent = '+';
+    fab.onclick = openAddSession;
+    if (timerFab) timerFab.style.display = (document.getElementById('s-timer') ? '' : 'none');
+  }
+}
+
+function openStartShiftModal() {
+  document.querySelectorAll('#modal-start-shift .svc-opt').forEach(o => o.classList.remove('sel'));
+  document.querySelector('#modal-start-shift .prov-selector .svc-opt[data-prov="Grab"]').classList.add('sel');
+  document.querySelector('#modal-start-shift .type-selector .svc-opt[data-type="Car"]').classList.add('sel');
+  document.getElementById('modal-start-shift').classList.add('open');
+}
+function closeStartShiftModal() {
+  document.getElementById('modal-start-shift').classList.remove('open');
+}
+function beginShift() {
+  const provEl = document.querySelector('#modal-start-shift .prov-selector .svc-opt.sel');
+  const typeEl = document.querySelector('#modal-start-shift .type-selector .svc-opt.sel');
+  activeShift = {
+    provider: provEl ? provEl.dataset.prov : 'Grab',
+    type: typeEl ? typeEl.dataset.type : 'Car',
+    startedAt: nowISO(),
+    laps: []
+  };
+  saveActiveShift();
+  closeStartShiftModal();
+  updateFabForShift();
+  switchScreen('timer');
+}
+
+function openLogTripModal() {
+  document.getElementById('lt-fare').value = '';
+  document.getElementById('modal-log-trip').classList.add('open');
+}
+function closeLogTripModal() {
+  document.getElementById('modal-log-trip').classList.remove('open');
+}
+function addLoggedTrip() {
+  if (!activeShift) return;
+  const fare = parseFloat(document.getElementById('lt-fare').value) || 0;
+  activeShift.laps.push({ ts: nowISO(), fare });
+  saveActiveShift();
+  closeLogTripModal();
+  renderTimerScreen();
+}
+
+function renderTimerScreen() {
+  if (!activeShift) { switchScreen('dash'); return; }
+  const provTypeEl = document.getElementById('timer-prov-type');
+  if (provTypeEl) provTypeEl.textContent = `${activeShift.provider} · ${typeLabel(activeShift.type)}`;
+  const started = new Date(activeShift.startedAt);
+  const elapsedEl = document.getElementById('timer-elapsed');
+  if (elapsedEl) elapsedEl.textContent = fmtElapsed(Date.now() - started.getTime());
+  const laps = activeShift.laps;
+  const metaEl = document.getElementById('timer-meta');
+  if (metaEl) metaEl.textContent = `${t('started')} ${hmOf(started)} · ${laps.length} ${t('trips_logged')}`;
+  const revSoFar = laps.reduce((a, l) => a + l.fare, 0);
+  const revEl = document.getElementById('timer-rev');
+  if (revEl) revEl.textContent = '฿' + fmt(revSoFar);
+  const avgEl = document.getElementById('timer-avg');
+  if (avgEl) avgEl.textContent = laps.length ? '฿' + fmt(revSoFar / laps.length) : '—';
+  renderLapList();
+}
+
+function renderLapList() {
+  const el = document.getElementById('lap-list');
+  if (!el || !activeShift) return;
+  const laps = activeShift.laps;
+  if (!laps.length) {
+    el.innerHTML = `<div style="padding:16px;color:var(--text3);font-size:13px;text-align:center">${t('no_trips_yet')}</div>`;
+    return;
+  }
+  el.innerHTML = laps.slice().reverse().map((lap, i) => {
+    const n = laps.length - i;
+    const prev = laps[n - 2];   // chronological predecessor (laps is oldest-first)
+    const meta = prev
+      ? t('since_last').replace('{m}', String(Math.max(0, Math.round((new Date(lap.ts) - new Date(prev.ts)) / 60000))))
+      : t('since_shift_start');
+    return `<div class="lap-row">
+      <div class="lap-left"><div class="lap-num">${n}</div><div><div class="lap-time">${hmOf(new Date(lap.ts))}</div><div class="lap-meta">${meta}</div></div></div>
+      <div class="lap-fare">฿${fmt(lap.fare)}</div>
+    </div>`;
+  }).join('');
+}
+
+// Hands the shift off to the normal Add Session form, pre-filled — saving
+// goes through the exact same saveSession() path as a manually-logged
+// session. The shift itself ends the moment this opens (cancelling the
+// form does not resurrect it, same as losing any other unsaved edit).
+function endShift() {
+  if (!activeShift) return;
+  const shift = activeShift;
+  const revSoFar = shift.laps.reduce((a, l) => a + l.fare, 0);
+  activeShift = null;
+  saveActiveShift();
+  updateFabForShift();
+
+  openAddSession();
+  document.querySelectorAll('#modal-session .prov-selector .svc-opt').forEach(o => o.classList.toggle('sel', o.dataset.prov === shift.provider));
+  document.querySelectorAll('#modal-session .type-selector .svc-opt').forEach(o => o.classList.toggle('sel', o.dataset.type === shift.type));
+  const started = new Date(shift.startedAt), ended = new Date();
+  document.getElementById('s-date').value = isoOf(started);
+  document.getElementById('s-start').value = hmOf(started);
+  document.getElementById('s-end').value = hmOf(ended);
+  document.getElementById('s-enddate').value = isoOf(ended);
+  if (revSoFar > 0) document.getElementById('s-rev').value = revSoFar;
+  calcDuration();
+  calcSNet();
+  switchScreen('sessions');
 }
 
 // ─── FUEL ─────────────────────────────────────────────────────────────
@@ -1822,9 +1983,20 @@ function switchScreen(name) {
   document.getElementById('s-'+name)?.classList.add('active');
   const navBtn = document.getElementById('nav-'+name);
   if (navBtn) { navBtn.classList.add('active'); navBtn.setAttribute('aria-current', 'page'); }
+  const showFabs = (name === 'sessions' || name === 'dash');
   const fabEl = document.getElementById('fab');
-  if (fabEl) fabEl.style.display = (name === 'sessions' || name === 'dash') ? 'flex' : 'none';
+  if (fabEl) fabEl.style.display = showFabs ? 'flex' : 'none';
+  const timerFabEl = document.getElementById('fab-timer');
+  if (timerFabEl) timerFabEl.style.display = (showFabs && !activeShift) ? 'flex' : 'none';
   if (name === 'dash') renderDashboard();
+  document.body.classList.toggle('shift-timer-active', name === 'timer');
+  if (name === 'timer') {
+    renderTimerScreen();
+    if (!shiftTickHandle) shiftTickHandle = setInterval(renderTimerScreen, 1000);
+  } else if (shiftTickHandle) {
+    clearInterval(shiftTickHandle);
+    shiftTickHandle = null;
+  }
 }
 
 // ─── UTILS ────────────────────────────────────────────────────────────
@@ -1865,6 +2037,14 @@ document.getElementById('modal-session')?.addEventListener('keydown', function(e
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
+});
+
+// close-on-overlay-click + Esc for the two shift-timer modals (app.html only)
+[['modal-start-shift', closeStartShiftModal], ['modal-log-trip', closeLogTripModal]].forEach(([id, close]) => {
+  const overlay = document.getElementById(id);
+  if (!overlay) return;
+  overlay.addEventListener('click', function(e) { if (e.target === this) close(); });
+  overlay.addEventListener('keydown', function(e) { if (this.classList.contains('open') && e.key === 'Escape') { e.preventDefault(); close(); } });
 });
 
 // period buttons (app.html only — no-op NodeList on login.html)
