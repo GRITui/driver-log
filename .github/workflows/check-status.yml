@@ -1,0 +1,17 @@
+name: Scratch check info domain
+on:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check info.driverlog.link
+        run: |
+          echo "--- dig info.driverlog.link ---"
+          dig +short info.driverlog.link A
+          echo "--- driverlog.link (comparison) ---"
+          dig +short driverlog.link A
+          echo
+          echo "--- info.driverlog.link full headers + body start ---"
+          curl -s --max-time 20 https://info.driverlog.link/ -D - -o /tmp/body.html || echo "curl failed rc=$?"
+          echo "body head:"; head -c 300 /tmp/body.html 2>/dev/null; echo
