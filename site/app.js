@@ -293,7 +293,6 @@ function updateSyncStatus(state) {
   const el = document.getElementById('sync-status');
   if (!el) return;
   if (isGuest) { el.textContent = 'Guest — this device only'; el.style.color = 'var(--text3)'; return; }
-  if (!Sync.enabled()) { el.textContent = 'Local only (no server set)'; el.style.color = 'var(--text3)'; return; }
   if (!Sync.authed()) { el.textContent = 'Not synced'; el.style.color = 'var(--text3)'; return; }
   const map = {
     syncing: ['Syncing…', 'var(--text3)'],
@@ -441,7 +440,6 @@ function prettyAuthError(err) {
 // email/password cloud path does, sharing the same 'cloud:'+uid session
 // shape so restoreSession()/logout()/sync all just work unchanged.
 function loginLine() {
-  if (!Sync.enabled()) { authError('LINE sign-in needs a server connected first.'); return; }
   const returnTo = encodeURIComponent(location.origin + location.pathname);
   location.href = `${API_URL}/api/line-login-start?returnTo=${returnTo}`;
 }
@@ -726,11 +724,6 @@ async function bootLogin() {
   if (await restoreSession()) { location.replace('/app.html'); return; }
   applyLang();
   showPostLoginToast();
-  // LINE sign-in needs the Neon-backed API to hold the LINE channel secret
-  // — hide it in local-only mode (no API_URL set) rather than show a
-  // button that can only ever fail.
-  const lineBtn = document.getElementById('auth-line');
-  if (lineBtn) lineBtn.style.display = Sync.enabled() ? '' : 'none';
 }
 
 // Entry point for app.html: no session → bounce to login.html.
@@ -1367,18 +1360,6 @@ function selType(el) {
 }
 
 // ─── SESSION DURATION / HOURS ─────────────────────────────────────────
-function parseHM(v) {
-  if (!v || v.indexOf(':') < 0) return null;
-  const [h, m] = v.split(':').map(Number);
-  if (isNaN(h)) return null;
-  return h * 60 + (m || 0);
-}
-function durationHours(start, end) {   // legacy same-day helper (kept for safety)
-  const a = parseHM(start), b = parseHM(end);
-  if (a == null || b == null) return 0;
-  let d = b - a; if (d < 0) d += 1440;
-  return d / 60;
-}
 // Cross-date aware: uses start date + end date so a night shift spanning midnight is exact.
 function sessionHours(s) {
   if (!s.startTime || !s.endTime) return 0;
