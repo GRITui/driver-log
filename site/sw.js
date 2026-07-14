@@ -3,7 +3,8 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.9.0';  // v1.9.0: fleet (B2B) tier — Settings > Fleet + new site/fleet.html owner console; APP_VERSION 2.8.1->2.9.0
+const SW_VERSION = 'v1.9.1';  // v1.9.1: "Fuel card partner" placeholder -> real "Buy me a coffee" link; APP_VERSION 2.9.0->2.9.1
+// prior: v1.9.0: fleet (B2B) tier — Settings > Fleet + new site/fleet.html owner console; APP_VERSION 2.8.1->2.9.0
 // prior: v1.8.1: dashboard "Avg / session" -> "Avg revenue / trip"; APP_VERSION 2.8.0->2.8.1
 // prior: v1.8.0: shift timer (start/log-trip/end-shift UI, local-only laps); APP_VERSION 2.7.1->2.8.0
 // prior: v1.7.1: same-origin api/ (single Vercel project for site/+info/+api/, Netlify mirror + Hostinger FTP retired); APP_VERSION 2.7.0->2.7.1
