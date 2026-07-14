@@ -1,0 +1,79 @@
+name: Android release build
+
+# Manual only — this produces a real, versioned release artifact tied to
+# Play Console version numbers, so it should never fire on a routine push.
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: "App version name shown to users (e.g. 1.0.0) — must be higher than the last Play Console release"
+        required: true
+      versionCode:
+        description: "Play Console version code (integer) — must be higher than the last Play Console release"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required secrets are set
+        run: |
+          missing=()
+          [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ] && missing+=("ANDROID_KEYSTORE_BASE64")
+          [ -z "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ] && missing+=("ANDROID_KEYSTORE_PASSWORD")
+          [ -z "${{ secrets.ANDROID_KEY_ALIAS }}" ] && missing+=("ANDROID_KEY_ALIAS")
+          [ -z "${{ secrets.ANDROID_KEY_PASSWORD }}" ] && missing+=("ANDROID_KEY_PASSWORD")
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing repo secrets: ${missing[*]} — add them under Settings > Secrets and variables > Actions. See README.md's Android section for how to generate/encode the keystore."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install JS deps
+        run: npm install
+
+      - name: Sync Capacitor native project
+        run: npx cap sync android
+
+      - name: Set version (Play Console requires a strictly increasing versionCode)
+        run: |
+          sed -i -E 's/versionCode [0-9]+/versionCode ${{ inputs.versionCode }}/' android/app/build.gradle
+          sed -i -E 's/versionName "[^"]*"/versionName "${{ inputs.versionName }}"/' android/app/build.gradle
+
+      - name: Decode signing keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "${{ github.workspace }}/android/app/release.keystore"
+
+      - name: Build signed .aab
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/android/app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: Clean up decoded keystore
+        if: always()
+        run: rm -f "${{ github.workspace }}/android/app/release.keystore"
+
+      - name: Upload signed .aab
+        uses: actions/upload-artifact@v4
+        with:
+          name: driverlog-${{ inputs.versionName }}-${{ inputs.versionCode }}.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 90

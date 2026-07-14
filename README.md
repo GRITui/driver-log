@@ -66,8 +66,47 @@ machine:
 
 1. `npm install` (installs `@capacitor/*` alongside the existing `api/` deps).
 2. `npx cap sync android` — pulls in any plugin/config changes.
-3. `npx cap open android` (needs Android Studio) or `cd android && ./gradlew assembleDebug` for a local `.apk`, or `./gradlew bundleRelease` for a signed `.aab` to upload to Play Console.
+3. `npx cap open android` (needs Android Studio) or `cd android && ./gradlew assembleDebug` for a local `.apk`. For a **signed** `.aab` to upload to Play Console, use the CI workflow below instead of `./gradlew bundleRelease` locally — it's the same command, but keeps the signing key out of your local shell history/machine.
 4. First real icon/splash pass: `npx @capacitor/assets generate --android` (needs source art — see `@capacitor/assets` docs). This failed to install in the sandboxed dev environment (needs a `sharp` binary from a GitHub release the sandbox proxy blocks) — run it locally instead.
+
+### CI-signed release builds (`.github/workflows/android-release.yml`)
+
+Manually triggered (Actions tab → "Android release build" → Run workflow, giving a
+`versionName`/`versionCode`) — never runs on a routine push, since it produces a
+real, Play-Console-versioned artifact. Builds a signed `.aab` and uploads it as
+a workflow artifact (download it from the run's summary page); does **not**
+auto-publish to Play Console — that's a separate, even more sensitive
+credential (a Play Console API service account) not set up here yet.
+
+**One-time setup — generate the release keystore yourself, on your own
+machine.** This key is what proves every future app update really came from
+you; Play Console permanently binds an app to it once you publish. Losing it
+means you can never update the app again under that listing; leaking it means
+anyone who has it can publish updates as you. Neither this repo nor any AI
+agent should ever hold the raw keystore file — only the four secrets below,
+in GitHub's encrypted secret store.
+
+1. Generate it locally:
+   ```bash
+   keytool -genkeypair -v -keystore driverlog-release.keystore \
+     -alias driverlog -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   Pick a strong store password and key password when prompted — write them
+   down somewhere durable (a password manager), not just in your head.
+2. **Back up `driverlog-release.keystore` somewhere safe and durable** (password
+   manager, encrypted backup) before doing anything else with it.
+3. Base64-encode it and add these four repo secrets (Settings → Secrets and
+   variables → Actions → New repository secret):
+   ```bash
+   base64 -i driverlog-release.keystore | pbcopy   # macOS; use base64 -w0 on Linux
+   ```
+   - `ANDROID_KEYSTORE_BASE64` — the base64 output from above
+   - `ANDROID_KEYSTORE_PASSWORD` — the store password you set
+   - `ANDROID_KEY_ALIAS` — `driverlog` (or whatever you passed to `-alias`)
+   - `ANDROID_KEY_PASSWORD` — the key password you set
+4. Delete `driverlog-release.keystore` from wherever you generated it once
+   it's backed up somewhere durable and the secrets are set — it doesn't need
+   to sit around unencrypted.
 
 **Push notifications** (`@capacitor/push-notifications`) are scaffolded but
 dormant: the client registers for a token and posts it to
