@@ -1,4 +1,18 @@
 {
+  "redirects": [
+    {
+      "source": "/app",
+      "has": [{ "type": "host", "value": "driverlog.link" }],
+      "destination": "/app.html",
+      "permanent": false
+    },
+    {
+      "source": "/login",
+      "has": [{ "type": "host", "value": "driverlog.link" }],
+      "destination": "/login.html",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
