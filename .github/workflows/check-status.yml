@@ -1,0 +1,14 @@
+name: Scratch redirect smoke test
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check /app and /login redirects
+        run: |
+          echo "--- /app ---"
+          curl -sS -D - -o /dev/null "https://driverlog.link/app"
+          echo "--- /login ---"
+          curl -sS -D - -o /dev/null "https://driverlog.link/login"
+          echo "--- info.driverlog.link/ (should be unaffected) ---"
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/"
