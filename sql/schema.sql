@@ -76,8 +76,36 @@ create table if not exists fuel_logs (
 );
 create index if not exists idx_fuel_logs_user_updated on fuel_logs (user_id, updated_at);
 
+-- Fleet (B2B) tier: a fleet owner aggregates read-only stats across drivers
+-- who have explicitly opted in. Drivers keep full ownership of their own
+-- driver_sessions/fuel_logs rows — a fleet never writes to them, it only
+-- reads sessions belonging to *active* members, scoped by date range.
+create table if not exists fleets (
+  id             uuid primary key default gen_random_uuid(),
+  owner_user_id  uuid not null references users(id) on delete cascade,
+  name           text not null default '',
+  created_at     timestamptz not null default now()
+);
+
+-- status: invited (owner sent, driver hasn't responded) -> active (driver
+-- accepted, owner can see their stats) or declined (driver said no) ->
+-- left (driver was active, then opted out). A driver can only ever be
+-- re-invited into a fresh row after leaving/declining — see lib/fleets.js.
+create table if not exists fleet_members (
+  id              uuid primary key default gen_random_uuid(),
+  fleet_id        uuid not null references fleets(id) on delete cascade,
+  driver_user_id  uuid not null references users(id) on delete cascade,
+  status          text not null default 'invited',
+  invited_at      timestamptz not null default now(),
+  joined_at       timestamptz,
+  unique (fleet_id, driver_user_id)
+);
+create index if not exists idx_fleet_members_driver on fleet_members (driver_user_id, status);
+create index if not exists idx_fleet_members_fleet on fleet_members (fleet_id, status);
+
 -- ── Incremental changes (apply by hand against an ALREADY-provisioned
 -- database — `create table if not exists` above is a no-op once the table
 -- exists, so a new column on an existing table needs its own statement) ──
 -- 2026-07-13: push_token for the Capacitor Android push-notifications shell.
 alter table users add column if not exists push_token text;
+-- 2026-07-14: fleets + fleet_members for the B2B fleet-owner dashboard.
