@@ -1,0 +1,28 @@
+name: Scratch diag - /app down
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check /app, /app.html, /, and root deploy health
+        run: |
+          echo "=== /app (expect 307 -> /app.html) ==="
+          curl -sS -D - -o /tmp/app_body.html "https://driverlog.link/app"
+          echo "--- body (first 40 lines) ---"
+          head -40 /tmp/app_body.html
+          echo ""
+          echo "=== /app.html direct ==="
+          curl -sS -D - -o /tmp/apphtml_body.html "https://driverlog.link/app.html"
+          echo "--- body (first 40 lines) ---"
+          head -40 /tmp/apphtml_body.html
+          echo ""
+          echo "=== / (root) ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/"
+          echo "=== /app.js ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/app.js"
+          echo "=== /styles.css ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/styles.css"
+          echo "=== /sw.js ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/sw.js"
+          echo "=== info.driverlog.link (control) ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/"
