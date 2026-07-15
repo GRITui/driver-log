@@ -205,6 +205,8 @@ body.authed .nav{display:flex;}
 .affiliate-title{font-size:15px;font-weight:600;color:var(--text,#111);margin-bottom:4px;}
 .affiliate-body{font-size:13px;color:var(--text2,#666);line-height:1.4;margin-bottom:10px;}
 .affiliate-cta{display:inline-block;font-size:12px;font-weight:600;color:var(--text3,#999);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:7px 14px;opacity:.7;cursor:default;}
+.affiliate-cta.active{color:var(--red);border-color:var(--red-border);background:var(--red-light);opacity:1;cursor:pointer;text-decoration:none;}
+.affiliate-cta.active:active{background:var(--red-border);}
 /* Consent banner (EU User Consent Policy / Consent Mode v2) */
 .consent-banner{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);border-top:0.5px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.12);padding:16px 16px calc(env(safe-area-inset-bottom,0) + 16px);z-index:400;box-sizing:border-box;}
 .consent-text{font-size:13px;line-height:1.5;color:var(--text2);margin-bottom:12px;}
