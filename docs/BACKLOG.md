@@ -1,36 +1,62 @@
 # DriverLog — Backlog
 
-## Cloud login + cross-device sync (parked July 2026)
+Last reconciled against the codebase: 15 Jul 2026. This file previously described cloud
+sync as "parked" behind a self-hosted PocketBase server — that was true in early July
+2026 but is no longer accurate; PocketBase was dropped entirely and replaced with a
+Neon-backed API in this same project (`lib/db.js`, `lib/auth.js`, `api/auth-*.js`,
+`api/records-*.js`, `sql/schema.sql`). Update this file alongside any future feature
+work instead of letting it drift again.
 
-**Status:** Deferred. The app ships **local-only** — accounts + guest work fully
-on-device (IndexedDB), PWA installs, offline works. No cross-device sync yet.
+## Shipped (for reference — not backlog)
+- Cloud sync + auth (email/password, LINE login) on Neon, same-origin `api/` — no
+  PocketBase, no separate host.
+- Shift timer (start shift → log trips → end shift into a normal session), local-only.
+- Dashboard "Avg revenue / trip" stat.
+- Fleet (B2B) tier core: create a fleet, invite/accept/decline/leave, owner console at
+  `site/fleet.html` with aggregated revenue/net/trips/km-per-L across active drivers.
+- Capacitor Android shell (remote mode) + a CI-signed release-build GitHub Actions
+  workflow (`android-release.yml`) — see "Android / Play Store" below for what's still
+  outstanding before this produces a real build.
 
-**Why parked:** self-hosting PocketBase on a home machine stalled on local tooling
-(Docker Compose not available) and, more fundamentally, home/ISP networking that
-likely blocks inbound 80/443. Not worth more time right now.
+## Open PRs
+- **#32 — "Buy me a coffee" donation link** (replaces the old static "Fuel card
+  partner — coming soon" placeholder). Open, rebased clean on top of the fleet-tier
+  merge, ready to merge.
 
-**Everything is already built and dormant** — re-enabling is small:
-- Client: the `Sync`/`PBBackend` adapter + full offline sync engine (outbox,
-  background sync, last-write-wins, cuid dedupe) are in `site/app.js` (the app now
-  ships as split files — `index.html` is just a redirector to `app.html`/`login.html`,
-  with logic in `app.js`), inert because `PB_URL` is empty.
-- Backend bundle: `pocketbase/` (docker-compose + Caddy + `schema.pb.json`).
-- DNS: `api.driverlog.link` A record still exists (→ 184.22.229.54). Harmless;
-  repoint or delete when the backend gets a real home.
+## Deferred follow-up slices
+- **Maintenance-log CRUD** (`vehicle_maintenance` table + API + driver-side logging
+  UI). Scoped out of the fleet-core PR (#33) on purpose. The fleet dashboard concept
+  sketch includes an "Upcoming maintenance" panel with no data behind it yet.
+- **Fleet billing** — creating/joining a fleet is currently free and ungated. The
+  original concept assumed a seat-based paid tier for fleet owners; that payment layer
+  was never built. Decide before fleet adoption grows past a few pilot users.
 
-**To turn it on later (pick a reliable host first):**
-1. Stand up PocketBase somewhere publicly reachable over HTTPS. Best options:
-   - **Cloud VPS (~$5/mo)** — simplest, no NAT/ISP issues; runs the `pocketbase/`
-     Docker stack as-is. **Recommended.**
-   - **Cloudflare Tunnel** from the home machine — see `pocketbase/REVERSE-PROXY.md`
-     (no open ports needed).
-2. Import `pocketbase/schema.pb.json` (Admin UI → Import collections).
-3. Set `PB_URL` in `site/app.js` to the API URL (or `localStorage.pb_url` to test),
-   redeploy, and update the login copy (remove "coming soon").
-4. Revert the auth hint text and set Sync-status expectations.
+## Android / Play Store
+- **First real CI-signed build has never been run.** The workflow exists but needs a
+  one-time local keystore (`keytool -genkeypair`, see README's "CI-signed release
+  builds" section) + 4 GitHub encrypted secrets before `workflow_dispatch` produces a
+  real signed `.aab`. Don't assume it works until it's actually been triggered once.
+- Google Play Developer account ($25) not yet created.
+- Real app icon/splash art — still placeholder.
+- Play Console listing (store copy, screenshots, content rating, `assetlinks.json`
+  signing fingerprint) not started.
 
-## Other future ideas (from HANDOFF)
-- Play Store submission (P4 assets ready in `twa/` + `launch/`; needs $25 Google
-  account + Play signing fingerprint in `assetlinks.json`).
-- Push notifications (FCM), receipt camera capture, more languages.
-  (Dark mode already shipped — see `docs/roadmap-agents.md` v2.6.)
+## Monetization / growth
+- AdSense review/approval for `driverlog.link` not yet submitted (ad unit + Consent
+  Mode v2 are wired up and ready — see `docs/MONETIZATION.md`, itself due for a pass
+  since it still lists "affiliate placement" as unbuilt when the donation link
+  superseded that idea, and lists fleet B2B as a future lever when it's now live).
+- No soft launch to real drivers yet — nothing here has been validated against actual
+  usage.
+
+## Known issues / technical debt
+- `api/auth-me` was observed returning HTTP 500 earlier in development (most likely a
+  missing `AUTH_TOKEN_SECRET` or `DATABASE_URL` on the Vercel project) — never
+  rechecked or confirmed fixed.
+- Stray branch `chore/redirect-smoke-30` on GitHub (a one-off diagnostic branch, no
+  open PR, safe to delete) — couldn't be deleted from the agent sandbox (git remote
+  returned 403 on `push --delete`); delete manually when convenient.
+- `docs/roadmap-next.md`, `docs/roadmap-agents.md`, and `docs/HANDOFF.md` are dated
+  planning snapshots (early July 2026) that predate most of what's now shipped —
+  useful as history, not as a current source of truth. This file (`BACKLOG.md`) is the
+  one meant to stay current.
