@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.8.1';   // bump on every deploy — 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.9.0';   // bump on every deploy — 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 2;
 function openDB() {
   return new Promise((res, rej) => {
@@ -607,6 +607,14 @@ const I18N = {
     type_car: 'Car', type_bike: 'Bike', type_food: 'Food', type_express: 'Express',
     ad_label: 'Sponsored', privacy_policy: 'Privacy policy',
     affiliate_label: 'Partner offer', affiliate_fuel_title: 'Fuel card partner', affiliate_fuel_body: 'Save on every fill-up. Partner offers coming soon.', affiliate_cta: 'Coming soon',
+    fleet_section: 'Fleet', fleet_signin_required: 'Sign in to create or join a fleet.',
+    fleet_word: 'Fleet', fleet_invited_you: 'invited you to their fleet',
+    fleet_member_of: "Member of {name}'s fleet", fleet_drivers_count: '{n} active driver(s)',
+    fleet_invite_btn: 'Invite driver', fleet_open_dashboard: 'Open dashboard', fleet_create_btn: 'Create a fleet',
+    fleet_create_prompt: 'Fleet name:', fleet_created: 'Fleet created!',
+    fleet_invite_prompt: "Driver's email:", fleet_invite_sent: 'Invite sent!',
+    fleet_leave_confirm: 'Leave this fleet? The owner will no longer see your sessions.', fleet_left: 'Left fleet',
+    fleet_accept: 'Accept', fleet_decline: 'Decline', fleet_leave: 'Leave',
     appearance: 'Appearance', theme_light: 'Light', theme_dark: 'Dark', theme_auto: 'Auto',
     send_feedback: 'Send feedback', monthly_word: 'Monthly', backup_word: 'Backup', exported: 'Exported!',
     restore_word: 'Restore',
@@ -688,6 +696,14 @@ const I18N = {
     type_car: 'รถยนต์', type_bike: 'มอเตอร์ไซค์', type_food: 'อาหาร', type_express: 'ส่งของ',
     ad_label: 'โฆษณา', privacy_policy: 'นโยบายความเป็นส่วนตัว',
     affiliate_label: 'ข้อเสนอจากพาร์ทเนอร์', affiliate_fuel_title: 'บัตรเติมน้ำมันพาร์ทเนอร์', affiliate_fuel_body: 'ประหยัดทุกครั้งที่เติมน้ำมัน ข้อเสนอพาร์ทเนอร์เร็วๆ นี้', affiliate_cta: 'เร็วๆ นี้',
+    fleet_section: 'ฟลีท', fleet_signin_required: 'เข้าสู่ระบบเพื่อสร้างหรือเข้าร่วมฟลีท',
+    fleet_word: 'ฟลีท', fleet_invited_you: 'เชิญคุณเข้าร่วมฟลีท',
+    fleet_member_of: 'สมาชิกฟลีทของ {name}', fleet_drivers_count: 'คนขับที่ใช้งาน {n} คน',
+    fleet_invite_btn: 'เชิญคนขับ', fleet_open_dashboard: 'เปิดแดชบอร์ด', fleet_create_btn: 'สร้างฟลีท',
+    fleet_create_prompt: 'ชื่อฟลีท:', fleet_created: 'สร้างฟลีทแล้ว!',
+    fleet_invite_prompt: 'อีเมลคนขับ:', fleet_invite_sent: 'ส่งคำเชิญแล้ว!',
+    fleet_leave_confirm: 'ออกจากฟลีทนี้? เจ้าของฟลีทจะไม่เห็นข้อมูลการทำงานของคุณอีกต่อไป', fleet_left: 'ออกจากฟลีทแล้ว',
+    fleet_accept: 'ยอมรับ', fleet_decline: 'ปฏิเสธ', fleet_leave: 'ออก',
     appearance: 'ธีม', theme_light: 'สว่าง', theme_dark: 'มืด', theme_auto: 'อัตโนมัติ',
     send_feedback: 'ส่งความคิดเห็น', monthly_word: 'รายเดือน', backup_word: 'สำรองข้อมูล', exported: 'ส่งออกแล้ว!',
     restore_word: 'กู้คืนข้อมูล',
@@ -1976,6 +1992,87 @@ function restoreShiftRemindersToggle() {
   }
 }
 
+// ─── FLEET (B2B) ──────────────────────────────────────────────────────
+// Any account can own a fleet and/or belong to one as a driver — see
+// lib/fleets.js. Settings renders both roles from one /api/fleet-my call;
+// data only ever flows for a driver AFTER they explicitly accept an invite.
+let fleetData = { owned: [], memberships: [] };
+
+async function loadFleetData() {
+  if (isGuest) { renderFleetSettings(); return; }
+  try { fleetData = await apiFetch('/api/fleet-my'); }
+  catch { /* offline or a transient API error — settings just shows nothing to act on */ }
+  renderFleetSettings();
+}
+
+function renderFleetSettings() {
+  const el = document.getElementById('fleet-settings-list');
+  if (!el) return;
+  if (isGuest) { el.innerHTML = `<div class="settings-row"><span class="settings-label">${t('fleet_signin_required')}</span></div>`; return; }
+
+  const rows = [];
+  const pendingInvites = fleetData.memberships.filter(m => m.status === 'invited');
+  const activeMemberships = fleetData.memberships.filter(m => m.status === 'active');
+
+  pendingInvites.forEach(m => {
+    rows.push(`<div class="settings-row">
+      <div><span class="settings-label">${escapeHtml(m.ownerFirstName || m.fleetName || t('fleet_word'))} ${t('fleet_invited_you')}</span>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">${escapeHtml(m.fleetName)}</div></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="respondFleetInvite('${m.fleetId}',true)" style="background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">${t('fleet_accept')}</button>
+        <button onclick="respondFleetInvite('${m.fleetId}',false)" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">${t('fleet_decline')}</button>
+      </div></div>`);
+  });
+
+  activeMemberships.forEach(m => {
+    rows.push(`<div class="settings-row">
+      <div><span class="settings-label">${escapeHtml(m.fleetName)}</span>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">${t('fleet_member_of').replace('{name}', escapeHtml(m.ownerFirstName || ''))}</div></div>
+      <button onclick="leaveFleetConfirm('${m.fleetId}')" style="background:none;border:1px solid var(--border);color:var(--red);border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">${t('fleet_leave')}</button>
+    </div>`);
+  });
+
+  fleetData.owned.forEach(f => {
+    const activeCount = f.members.filter(m => m.status === 'active').length;
+    rows.push(`<div class="settings-row">
+      <div><span class="settings-label">${escapeHtml(f.name)}</span>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">${t('fleet_drivers_count').replace('{n}', activeCount)}</div></div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="inviteToFleetPrompt('${f.id}')" style="background:none;border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">${t('fleet_invite_btn')}</button>
+        <a href="/fleet.html?fleetId=${f.id}" style="background:var(--red);color:#fff;border-radius:var(--radius-sm);padding:6px 12px;font-size:13px;font-weight:600;text-decoration:none;">${t('fleet_open_dashboard')}</a>
+      </div></div>`);
+  });
+
+  rows.push(`<div class="settings-row" style="padding:12px 16px;">
+    <button onclick="createFleetPrompt()" style="width:100%;background:none;border:1px dashed var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">+ ${t('fleet_create_btn')}</button>
+  </div>`);
+
+  el.innerHTML = rows.join('');
+}
+
+async function createFleetPrompt() {
+  const name = (prompt(t('fleet_create_prompt')) || '').trim();
+  if (!name) return;
+  try { await apiFetch('/api/fleet-create', { method: 'POST', body: JSON.stringify({ name }) }); toast(t('fleet_created')); await loadFleetData(); }
+  catch (err) { toast(err.message); }
+}
+async function inviteToFleetPrompt(fleetId) {
+  const email = (prompt(t('fleet_invite_prompt')) || '').trim().toLowerCase();
+  if (!email) return;
+  try { await apiFetch('/api/fleet-invite', { method: 'POST', body: JSON.stringify({ fleetId, email }) }); toast(t('fleet_invite_sent')); await loadFleetData(); }
+  catch (err) { toast(err.message); }
+}
+async function respondFleetInvite(fleetId, accept) {
+  try { await apiFetch('/api/fleet-invite-respond', { method: 'POST', body: JSON.stringify({ fleetId, accept }) }); await loadFleetData(); }
+  catch (err) { toast(err.message); }
+}
+async function leaveFleetConfirm(fleetId) {
+  if (!confirm(t('fleet_leave_confirm'))) return;
+  try { await apiFetch('/api/fleet-leave', { method: 'POST', body: JSON.stringify({ fleetId }) }); toast(t('fleet_left')); await loadFleetData(); }
+  catch (err) { toast(err.message); }
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
 // ─── NAV / SCREEN ─────────────────────────────────────────────────────
 function switchScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1989,6 +2086,7 @@ function switchScreen(name) {
   const timerFabEl = document.getElementById('fab-timer');
   if (timerFabEl) timerFabEl.style.display = (showFabs && !activeShift) ? 'flex' : 'none';
   if (name === 'dash') renderDashboard();
+  if (name === 'settings') loadFleetData();
   document.body.classList.toggle('shift-timer-active', name === 'timer');
   if (name === 'timer') {
     renderTimerScreen();
