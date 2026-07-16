@@ -107,6 +107,7 @@ async function inviteDriver() {
 
 function renderDashboard(data) {
   const { fleet, drivers, pendingInvites } = data;
+  const maintenanceSummary = data.maintenanceSummary || [];
   const totalRevenue = drivers.reduce((a, d) => a + d.revenue, 0);
   const totalNet = drivers.reduce((a, d) => a + d.netRevenue, 0);
   const totalTrips = drivers.reduce((a, d) => a + d.trips, 0);
@@ -141,7 +142,7 @@ function renderDashboard(data) {
         <div class="fleet-brand-mark">${escapeHtml(initial)}</div>
         <div>
           <div class="fleet-brand-name">${escapeHtml(fleet.name)}</div>
-          <div class="fleet-brand-sub">${drivers.length} active driver${drivers.length === 1 ? '' : 's'}</div>
+          <div class="fleet-brand-sub">${drivers.length} active driver${drivers.length === 1 ? '' : 's'} · ${fleet.plan === 'paid' ? 'Paid plan' : 'Free plan · ' + drivers.length + '/' + fleet.seatLimit + ' drivers'}</div>
         </div>
         ${fleetSwitcher}
       </div>
