@@ -1,0 +1,19 @@
+name: Scratch diag - info subdomain
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check info.driverlog.link DNS + response
+        run: |
+          echo "=== dig info.driverlog.link CNAME ==="
+          dig +short info.driverlog.link CNAME || true
+          echo "=== dig info.driverlog.link A (resolved) ==="
+          dig +short info.driverlog.link A || true
+          echo "=== dig info.driverlog.link (via Google DNS 8.8.8.8) ==="
+          dig +short info.driverlog.link @8.8.8.8 || true
+          echo "=== dig info.driverlog.link (via Cloudflare 1.1.1.1) ==="
+          dig +short info.driverlog.link @1.1.1.1 || true
+          echo ""
+          echo "=== full response body for info.driverlog.link ==="
+          curl -sS "https://info.driverlog.link/" | head -c 800
