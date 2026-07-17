@@ -1,0 +1,36 @@
+name: Scratch diag - 403 check
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production endpoints
+        run: |
+          echo "=== / (root) ==="
+          curl -sS -D - -o /tmp/root.html "https://driverlog.link/"
+          echo "--- body head ---"; head -c 500 /tmp/root.html; echo
+          echo ""
+          echo "=== /app.html ==="
+          curl -sS -D - -o /tmp/apphtml.html "https://driverlog.link/app.html"
+          echo "--- body head ---"; head -c 500 /tmp/apphtml.html; echo
+          echo ""
+          echo "=== /app (redirect) ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/app"
+          echo ""
+          echo "=== /login.html ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/login.html"
+          echo ""
+          echo "=== /fleet.html ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/fleet.html"
+          echo ""
+          echo "=== /styles.css ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/styles.css"
+          echo ""
+          echo "=== /app.js ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/app.js"
+          echo ""
+          echo "=== /api/auth-me (no token, expect 401 not 403) ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/api/auth-me"
+          echo ""
+          echo "=== info.driverlog.link (control) ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/"
