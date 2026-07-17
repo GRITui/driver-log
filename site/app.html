@@ -211,6 +211,29 @@
   </div>
 </div>
 
+<div class="screen" id="s-maintenance">
+  <div class="hdr-plain" data-i18n="maintenance_log_title">Vehicle maintenance</div>
+  <div class="content">
+    <div class="section-title" data-i18n="service_history">Service history</div>
+    <div id="maintenance-list"></div>
+    <div class="section-title" data-i18n="add_maintenance">Add service record</div>
+    <div class="form-section">
+      <div class="field"><label data-i18n="vehicle">Vehicle</label><input type="text" id="m-vehicle" placeholder="e.g. Honda Click 125i"></div>
+      <div class="field"><label data-i18n="service_type">Service type</label><input type="text" id="m-service" placeholder="e.g. Oil change"></div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="cost">Cost (฿)</label><input type="number" id="m-cost" placeholder="0" min="0" inputmode="decimal"></div>
+        <div class="field-half"><label data-i18n="date">Date</label><input type="date" id="m-date"></div>
+      </div>
+      <div class="field"><label data-i18n="odometer_km">Odometer (km, optional)</label><input type="number" id="m-odometer" placeholder="0" min="0" inputmode="decimal"></div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="next_due_date">Next due date (optional)</label><input type="date" id="m-next-date"></div>
+        <div class="field-half"><label data-i18n="next_due_km">Next due (km, optional)</label><input type="number" id="m-next-km" placeholder="0" min="0" inputmode="decimal"></div>
+      </div>
+    </div>
+    <button class="btn-submit" onclick="saveMaintenance()" data-i18n="save_maintenance">Save record</button>
+  </div>
+</div>
+
 <!-- SETTINGS -->
 <div class="screen" id="s-settings">
   <div class="hdr-plain" data-i18n="settings_title">Settings</div>
@@ -286,12 +309,19 @@
         <input type="file" id="backup-file" accept="application/json,.json" style="display:none" onchange="importBackup(this)">
       </div>
     </div>
+    <div class="section-title" data-i18n="vehicle_section">Vehicle</div>
+    <div class="settings-list">
+      <a class="settings-row" href="javascript:void(0)" onclick="switchScreen('maintenance')" style="text-decoration:none">
+        <span class="settings-label" data-i18n="maintenance_log_link">Maintenance log</span>
+        <span style="color:var(--red);font-size:15px;font-weight:700">›</span>
+      </a>
+    </div>
     <div class="section-title" data-i18n="fleet_section">Fleet</div>
     <div class="settings-list" id="fleet-settings-list"></div>
     <div class="section-title" data-i18n="about">About</div>
     <div class="settings-list">
       <div class="settings-row"><span class="settings-label" data-i18n="app_word">App</span><span style="color:var(--text3)">Driver log book</span></div>
-      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.9.1</span></div>
+      <div class="settings-row"><span class="settings-label" data-i18n="version">Version</span><span id="app-version" style="color:var(--text3)">2.10.0</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="total_sessions">Total sessions</span><span id="set-count" style="color:var(--text3)">—</span></div>
       <div class="settings-row"><span class="settings-label" data-i18n="created_by">Created by</span><span style="color:var(--text3)">Grit · Powered by Claude</span></div>
       <a class="settings-row" href="mailto:grit4game@gmail.com?subject=DriverLog%20feedback" style="text-decoration:none">

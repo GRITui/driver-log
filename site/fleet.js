@@ -107,6 +107,7 @@ async function inviteDriver() {
 
 function renderDashboard(data) {
   const { fleet, drivers, pendingInvites } = data;
+  const maintenanceSummary = data.maintenanceSummary || [];
   const totalRevenue = drivers.reduce((a, d) => a + d.revenue, 0);
   const totalNet = drivers.reduce((a, d) => a + d.netRevenue, 0);
   const totalTrips = drivers.reduce((a, d) => a + d.trips, 0);
@@ -135,13 +136,17 @@ function renderDashboard(data) {
     ? pendingInvites.map(p => `<div class="fleet-invite-row"><span>${escapeHtml(p.firstName || p.email)}</span><span class="fleet-invite-status">Awaiting response</span></div>`).join('')
     : `<div class="fleet-empty">No pending invites.</div>`;
 
+  const maintenanceRows = maintenanceSummary.length
+    ? maintenanceSummary.map(item => `<div class="fleet-invite-row"><span>${escapeHtml(item.vehicle)} — ${escapeHtml(item.serviceType)} (${escapeHtml(item.firstName)})</span><span class="fleet-status-pill${item.overdue ? ' good' : ''}">${item.overdue ? 'Overdue' : 'Due ' + item.nextDueDate}</span></div>`).join('')
+    : `<div class="fleet-empty">No upcoming maintenance.</div>`;
+
   document.getElementById('fleet-shell').innerHTML = `
     <div class="fleet-topbar">
       <div class="fleet-brand">
         <div class="fleet-brand-mark">${escapeHtml(initial)}</div>
         <div>
           <div class="fleet-brand-name">${escapeHtml(fleet.name)}</div>
-          <div class="fleet-brand-sub">${drivers.length} active driver${drivers.length === 1 ? '' : 's'}</div>
+          <div class="fleet-brand-sub">${drivers.length} active driver${drivers.length === 1 ? '' : 's'} · ${fleet.plan === 'paid' ? 'Paid plan' : 'Free plan · ' + drivers.length + '/' + fleet.seatLimit + ' drivers'}</div>
         </div>
         ${fleetSwitcher}
       </div>
@@ -178,6 +183,10 @@ function renderDashboard(data) {
         <div class="fleet-panel">
           <div class="fleet-panel-hd"><div class="fleet-panel-title">Pending invites</div></div>
           ${inviteRows}
+        </div>
+        <div class="fleet-panel">
+          <div class="fleet-panel-hd"><div class="fleet-panel-title">Upcoming maintenance</div></div>
+          ${maintenanceRows}
         </div>
         <div class="fleet-privacy-panel">
           <div class="fleet-privacy-hd">

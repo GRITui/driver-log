@@ -76,6 +76,23 @@ create table if not exists fuel_logs (
 );
 create index if not exists idx_fuel_logs_user_updated on fuel_logs (user_id, updated_at);
 
+create table if not exists vehicle_maintenance (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null references users(id) on delete cascade,
+  cuid            text not null,
+  vehicle         text not null default '',
+  service_type    text not null default '',
+  cost            numeric,
+  date            text,
+  odometer_km     numeric,
+  next_due_date   text,
+  next_due_km     numeric,
+  deleted         boolean not null default false,
+  updated_at      timestamptz not null default now(),
+  unique (user_id, cuid)
+);
+create index if not exists idx_vehicle_maintenance_user_updated on vehicle_maintenance (user_id, updated_at);
+
 -- Fleet (B2B) tier: a fleet owner aggregates read-only stats across drivers
 -- who have explicitly opted in. Drivers keep full ownership of their own
 -- driver_sessions/fuel_logs rows — a fleet never writes to them, it only
@@ -109,3 +126,7 @@ create index if not exists idx_fleet_members_fleet on fleet_members (fleet_id, s
 -- 2026-07-13: push_token for the Capacitor Android push-notifications shell.
 alter table users add column if not exists push_token text;
 -- 2026-07-14: fleets + fleet_members for the B2B fleet-owner dashboard.
+-- 2026-07-16: fleets.plan for the fleet billing plan tier.
+alter table fleets add column if not exists plan text not null default 'free';
+-- 2026-07-16: fleets.seat_limit for the fleet billing seat cap.
+alter table fleets add column if not exists seat_limit integer not null default 3;

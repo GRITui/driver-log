@@ -6,7 +6,7 @@
  * "This month" period filter.
  */
 import { requireAuth } from '../lib/auth.js';
-import { getFleetDashboard, FleetError } from '../lib/fleets.js';
+import { getFleetDashboard, getFleetMaintenanceSummary, FleetError } from '../lib/fleets.js';
 
 function currentMonthRange() {
   const d = new Date();
@@ -37,7 +37,15 @@ export default async function handler(request) {
 
   try {
     const data = await getFleetDashboard(uid, fleetId, since, until);
-    return json({ ...data, since, until });
+
+    let maintenanceSummary = [];
+    try {
+      maintenanceSummary = await getFleetMaintenanceSummary(uid, fleetId);
+    } catch (err) {
+      console.error('fleet-dashboard maintenance summary failed', err);
+    }
+
+    return json({ ...data, since, until, maintenanceSummary });
   } catch (err) {
     if (err instanceof FleetError) return json({ error: err.message }, err.status);
     console.error('fleet-dashboard failed', err);
