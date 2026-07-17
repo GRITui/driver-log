@@ -1,0 +1,23 @@
+name: Scratch diag - info subdomain final check
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check info.driverlog.link after CNAME re-add
+        run: |
+          echo "=== dig info.driverlog.link CNAME (default) ==="
+          dig +short info.driverlog.link CNAME || true
+          echo "=== dig via Google 8.8.8.8 ==="
+          dig +short info.driverlog.link @8.8.8.8 || true
+          echo "=== dig via Cloudflare 1.1.1.1 ==="
+          dig +short info.driverlog.link @1.1.1.1 || true
+          echo ""
+          echo "=== HTTPS response ==="
+          curl -sS -D - -o /tmp/info.html "https://info.driverlog.link/"
+          echo "--- body head ---"; head -c 400 /tmp/info.html; echo
+          echo ""
+          echo "=== root driverlog.link still fine? ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/"
+          echo "=== driverlog.link/app.html still fine? ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/app.html"
