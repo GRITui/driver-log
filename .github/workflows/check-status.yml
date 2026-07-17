@@ -1,0 +1,22 @@
+name: Scratch diag - 403 recheck
+on: workflow_dispatch
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production + info subdomain
+        run: |
+          echo "=== driverlog.link (root) ==="
+          curl -sS -D - -o /tmp/root.html "https://driverlog.link/"
+          echo "--- body head ---"; head -c 300 /tmp/root.html; echo
+          echo ""
+          echo "=== driverlog.link/app.html ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/app.html"
+          echo ""
+          echo "=== info.driverlog.link ==="
+          curl -sS -D - -o /dev/null "https://info.driverlog.link/"
+          echo ""
+          echo "=== dig driverlog.link A ==="
+          dig +short driverlog.link A || true
+          echo "=== dig driverlog.link ALIAS/CNAME/ANAME ==="
+          dig +short driverlog.link CNAME || true
