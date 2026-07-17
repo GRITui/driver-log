@@ -136,6 +136,10 @@ function renderDashboard(data) {
     ? pendingInvites.map(p => `<div class="fleet-invite-row"><span>${escapeHtml(p.firstName || p.email)}</span><span class="fleet-invite-status">Awaiting response</span></div>`).join('')
     : `<div class="fleet-empty">No pending invites.</div>`;
 
+  const maintenanceRows = maintenanceSummary.length
+    ? maintenanceSummary.map(item => `<div class="fleet-invite-row"><span>${escapeHtml(item.vehicle)} — ${escapeHtml(item.serviceType)} (${escapeHtml(item.firstName)})</span><span class="fleet-status-pill${item.overdue ? ' good' : ''}">${item.overdue ? 'Overdue' : 'Due ' + item.nextDueDate}</span></div>`).join('')
+    : `<div class="fleet-empty">No upcoming maintenance.</div>`;
+
   document.getElementById('fleet-shell').innerHTML = `
     <div class="fleet-topbar">
       <div class="fleet-brand">
@@ -179,6 +183,10 @@ function renderDashboard(data) {
         <div class="fleet-panel">
           <div class="fleet-panel-hd"><div class="fleet-panel-title">Pending invites</div></div>
           ${inviteRows}
+        </div>
+        <div class="fleet-panel">
+          <div class="fleet-panel-hd"><div class="fleet-panel-title">Upcoming maintenance</div></div>
+          ${maintenanceRows}
         </div>
         <div class="fleet-privacy-panel">
           <div class="fleet-privacy-hd">

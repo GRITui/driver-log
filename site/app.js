@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.9.1';   // bump on every deploy — 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.10.0';   // bump on every deploy — 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 3;
 function openDB() {
   return new Promise((res, rej) => {
@@ -81,7 +81,7 @@ function dbGet(store, key) {
 // against location.origin. Override only for local dev against a
 // different API host, e.g. localStorage.api_url = 'http://localhost:3000'
 const API_URL = localStorage.getItem('api_url') || '';
-const COLLECTION = { sessions: 'sessions', fuel: 'fuel', settings: 'settings' };
+const COLLECTION = { sessions: 'sessions', fuel: 'fuel', settings: 'settings', maintenance: 'maintenance' };
 const AUTH_CACHE_KEY = 'api_auth';   // {uid, token, email, firstName} — this backend's whole "session"
 const TOKEN_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;   // must match lib/auth.js's TOKEN_MAX_AGE_MS
 
@@ -162,7 +162,7 @@ const Sync = NeonBackend;   // alias — kept so the rest of this file (and any 
 // Local IndexedDB is the working copy; server is source of truth for account
 // users. Each syncable record carries: cuid (stable client id for dedupe),
 // sid (server id once pushed), updatedAt (ISO), deleted (soft delete), dirty.
-const SYNC_STORES = ['sessions', 'fuel'];   // settings stay device-local (prefs)
+const SYNC_STORES = ['sessions', 'fuel', 'maintenance'];   // settings stay device-local (prefs)
 
 function cuid() {
   if (crypto.randomUUID) return crypto.randomUUID();
@@ -177,7 +177,9 @@ function toServer(store, rec) {
     provider: rec.provider || '', serviceType: rec.serviceType, date: rec.date, endDate: rec.endDate || '', startTime: rec.startTime || '', endTime: rec.endTime || '',
     distance: rec.distance, consumption: rec.consumption,
     oilPrice: rec.oilPrice, exp: rec.exp, rev: rec.rev, tip: rec.tip, vehicle: rec.vehicle || '', netRev: rec.netRev };
-  return { ...base, station: rec.station, liters: rec.liters, price: rec.price, date: rec.date };
+  else if (store === 'maintenance') return { ...base,
+    vehicle: rec.vehicle || '', serviceType: rec.serviceType || '', cost: rec.cost, date: rec.date, odometerKm: rec.odometerKm, nextDueDate: rec.nextDueDate, nextDueKm: rec.nextDueKm };
+  else return { ...base, station: rec.station, liters: rec.liters, price: rec.price, date: rec.date };
 }
 
 async function enqueue(op, store, rec) {
@@ -263,6 +265,7 @@ function fromServer(store, sr, local) {
   let rec;
   if (store === 'sessions') rec = { provider: sr.provider || '', serviceType: sr.serviceType, date: sr.date, endDate: sr.endDate || '', startTime: sr.startTime || '', endTime: sr.endTime || '', distance: sr.distance,
     consumption: sr.consumption, oilPrice: sr.oilPrice, exp: sr.exp, rev: sr.rev, tip: sr.tip, vehicle: sr.vehicle || '', netRev: sr.netRev };
+  else if (store === 'maintenance') rec = { vehicle: sr.vehicle || '', serviceType: sr.serviceType || '', cost: sr.cost, date: sr.date, odometerKm: sr.odometerKm, nextDueDate: sr.nextDueDate, nextDueKm: sr.nextDueKm };
   else rec = { station: sr.station, liters: sr.liters, price: sr.price, date: sr.date };
   rec = { ...rec, ...common };
   if (local) rec.id = local.id;           // preserve local idb key
@@ -530,6 +533,7 @@ async function getCurrentPositionNative() {
 
 // ─── STATE ────────────────────────────────────────────────────────────
 let sessions = [], fuels = [], settings = {lang:'th', unit:'km'};
+let maintenanceLogs = [];
 let currentPeriod = 'today';
 let trendChart = null;
 const TYPE_ICON = {Car:'🚗',Bike:'🏍️',Food:'🍔',Express:'📦'};
@@ -617,6 +621,7 @@ const I18N = {
     fleet_invite_prompt: "Driver's email:", fleet_invite_sent: 'Invite sent!',
     fleet_leave_confirm: 'Leave this fleet? The owner will no longer see your sessions.', fleet_left: 'Left fleet',
     fleet_accept: 'Accept', fleet_decline: 'Decline', fleet_leave: 'Leave',
+    maintenance_log_title: 'Vehicle maintenance', service_history: 'Service history', add_maintenance: 'Add service record', vehicle_section: 'Vehicle', maintenance_log_link: 'Maintenance log', cost: 'Cost (฿)', odometer_km: 'Odometer (km, optional)', next_due_date: 'Next due date (optional)', next_due_km: 'Next due (km, optional)', save_maintenance: 'Save record', no_maintenance_records: 'No maintenance records yet', unknown_vehicle: 'Unknown vehicle', enter_vehicle_date: 'Enter a vehicle and date', maintenance_saved: 'Service record saved!', delete_maintenance_confirm: 'Delete this maintenance record?',
     appearance: 'Appearance', theme_light: 'Light', theme_dark: 'Dark', theme_auto: 'Auto',
     send_feedback: 'Send feedback', monthly_word: 'Monthly', backup_word: 'Backup', exported: 'Exported!',
     restore_word: 'Restore',
@@ -706,6 +711,7 @@ const I18N = {
     fleet_invite_prompt: 'อีเมลคนขับ:', fleet_invite_sent: 'ส่งคำเชิญแล้ว!',
     fleet_leave_confirm: 'ออกจากฟลีทนี้? เจ้าของฟลีทจะไม่เห็นข้อมูลการทำงานของคุณอีกต่อไป', fleet_left: 'ออกจากฟลีทแล้ว',
     fleet_accept: 'ยอมรับ', fleet_decline: 'ปฏิเสธ', fleet_leave: 'ออก',
+    maintenance_log_title: 'ซ่อมบำรุงรถ', service_history: 'ประวัติการซ่อมบำรุง', add_maintenance: 'เพิ่มบันทึกซ่อมบำรุง', vehicle_section: 'ยานพาหนะ', maintenance_log_link: 'บันทึกซ่อมบำรุง', cost: 'ค่าใช้จ่าย (฿)', odometer_km: 'เลขไมล์ (กม., ไม่บังคับ)', next_due_date: 'วันครบกำหนดถัดไป (ไม่บังคับ)', next_due_km: 'ครบกำหนดถัดไป (กม., ไม่บังคับ)', save_maintenance: 'บันทึกรายการ', no_maintenance_records: 'ยังไม่มีประวัติซ่อมบำรุง', unknown_vehicle: 'ไม่ทราบยานพาหนะ', enter_vehicle_date: 'กรอกยานพาหนะและวันที่', maintenance_saved: 'บันทึกรายการซ่อมบำรุงแล้ว!', delete_maintenance_confirm: 'ลบรายการซ่อมบำรุงนี้?',
     appearance: 'ธีม', theme_light: 'สว่าง', theme_dark: 'มืด', theme_auto: 'อัตโนมัติ',
     send_feedback: 'ส่งความคิดเห็น', monthly_word: 'รายเดือน', backup_word: 'สำรองข้อมูล', exported: 'ส่งออกแล้ว!',
     restore_word: 'กู้คืนข้อมูล',
@@ -921,9 +927,12 @@ async function reload() {
   sessions.sort((a,b) => b.date.localeCompare(a.date));
   fuels = (await dbAll('fuel')).filter(f => f.uid === uid);
   fuels.sort((a,b) => b.date.localeCompare(a.date));
+  maintenanceLogs = (await dbAll('maintenance')).filter(m => m.uid === uid);
+  maintenanceLogs.sort((a,b) => (a.nextDueDate||a.date||'').localeCompare(b.nextDueDate||b.date||''));
   renderDashboard();
   renderSessions();
   renderFuel();
+  renderMaintenanceLog();
   document.getElementById('set-count').textContent = sessions.length;
   const badge = document.getElementById('sessions-badge');
   if (sessions.length > 0) {
@@ -1735,6 +1744,67 @@ async function deleteFuel(id, e) {
   if (!rec) return;
   if (!isGuest) await enqueue('delete', 'fuel', rec);
   await dbDel('fuel', id);
+  await reload();
+  toast(t('deleted'));
+}
+
+// ─── MAINTENANCE LOG ──────────────────────────────────────────────────
+function renderMaintenanceLog() {
+  const el = document.getElementById('maintenance-list');
+  if (maintenanceLogs.length === 0) {
+    el.innerHTML = `<div class="empty" style="padding:24px 20px"><div class="empty-icon">🔧</div><p>${t('no_maintenance_records')}</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="list-card" style="margin-bottom:16px;">${maintenanceLogs.map(m=>`
+    <div class="list-row">
+      <div class="list-icon" style="background:#E5E5EA">🔧</div>
+      <div class="list-main">
+        <div class="list-title">${m.vehicle||t('unknown_vehicle')}</div>
+        <div class="list-sub">${m.serviceType} · ${fmtDate(m.date)}${syncBadge(m)}</div>
+      </div>
+      <div class="list-right">
+        <div class="list-amt" style="color:var(--text)">฿${fmt(m.cost)}</div>
+        <div class="list-amt-sub">${m.nextDueDate?fmtDate(m.nextDueDate):(m.nextDueKm?fmt(m.nextDueKm)+' km':'—')}</div>
+      </div>
+      <button class="btn-delete" onclick="deleteMaintenance(${m.id},event)">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>`).join('')}</div>`;
+}
+
+async function saveMaintenance() {
+  const vehicle = document.getElementById('m-vehicle').value.trim();
+  const cost = parseFloat(document.getElementById('m-cost').value)||0;
+  const date = document.getElementById('m-date').value;
+  if (!vehicle || !date) { toast(t('enter_vehicle_date')); return; }
+  if (cost < 0) { toast(t('neg_not_allowed')); return; }
+  const uid = isGuest ? 'guest' : currentUser.id;
+  const obj = {uid, vehicle, serviceType: document.getElementById('m-service').value.trim(),
+    cost, date, odometerKm: parseFloat(document.getElementById('m-odometer').value)||null,
+    nextDueDate: document.getElementById('m-next-date').value||null,
+    nextDueKm: parseFloat(document.getElementById('m-next-km').value)||null,
+    cuid: cuid(), sid: null, updatedAt: nowISO(), deleted: false, dirty: true};
+  const key = await dbPut('maintenance', obj);
+  obj.id = key;
+  if (!isGuest) await enqueue('upsert', 'maintenance', obj);
+  document.getElementById('m-vehicle').value = '';
+  document.getElementById('m-service').value = '';
+  document.getElementById('m-cost').value = '';
+  document.getElementById('m-date').value = '';
+  document.getElementById('m-odometer').value = '';
+  document.getElementById('m-next-date').value = '';
+  document.getElementById('m-next-km').value = '';
+  await reload();
+  toast(t('maintenance_saved'));
+}
+
+async function deleteMaintenance(id, e) {
+  e.stopPropagation();
+  if (!confirm(t('delete_maintenance_confirm'))) return;
+  const rec = maintenanceLogs.find(m => m.id === id);
+  if (!rec) return;
+  if (!isGuest) await enqueue('delete', 'maintenance', rec);
+  await dbDel('maintenance', id);
   await reload();
   toast(t('deleted'));
 }
