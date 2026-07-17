@@ -1,21 +1,20 @@
-name: Scratch diag - nameserver check
+name: Scratch diag - deploy version check
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check authoritative nameservers for driverlog.link
+      - name: Check production version matches latest commit
         run: |
-          echo "=== NS records for driverlog.link ==="
-          dig +short driverlog.link NS
-          echo "=== SOA for driverlog.link (shows the actual authoritative primary NS) ==="
-          dig +short driverlog.link SOA
-          echo "=== Query info.driverlog.link directly against each NS above ==="
-          for ns in $(dig +short driverlog.link NS); do
-            echo "--- via $ns ---"
-            dig +short info.driverlog.link CNAME @"$ns" || true
-            dig +short info.driverlog.link A @"$ns" || true
-          done
+          echo "=== driverlog.link/app.html - grep app-version ==="
+          curl -sS "https://driverlog.link/app.html" | grep -o 'id="app-version"[^<]*<[^>]*>[0-9.]*' || true
+          curl -sS "https://driverlog.link/app.html" | grep -A1 'id="app-version"' | head -3
           echo ""
-          echo "=== whois-style: trace from root ==="
-          dig +trace info.driverlog.link CNAME 2>&1 | tail -30
+          echo "=== driverlog.link/app.js - grep APP_VERSION ==="
+          curl -sS "https://driverlog.link/app.js" | grep -o "APP_VERSION = '[0-9.]*'" | head -1
+          echo ""
+          echo "=== driverlog.link/sw.js - grep SW_VERSION ==="
+          curl -sS "https://driverlog.link/sw.js" | grep -o "SW_VERSION = '[a-z0-9.]*'" | head -1
+          echo ""
+          echo "=== response headers for last-modified/date ==="
+          curl -sS -D - -o /dev/null "https://driverlog.link/app.js" | grep -iE "last-modified|x-vercel-id|etag"
