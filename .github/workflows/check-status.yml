@@ -1,23 +1,21 @@
-name: Scratch diag - info subdomain final check
+name: Scratch diag - nameserver check
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check info.driverlog.link after CNAME re-add
+      - name: Check authoritative nameservers for driverlog.link
         run: |
-          echo "=== dig info.driverlog.link CNAME (default) ==="
-          dig +short info.driverlog.link CNAME || true
-          echo "=== dig via Google 8.8.8.8 ==="
-          dig +short info.driverlog.link @8.8.8.8 || true
-          echo "=== dig via Cloudflare 1.1.1.1 ==="
-          dig +short info.driverlog.link @1.1.1.1 || true
+          echo "=== NS records for driverlog.link ==="
+          dig +short driverlog.link NS
+          echo "=== SOA for driverlog.link (shows the actual authoritative primary NS) ==="
+          dig +short driverlog.link SOA
+          echo "=== Query info.driverlog.link directly against each NS above ==="
+          for ns in $(dig +short driverlog.link NS); do
+            echo "--- via $ns ---"
+            dig +short info.driverlog.link CNAME @"$ns" || true
+            dig +short info.driverlog.link A @"$ns" || true
+          done
           echo ""
-          echo "=== HTTPS response ==="
-          curl -sS -D - -o /tmp/info.html "https://info.driverlog.link/"
-          echo "--- body head ---"; head -c 400 /tmp/info.html; echo
-          echo ""
-          echo "=== root driverlog.link still fine? ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/"
-          echo "=== driverlog.link/app.html still fine? ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://driverlog.link/app.html"
+          echo "=== whois-style: trace from root ==="
+          dig +trace info.driverlog.link CNAME 2>&1 | tail -30
