@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>วิธีคำนวณกำไรที่แท้จริงจากการขับ Grab, Lineman, Bolt | DriverLog</title>
+<meta name="description" content="ยอดรับกับกำไรสุทธิไม่เหมือนกัน คู่มือนี้สอนวิธีคำนวณกำไรที่แท้จริงจากการขับ Grab, Lineman, Bolt พร้อมสูตรและตัวอย่างสมมติที่เข้าใจง่าย" />
+<meta name="theme-color" content="#D0021B" />
+<link rel="icon" href="brand/favicon-64.png" sizes="64x64" />
+<link rel="icon" href="brand/logo-icon.svg" type="image/svg+xml" />
+<link rel="mask-icon" href="brand/logo-icon.svg" color="#D0021B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="ds-base.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3349895945204021" crossorigin="anonymous"></script>
+<style>
+/* Page overrides on top of the Broadsheet base (_ds/…/styles.css) — same
+   token set as info/index.html, reused here so guide pages read as part of
+   the same site rather than a bolted-on blog template. */
+:root {
+  --dl-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Sukhumvit Set", "Noto Sans Thai", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--dl-font);
+  --font-body: var(--dl-font);
+  --font-heading-weight: 700;
+
+  --color-bg: #FAFAFA;
+  --color-surface: #F2F2F7;
+  --color-text: #1C1C1E;
+  --color-divider: color-mix(in srgb, #1C1C1E 10%, transparent);
+
+  --color-accent: #D0021B;
+  --color-accent-100: #FDECEA;
+  --color-accent-200: #FBD0CB;
+  --color-accent-300: #F5A8A0;
+  --color-accent-400: #EE7A6E;
+  --color-accent-500: #E8344A;
+  --color-accent-600: #D0021B;
+  --color-accent-700: #A80016;
+  --color-accent-800: #7A0F13;
+  --color-accent-900: #4D0A0C;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --edge: clamp(20px, 5vw, 72px);
+  --leading: 28px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: var(--dl-font); text-wrap: pretty; background: var(--color-bg); color: var(--color-text); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--edge); }
+
+.muted-en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.muted-en-inline { font-size: 0.68em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+
+/* — nav (pinned) — */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  padding-inline: max(var(--edge), calc((100% - 1120px) / 2 + var(--edge)));
+  border-bottom: 1px solid var(--color-divider);
+}
+.nav-logo { height: 26px; width: auto; display: block; }
+.nav a { white-space: nowrap; font-weight: 500; }
+.nav a:hover { color: var(--color-accent-700); }
+.nav .btn-primary { margin-left: var(--space-2, 10px); }
+@media (max-width: 560px) {
+  .nav a:not(.nav-cta) { display: none; }
+  .nav { gap: var(--space-3, 15px); }
+}
+
+/* — article header — */
+.article-header { padding: calc(2.5 * var(--leading)) 0 var(--leading); max-width: 74ch; }
+.section-kicker { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 calc(var(--leading) - 10px); }
+.article-header h1 { font-size: clamp(28px, 4.2vw, 42px); line-height: 1.22; font-weight: 800; letter-spacing: -0.015em; margin: 0; }
+.article-header h1 .en { display: block; font-size: 0.42em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 10px; }
+.article-meta { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: var(--space-3, 15px); }
+.article-intro { font-size: 17px; line-height: var(--leading); max-width: 66ch; margin: var(--leading) 0 0; color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.article-intro .en { display: block; font-size: 0.85em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+
+/* — article body — */
+.article-body { padding: 0 0 calc(2 * var(--leading)); max-width: 74ch; }
+.article-body h2 { font-size: clamp(21px, 2.6vw, 27px); font-weight: 800; letter-spacing: -0.01em; margin: calc(2.2 * var(--leading)) 0 4px; }
+.article-body h2 .en { display: block; font-size: 0.5em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 6px; }
+.article-body h3 { font-size: 17.5px; font-weight: 700; margin: calc(1.5 * var(--leading)) 0 6px; }
+.article-body h3 .en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.article-body p { font-size: 15.5px; line-height: 1.75; margin: 0 0 var(--leading); color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.article-body ul, .article-body ol { font-size: 15.5px; line-height: 1.75; color: color-mix(in srgb, var(--color-text) 82%, transparent); padding-left: 1.3em; margin: 0 0 var(--leading); }
+.article-body li { margin-bottom: 6px; }
+.article-body strong { color: var(--color-text); font-weight: 700; }
+
+.formula-box {
+  background: var(--color-surface); border: 1px solid var(--color-divider); border-radius: var(--radius-lg);
+  padding: calc(var(--leading) - 6px) clamp(18px, 3vw, 28px); margin: 0 0 var(--leading);
+  font-size: 15px; line-height: 1.9; color: var(--color-text);
+}
+.formula-box code { font-weight: 700; color: var(--color-accent-700); }
+.formula-box .en { display: block; font-size: 0.8em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+
+.callout {
+  border-left: 3px solid var(--color-accent); background: var(--color-accent-100);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 14px clamp(16px, 2.5vw, 22px);
+  font-size: 14px; line-height: 1.7; color: var(--color-accent-900); margin: 0 0 var(--leading);
+}
+.callout .en { display: block; font-size: 0.85em; margin-top: 4px; color: color-mix(in srgb, var(--color-accent-900) 75%, transparent); }
+
+.example-table-wrap { overflow-x: auto; margin: 0 0 var(--leading); border: 1px solid var(--color-divider); border-radius: var(--radius-md); }
+.example-table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 480px; }
+.example-table caption { text-align: left; font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: color-mix(in srgb, var(--color-text) 55%, transparent); padding: 12px 16px 0; }
+.example-table th, .example-table td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--color-divider); }
+.example-table th { font-weight: 700; background: var(--color-surface); font-size: 13px; }
+.example-table td.num, .example-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.example-table tr:last-child td { border-bottom: none; }
+.example-table tr.total td { font-weight: 800; color: var(--color-accent-700); background: var(--color-accent-100); }
+
+.ds-mention { display: inline-flex; align-items: center; gap: 6px; color: var(--color-accent-700); font-weight: 600; text-decoration: none; }
+.ds-mention:hover { color: var(--color-accent-800); text-decoration: underline; }
+
+/* — ad slot — */
+.ad-slot { padding: var(--leading) 0; max-width: 74ch; }
+.ad-slot .ad-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 40%, transparent); margin-bottom: 8px; }
+
+/* — related guides — */
+.related { padding: var(--leading) 0 calc(2 * var(--leading)); border-top: 1px solid var(--color-divider); margin-top: var(--leading); }
+.related h2 { font-size: 18px; font-weight: 800; margin: 0 0 calc(var(--leading) - 10px); }
+.related h2 .en { display: block; font-size: 0.55em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+.related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.related-card { display: block; border: 1px solid var(--color-divider); border-radius: var(--radius-md); padding: 16px 18px; text-decoration: none; color: var(--color-text); }
+.related-card:hover { border-color: var(--color-accent-300); background: var(--color-accent-100); }
+.related-card .rc-kicker { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--color-accent-700); display: block; margin-bottom: 4px; }
+.related-card .rc-title { font-size: 15px; font-weight: 700; line-height: 1.4; }
+.related-card .en { display: block; font-size: 0.72em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 3px; }
+@media (max-width: 640px) { .related-grid { grid-template-columns: 1fr; } }
+
+/* — footer — */
+footer { padding: calc(2 * var(--leading)) 0; border-top: 1px solid var(--color-divider); }
+.footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.footer-logo { height: 22px; width: auto; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 65%, transparent); text-decoration: none; }
+.footer-links a:hover { color: var(--color-accent-700); }
+.footer-credit { font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 50%, transparent); margin-top: var(--leading); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="หลัก · Main">
+  <a href="/" style="margin-right:auto;display:flex;align-items:center;">
+    <img class="nav-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+  </a>
+  <a href="/#features">ฟีเจอร์<span class="muted-en-inline"> · Features</span></a>
+  <a href="/#how">วิธีใช้<span class="muted-en-inline"> · How it works</span></a>
+  <a href="https://driverlog.link/privacy/">นโยบาย<span class="muted-en-inline"> · Privacy</span></a>
+  <a class="btn btn-primary nav-cta" href="https://driverlog.link/app/">เปิดแอป<span class="muted-en-inline"> · Open app</span></a>
+</nav>
+
+<div class="wrap">
+
+  <article>
+    <header class="article-header">
+      <span class="section-kicker">คู่มือคนขับ · Driver Guide</span>
+      <h1>วิธีคำนวณกำไรที่แท้จริงจากการขับ Grab, Lineman, Bolt<span class="en">How to calculate your true profit from gig driving</span></h1>
+      <p class="article-meta">อ่านประมาณ 6 นาที · ปรับปรุงล่าสุด 18 ก.ค. 2569</p>
+      <p class="article-intro">ยอดเงินที่ขึ้นในแอปตอนจบกะ ไม่ใช่กำไรที่คุณได้จริง บทความนี้พาไล่ดูทีละต้นทุนที่กินกำไรของคนขับไปโดยไม่รู้ตัว พร้อมสูตรคำนวณและตัวอย่างสมมติที่ใช้ได้จริงกับทุกแอป
+        <span class="en">The number your app shows at the end of a shift isn't your real profit. This guide walks through every cost that quietly eats into a driver's earnings, with a formula and a worked example you can apply to any platform.</span>
+      </p>
+    </header>
+
+    <div class="article-body">
+
+      <h2>ยอดรับ ไม่ใช่ กำไรสุทธิ<span class="en">Gross revenue is not net profit</span></h2>
+      <p>เวลาปลายกะแล้วเปิดแอปดูตัวเลข หลายคนดีใจเมื่อเห็นยอด "รายได้วันนี้ ฿1,850" แต่ตัวเลขนั้นคือ <strong>ยอดรับรวม</strong> (gross revenue) ไม่ใช่เงินที่เข้ากระเป๋าจริงทั้งหมด เพราะแอปเรียกรถและส่งอาหารส่วนใหญ่ไม่ได้หักต้นทุนการขับออกให้เลย ไม่ว่าจะเป็นค่าน้ำมัน ค่าเสื่อมของรถ ค่าเน็ต หรือแม้แต่เวลาที่คุณเสียไปกับการนั่งรอออเดอร์</p>
+      <p><strong>กำไรสุทธิ</strong> (net profit) คือสิ่งที่เหลืออยู่จริงหลังหักทุกต้นทุนที่เกี่ยวข้องกับการขับออกแล้ว และเป็นตัวเลขเดียวที่บอกได้ว่ากะนั้น ๆ "คุ้ม" หรือ "ไม่คุ้ม" กันแน่ คนขับสองคนอาจได้ยอดรับเท่ากันเป๊ะที่ ฿1,850 แต่ถ้าคนหนึ่งขับในเมืองรถติดหนักจนน้ำมันหมดเร็ว อีกคนขับถนนโล่งไม่ค่อยเปลืองน้ำมัน กำไรสุทธิของทั้งคู่ต่างกันได้เป็นร้อยบาท ทั้งที่ยอดรับบนหน้าจอเหมือนกันทุกอย่าง</p>
+
+      <h2>อะไรบ้างที่กินกำไรของคุณไปจริง ๆ<span class="en">What actually eats into your earnings</span></h2>
+
+      <h3>ค่าน้ำมัน<span class="en">Fuel cost</span></h3>
+      <p>ต้นทุนที่มองเห็นชัดที่สุดและผันแปรตามระยะทางที่ขับในแต่ละกะ ยิ่งขับไกล ยิ่งเจอรถติด ยิ่งเปิดแอร์ตลอดเวลา ค่าน้ำมันยิ่งสูง คนขับที่ไม่จดบันทึกมักประเมินค่าน้ำมันต่ำกว่าความเป็นจริง เพราะไม่เคยคำนวณจากระยะทางจริงเทียบกับอัตราสิ้นเปลืองจริงของรถตัวเอง — โดยเฉพาะระยะทาง "วิ่งเปล่า" ตอนขับกลับไปรอรับงานใหม่ ซึ่งกินน้ำมันเหมือนกันแต่ไม่มีรายได้เข้ามาเลย</p>
+
+      <h3>ค่าเสื่อมและค่าซ่อมบำรุงรถ<span class="en">Depreciation &amp; maintenance</span></h3>
+      <p>เป็นต้นทุนที่คนขับมองข้ามบ่อยที่สุด เพราะไม่ต้องควักจ่ายทันทีในวันนั้น แต่รถหรือมอเตอร์ไซค์ที่ขับวันละ 100–200 กม. ทุกวันจะเสื่อมสภาพเร็วกว่ารถที่จอดอยู่บ้านมาก ยางสึกเร็วขึ้น น้ำมันเครื่องต้องเปลี่ยนถี่ขึ้น ผ้าเบรกสึกไว แบตเตอรี่เสื่อมไว และท้ายที่สุดต้องซ่อมใหญ่หรือเปลี่ยนคันใหม่เร็วกว่าที่ควรจะเป็น ควรกันเงินส่วนหนึ่งไว้เป็น "ค่าเสื่อมต่อกิโลเมตร" ทุกกะ แม้จะยังไม่มีใบเสร็จวันนั้นก็ตาม ไม่งั้นเงินซ่อมก้อนใหญ่จะมาทีเดียวตอนที่ไม่ได้กันไว้เลย</p>
+
+      <h3>ค่าเน็ตมือถือ<span class="en">Phone data</span></h3>
+      <p>แอปเรียกรถและส่งอาหารกินเน็ตต่อเนื่องตลอดกะ ทั้ง GPS แผนที่นำทาง และการอัปเดตออเดอร์แบบเรียลไทม์ แม้เป็นต้นทุนก้อนเล็กเมื่อเทียบกับน้ำมัน แต่ก็เป็นต้นทุนคงที่ที่เกิดขึ้นทุกเดือน ไม่ว่าจะขับมากหรือขับน้อย ควรเฉลี่ยเป็นต้นทุนต่อกะเพื่อไม่ให้หลุดจากการคำนวณ</p>
+
+      <h3>ต้นทุนเวลา<span class="en">Time cost</span></h3>
+      <p>ต้นทุนที่ประเมินยากที่สุดแต่สำคัญไม่แพ้กัน คือเวลาที่คุณเสียไปกับการขับ ไม่ใช่แค่เวลาที่มีผู้โดยสารอยู่ในรถหรือกำลังส่งอาหาร แต่รวมถึงเวลานั่งรอออเดอร์ เวลาขับรถเปล่ากลับไปยังจุดที่ออเดอร์เยอะ และเวลาที่ติดไฟแดงหรือรถติดโดยไม่ได้สร้างรายได้เลยแม้แต่บาทเดียว กะที่ยอดรับดูสูงแต่ใช้เวลานานถึง 10 ชั่วโมง อาจให้กำไรต่อชั่วโมงต่ำกว่ากะสั้นแค่ 5 ชั่วโมงที่ยอดรับน้อยกว่าก็ได้ ถ้าไม่คิดเวลาเข้าไปด้วย จะเห็นแต่ตัวเลขยอดรับที่หลอกให้รู้สึกว่าคุ้ม ทั้งที่จริงแล้วเหนื่อยฟรีไปหลายชั่วโมง</p>
+
+      <h2>สูตรคำนวณกำไรสุทธิแบบง่าย<span class="en">A simple net-profit formula</span></h2>
+      <p>เมื่อรู้ต้นทุนแต่ละก้อนแล้ว การคำนวณกำไรสุทธิก็เป็นแค่การหักลบตรงไปตรงมา:</p>
+      <div class="formula-box">
+        <code>กำไรสุทธิ = ยอดรับรวม (ค่าโดยสาร + ค่าส่งอาหาร + ทิป + โบนัส) − ค่าน้ำมัน − ค่าเสื่อม/ซ่อมบำรุง (เฉลี่ยต่อกม.) − ค่าเน็ต (เฉลี่ยต่อกะ)</code>
+        <span class="en">Net profit = gross earnings (fares + delivery fees + tips + bonuses) − fuel − depreciation/maintenance (per km average) − phone data (per-shift average)</span>
+      </div>
+      <p>แต่ตัวเลขที่มีประโยชน์กว่านั้นอีกคือ <strong>กำไรต่อชั่วโมง</strong> เพราะเทียบกันได้ตรง ๆ ระหว่างกะสั้นกับกะยาว ระหว่างวันธรรมดากับวันหยุด และระหว่างแอปหนึ่งกับอีกแอปหนึ่ง:</p>
+      <div class="formula-box">
+        <code>กำไรต่อชั่วโมง = กำไรสุทธิ ÷ จำนวนชั่วโมงที่ใช้ไปทั้งหมด (รวมเวลารอออเดอร์ด้วย)</code>
+        <span class="en">Profit per hour = net profit ÷ total hours spent (including idle/waiting time)</span>
+      </div>
+
+      <h2>ตัวอย่างสมมติ<span class="en">Illustrative example</span></h2>
+      <div class="callout">
+        ตัวเลขค่าคอมมิชชั่น ราคาน้ำมัน และอัตราภาษีด้านล่างนี้เป็น <strong>ตัวอย่างสมมติ</strong> เพื่อการอธิบายเท่านั้น ไม่ใช่อัตราจริงในปัจจุบัน เพราะราคาน้ำมันและค่าคอมมิชชั่นของแต่ละแอปเปลี่ยนแปลงได้ตลอดเวลา ควรตรวจสอบอัตราจริงกับแอปที่ใช้งานอยู่เสมอ
+        <span class="en">The fuel price, commission, and rates below are an illustrative example only, not current real-world figures — these change often, so always check the actual rates in the app you use.</span>
+      </div>
+      <p>ลองเทียบสองกะสมมติที่ให้ยอดรับใกล้เคียงกัน แต่กำไรสุทธิต่างกันมาก:</p>
+      <div class="example-table-wrap">
+        <table class="example-table">
+          <caption>ตัวอย่างสมมติ · ตัวเลขทั้งหมดเป็นการสมมติเพื่ออธิบายวิธีคิดเท่านั้น</caption>
+          <thead>
+            <tr>
+              <th>รายการ</th>
+              <th class="num">กะ A · เย็นวันศุกร์ ถนนโล่ง</th>
+              <th class="num">กะ B · บ่ายวันอังคาร รถติด</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>ยอดรับรวม (ค่าส่ง + ทิป)</td><td class="num">฿1,650</td><td class="num">฿1,800</td></tr>
+            <tr><td>ระยะทางที่ขับรวม</td><td class="num">95 กม.</td><td class="num">150 กม.</td></tr>
+            <tr><td>ชั่วโมงที่ใช้ทั้งหมด (รวมรอ)</td><td class="num">6 ชม.</td><td class="num">8 ชม.</td></tr>
+            <tr><td>ค่าน้ำมัน (สมมติ)</td><td class="num">− ฿144</td><td class="num">− ฿240</td></tr>
+            <tr><td>ค่าเสื่อม/ซ่อมบำรุง (สมมติ 1 บาท/กม.)</td><td class="num">− ฿95</td><td class="num">− ฿150</td></tr>
+            <tr><td>ค่าเน็ตเฉลี่ยต่อกะ (สมมติ)</td><td class="num">− ฿15</td><td class="num">− ฿15</td></tr>
+            <tr class="total"><td>กำไรสุทธิ</td><td class="num">฿1,396</td><td class="num">฿1,395</td></tr>
+            <tr class="total"><td>กำไรต่อชั่วโมง</td><td class="num">≈ ฿233 / ชม.</td><td class="num">≈ ฿174 / ชม.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>สังเกตว่ากำไรสุทธิของทั้งสองกะแทบไม่ต่างกันเลย แต่กะ B ใช้เวลานานกว่า วิ่งไกลกว่า และเจอรถติดมากกว่า ทำให้กำไรต่อชั่วโมงต่ำกว่ากะ A ถึงกว่า 25% นี่คือเหตุผลที่ยอดรับอย่างเดียวหลอกให้คนขับตัดสินใจผิดได้ง่ายมาก — ถ้าดูแค่ตัวเลขบนหน้าจอแอปตอนจบกะ กะ B ดูเหมือนจะ "ดีกว่า" ด้วยซ้ำ เพราะยอดรับสูงกว่า</p>
+
+      <h2>ทำไมการบันทึกทุกกะถึงสำคัญ<span class="en">Why tracking every shift matters</span></h2>
+      <p>คนขับที่ไม่บันทึกข้อมูลอย่างสม่ำเสมอ มักจำได้แค่ความรู้สึกคร่าว ๆ ว่า "วันนี้ดี" หรือ "วันนี้แย่" โดยไม่มีตัวเลขจริงมายืนยัน ผลคือมักจะขับซ้ำวันเดิม เวลาเดิม แอปเดิม ไปเรื่อย ๆ โดยไม่รู้เลยว่าจริง ๆ แล้วช่วงเวลานั้นให้กำไรต่อชั่วโมงต่ำกว่าที่คิดมาก เพราะรถติดหรือค่าน้ำมันสูงกว่าปกติ ในขณะที่บางช่วงเวลาที่มองข้ามไป อาจให้ผลตอบแทนที่ดีกว่าอย่างชัดเจนเมื่อหักต้นทุนแล้ว</p>
+      <p>เมื่อบันทึกทุกกะต่อเนื่องสัก 2–4 สัปดาห์ รูปแบบที่ซ่อนอยู่จะเริ่มชัดขึ้นเอง เช่น ช่วงเที่ยงวันธรรมดาให้กำไรต่อชั่วโมงดีกว่าช่วงเย็นวันหยุดเพราะรถไม่ติด หรือแอปหนึ่งจ่ายค่าคอมมิชชั่นดีกว่าอีกแอปในโซนที่คุณขับประจำ ข้อมูลแบบนี้หาไม่ได้จากความรู้สึก ต้องมาจากตัวเลขที่บันทึกไว้จริงเท่านั้น และยิ่งบันทึกละเอียดและสม่ำเสมอเท่าไหร่ ก็ยิ่งวางแผนกะต่อไปได้แม่นยำขึ้นเท่านั้น</p>
+
+      <h2>คำนวณเองทุกกะ หรือให้แอปช่วยคำนวณ<span class="en">Do the math yourself, or let an app do it</span></h2>
+      <p>การคำนวณด้วยมือทุกกะ — จดระยะทาง คูณราคาน้ำมัน หักค่าเสื่อม แล้วหารด้วยชั่วโมง — ทำได้จริงแต่กินเวลาและมักถูกข้ามไปเมื่อเหนื่อยหลังกะยาว ๆ นี่คือจุดที่ <a class="ds-mention" href="https://driverlog.link/app" target="_blank" rel="noopener">DriverLog</a> เข้ามาช่วย: แอปบันทึกกะฟรีที่คำนวณกำไรสุทธิให้อัตโนมัติหลังหักค่าน้ำมันทุกครั้ง เทียบให้เห็นเลยว่า Grab, Lineman, Bolt หรือ Shopee Food แอปไหนให้กำไรต่อชั่วโมงดีที่สุดในแต่ละช่วงเวลา ใช้เวลาบันทึกแค่ไม่ถึง 30 วินาทีต่อกะ และข้อมูลทั้งหมดเก็บอยู่ในเครื่องของคุณเอง ไม่ต้องเสียเงินสมัครหรือจ่ายรายเดือน</p>
+
+      <h2>สรุปสั้น ๆ<span class="en">Quick recap</span></h2>
+      <ul>
+        <li>ยอดรับที่เห็นในแอปตอนจบกะ ไม่ใช่กำไรจริง ต้องหักต้นทุนออกก่อนเสมอ</li>
+        <li>ต้นทุนหลักที่ต้องหัก คือ ค่าน้ำมัน ค่าเสื่อม/ซ่อมบำรุงรถ ค่าเน็ต และเวลาที่เสียไป</li>
+        <li>ดูกำไรต่อชั่วโมง ไม่ใช่แค่ยอดรับรวม เพื่อเทียบกะสั้น-ยาว หรือแอปต่อแอปได้อย่างยุติธรรม</li>
+        <li>บันทึกทุกกะต่อเนื่อง อย่างน้อย 2–4 สัปดาห์ ถึงจะเห็นรูปแบบว่าวันไหน เวลาไหน แอปไหนคุ้มจริง</li>
+        <li>ราคาน้ำมันและค่าคอมมิชชั่นเปลี่ยนแปลงได้เสมอ ควรตรวจสอบกับแอปที่ใช้งานจริงอยู่เป็นระยะ</li>
+      </ul>
+
+    </div>
+
+    <div class="ad-slot">
+      <span class="ad-label">โฆษณา · Advertisement</span>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3349895945204021" data-ad-slot="9769218389" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <nav class="related" aria-label="คู่มืออื่น ๆ · Other guides">
+      <h2>อ่านต่อ<span class="en">Keep reading</span></h2>
+      <div class="related-grid">
+        <a class="related-card" href="/guides/fuel-saving-tips.html">
+          <span class="rc-kicker">คู่มือคนขับ</span>
+          <span class="rc-title">วิธีประหยัดค่าน้ำมันสำหรับคนขับ Grab, Lineman, Bolt<span class="en">Fuel-saving tips for gig drivers</span></span>
+        </a>
+        <a class="related-card" href="/guides/choosing-app.html">
+          <span class="rc-kicker">คู่มือคนขับ</span>
+          <span class="rc-title">เลือกแอปไหนดี ระหว่าง Grab, Lineman, Bolt<span class="en">Choosing the right gig app</span></span>
+        </a>
+      </div>
+    </nav>
+  </article>
+
+  <footer>
+    <div class="footer-row">
+      <img class="footer-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+      <div class="footer-links">
+        <a href="/">หน้าแรก · Home</a>
+        <a href="/guides/fuel-saving-tips.html">ประหยัดน้ำมัน · Fuel saving</a>
+        <a href="/guides/choosing-app.html">เลือกแอป · Choosing an app</a>
+        <a href="https://driverlog.link/privacy/">นโยบายความเป็นส่วนตัว · Privacy</a>
+      </div>
+    </div>
+    <p class="footer-credit">© 2026 DriverLog · สร้างโดย Grit · ขับเคลื่อนด้วย Claude</p>
+  </footer>
+
+</div>
+
+</body>
+</html>

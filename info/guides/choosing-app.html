@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>เลือกแอปไหนดี: เปรียบเทียบ Grab, Lineman, Bolt, Shopee Food สำหรับมือใหม่ | DriverLog</title>
+<meta name="description" content="มือใหม่ควรเริ่มขับกับ Grab, Lineman, Bolt หรือ Shopee Food ดี คู่มือนี้เปรียบเทียบโครงสร้างงาน ประเภทรถ ระบบจับงาน และการขับหลายแอปพร้อมกัน เพื่อช่วยตัดสินใจอย่างมีข้อมูล" />
+<meta name="theme-color" content="#D0021B" />
+<link rel="icon" href="brand/favicon-64.png" sizes="64x64" />
+<link rel="icon" href="brand/logo-icon.svg" type="image/svg+xml" />
+<link rel="mask-icon" href="brand/logo-icon.svg" color="#D0021B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="ds-base.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3349895945204021" crossorigin="anonymous"></script>
+<style>
+/* Page overrides on top of the Broadsheet base (_ds/…/styles.css) — same
+   token set as info/index.html, reused here so guide pages read as part of
+   the same site rather than a bolted-on blog template. */
+:root {
+  --dl-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Sukhumvit Set", "Noto Sans Thai", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--dl-font);
+  --font-body: var(--dl-font);
+  --font-heading-weight: 700;
+
+  --color-bg: #FAFAFA;
+  --color-surface: #F2F2F7;
+  --color-text: #1C1C1E;
+  --color-divider: color-mix(in srgb, #1C1C1E 10%, transparent);
+
+  --color-accent: #D0021B;
+  --color-accent-100: #FDECEA;
+  --color-accent-200: #FBD0CB;
+  --color-accent-300: #F5A8A0;
+  --color-accent-400: #EE7A6E;
+  --color-accent-500: #E8344A;
+  --color-accent-600: #D0021B;
+  --color-accent-700: #A80016;
+  --color-accent-800: #7A0F13;
+  --color-accent-900: #4D0A0C;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --edge: clamp(20px, 5vw, 72px);
+  --leading: 28px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: var(--dl-font); text-wrap: pretty; background: var(--color-bg); color: var(--color-text); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--edge); }
+
+.muted-en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.muted-en-inline { font-size: 0.68em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+
+/* — nav (pinned) — */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  padding-inline: max(var(--edge), calc((100% - 1120px) / 2 + var(--edge)));
+  border-bottom: 1px solid var(--color-divider);
+}
+.nav-logo { height: 26px; width: auto; display: block; }
+.nav a { white-space: nowrap; font-weight: 500; }
+.nav a:hover { color: var(--color-accent-700); }
+.nav .btn-primary { margin-left: var(--space-2, 10px); }
+@media (max-width: 560px) {
+  .nav a:not(.nav-cta) { display: none; }
+  .nav { gap: var(--space-3, 15px); }
+}
+
+/* — article header — */
+.article-header { padding: calc(2.5 * var(--leading)) 0 var(--leading); max-width: 74ch; }
+.section-kicker { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 calc(var(--leading) - 10px); }
+.article-header h1 { font-size: clamp(28px, 4.2vw, 42px); line-height: 1.22; font-weight: 800; letter-spacing: -0.015em; margin: 0; }
+.article-header h1 .en { display: block; font-size: 0.42em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 10px; }
+.article-meta { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: var(--space-3, 15px); }
+.article-intro { font-size: 17px; line-height: var(--leading); max-width: 66ch; margin: var(--leading) 0 0; color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.article-intro .en { display: block; font-size: 0.85em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+
+/* — article body — */
+.article-body { padding: 0 0 calc(2 * var(--leading)); max-width: 74ch; }
+.article-body h2 { font-size: clamp(21px, 2.6vw, 27px); font-weight: 800; letter-spacing: -0.01em; margin: calc(2.2 * var(--leading)) 0 4px; }
+.article-body h2 .en { display: block; font-size: 0.5em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 6px; }
+.article-body h3 { font-size: 17.5px; font-weight: 700; margin: calc(1.5 * var(--leading)) 0 6px; }
+.article-body h3 .en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.article-body p { font-size: 15.5px; line-height: 1.75; margin: 0 0 var(--leading); color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.article-body ul, .article-body ol { font-size: 15.5px; line-height: 1.75; color: color-mix(in srgb, var(--color-text) 82%, transparent); padding-left: 1.3em; margin: 0 0 var(--leading); }
+.article-body li { margin-bottom: 6px; }
+.article-body strong { color: var(--color-text); font-weight: 700; }
+
+.callout {
+  border-left: 3px solid var(--color-accent); background: var(--color-accent-100);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 14px clamp(16px, 2.5vw, 22px);
+  font-size: 14px; line-height: 1.7; color: var(--color-accent-900); margin: 0 0 var(--leading);
+}
+.callout .en { display: block; font-size: 0.85em; margin-top: 4px; color: color-mix(in srgb, var(--color-accent-900) 75%, transparent); }
+
+.example-table-wrap { overflow-x: auto; margin: 0 0 var(--leading); border: 1px solid var(--color-divider); border-radius: var(--radius-md); }
+.example-table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+.example-table caption { text-align: left; font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: color-mix(in srgb, var(--color-text) 55%, transparent); padding: 12px 16px 0; }
+.example-table th, .example-table td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--color-divider); vertical-align: top; }
+.example-table th { font-weight: 700; background: var(--color-surface); font-size: 13px; }
+.example-table tr:last-child td { border-bottom: none; }
+
+.ds-mention { display: inline-flex; align-items: center; gap: 6px; color: var(--color-accent-700); font-weight: 600; text-decoration: none; }
+.ds-mention:hover { color: var(--color-accent-800); text-decoration: underline; }
+
+/* — ad slot — */
+.ad-slot { padding: var(--leading) 0; max-width: 74ch; }
+.ad-slot .ad-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 40%, transparent); margin-bottom: 8px; }
+
+/* — related guides — */
+.related { padding: var(--leading) 0 calc(2 * var(--leading)); border-top: 1px solid var(--color-divider); margin-top: var(--leading); }
+.related h2 { font-size: 18px; font-weight: 800; margin: 0 0 calc(var(--leading) - 10px); }
+.related h2 .en { display: block; font-size: 0.55em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+.related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.related-card { display: block; border: 1px solid var(--color-divider); border-radius: var(--radius-md); padding: 16px 18px; text-decoration: none; color: var(--color-text); }
+.related-card:hover { border-color: var(--color-accent-300); background: var(--color-accent-100); }
+.related-card .rc-kicker { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--color-accent-700); display: block; margin-bottom: 4px; }
+.related-card .rc-title { font-size: 15px; font-weight: 700; line-height: 1.4; }
+.related-card .en { display: block; font-size: 0.72em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 3px; }
+@media (max-width: 640px) { .related-grid { grid-template-columns: 1fr; } }
+
+/* — footer — */
+footer { padding: calc(2 * var(--leading)) 0; border-top: 1px solid var(--color-divider); }
+.footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.footer-logo { height: 22px; width: auto; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 65%, transparent); text-decoration: none; }
+.footer-links a:hover { color: var(--color-accent-700); }
+.footer-credit { font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 50%, transparent); margin-top: var(--leading); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="หลัก · Main">
+  <a href="/" style="margin-right:auto;display:flex;align-items:center;">
+    <img class="nav-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+  </a>
+  <a href="/#features">ฟีเจอร์<span class="muted-en-inline"> · Features</span></a>
+  <a href="/#how">วิธีใช้<span class="muted-en-inline"> · How it works</span></a>
+  <a href="https://driverlog.link/privacy/">นโยบาย<span class="muted-en-inline"> · Privacy</span></a>
+  <a class="btn btn-primary nav-cta" href="https://driverlog.link/app/">เปิดแอป<span class="muted-en-inline"> · Open app</span></a>
+</nav>
+
+<div class="wrap">
+
+  <article>
+    <header class="article-header">
+      <span class="section-kicker">คู่มือคนขับ · Driver Guide</span>
+      <h1>เลือกแอปไหนดี: เปรียบเทียบ Grab, Lineman, Bolt, Shopee Food สำหรับมือใหม่<span class="en">Which app should I choose? Comparing Grab, Lineman, Bolt, Shopee Food for beginners</span></h1>
+      <p class="article-meta">อ่านประมาณ 7 นาที · ปรับปรุงล่าสุด 18 ก.ค. 2569</p>
+      <p class="article-intro">คนที่เพิ่งเริ่มขับมักถามคำถามเดียวกันว่า "สมัครแอปไหนดี" แต่คำตอบที่ซื่อสัตย์ที่สุดคือ ไม่มีแอปไหน "ดีที่สุด" แบบตายตัวสำหรับทุกคน เพราะขึ้นอยู่กับพื้นที่ที่คุณขับ ประเภทรถที่มี และเวลาที่ว่างขับ บทความนี้จะพาไล่ดูโครงสร้างของแต่ละแอปทีละตัว เพื่อให้คุณตัดสินใจได้เองอย่างมีข้อมูล ไม่ใช่แค่เชื่อตามที่คนอื่นบอกต่อ ๆ กันมา
+        <span class="en">New drivers usually ask "which app should I sign up for" — but the honest answer is that no single app is universally best. It depends on your area, your vehicle, and your schedule. This guide walks through each platform's structure so you can decide with real information, not just word of mouth.</span>
+      </p>
+    </header>
+
+    <div class="article-body">
+
+      <h2>ทำไมไม่มีคำตอบเดียวที่ใช้ได้กับทุกคน<span class="en">Why there's no one-size-fits-all answer</span></h2>
+      <p>ก่อนจะเข้าเรื่องแต่ละแอป ต้องเข้าใจก่อนว่าเหตุผลที่คนขับคนหนึ่งชอบ Grab แต่อีกคนชอบ Lineman หรือ Bolt มากกว่า ไม่ได้เกิดจากแอปใดแอปหนึ่ง "แย่กว่า" อีกแอป แต่เกิดจากปัจจัยเฉพาะตัวที่ต่างกัน เช่น จังหวัดหรือย่านที่ขับมีผู้ใช้แอปไหนหนาแน่นกว่า ประเภทรถหรือมอเตอร์ไซค์ที่มีอยู่ในมือ ช่วงเวลาที่ว่างขับตรงกับช่วงพีคของแอปไหน และแม้แต่นิสัยการขับส่วนตัวว่าถนัดขับรถหรือขับไบค์มากกว่ากัน</p>
+      <p>ดังนั้นสิ่งที่บทความนี้ให้ไม่ใช่ "อันดับ" ว่าแอปไหนดีสุด แต่เป็นกรอบความคิดและปัจจัยที่ควรพิจารณา เพื่อให้คุณประเมินเองได้ว่าแอปไหนเหมาะกับสถานการณ์ของคุณจริง ๆ</p>
+
+      <div class="callout">
+        ค่าคอมมิชชั่นและโปรโมชั่นแตกต่างกันในแต่ละพื้นที่และเปลี่ยนแปลงบ่อย ควรตรวจสอบข้อมูลล่าสุดจากแอปโดยตรงก่อนตัดสินใจ บทความนี้จึงไม่ระบุตัวเลขค่าคอมมิชชั่น อัตราค้ำประกันขั้นต่ำ หรือโปรโมชั่นปัจจุบันของแอปใด เพราะข้อมูลเหล่านี้เปลี่ยนตามจังหวัด เมือง และช่วงเวลาตลอดเวลา
+        <span class="en">Commission and promotions vary by area and change often — check the app directly for current info before deciding. This guide deliberately avoids citing commission percentages, minimum guarantees, or current bonuses for any platform, since these shift by province, city, and season.</span>
+      </div>
+
+      <h2>โครงสร้างธุรกิจของแต่ละแอป โดยคร่าว ๆ<span class="en">Each platform's business model, broadly</span></h2>
+
+      <h3>Grab<span class="en">Ride-hailing, delivery &amp; more, all in one app</span></h3>
+      <p>Grab เป็นแพลตฟอร์มที่ครอบคลุมบริการหลายประเภทในแอปเดียว ทั้งเรียกรถโดยสาร (GrabCar, GrabBike) และส่งอาหาร/พัสดุ (GrabFood, GrabExpress) คนขับสามารถรับงานได้หลายประเภทสลับกันไปในกะเดียวโดยไม่ต้องสลับแอป ซึ่งเป็นข้อได้เปรียบเชิงโครงสร้างที่ทำให้ช่วงที่งานโดยสารเบาบาง ยังอาจมีงานส่งอาหารเข้ามาแทนได้ในบางพื้นที่ Grab มีฐานผู้ใช้กว้างขวางในหลายจังหวัดของไทย ทำให้ปริมาณงานโดยรวมค่อนข้างสม่ำเสมอ แต่ก็หมายความว่ามีคนขับแข่งกันรับงานเยอะเช่นกันในเขตเมืองใหญ่</p>
+
+      <h3>Lineman<span class="en">Food, grocery &amp; parcel delivery, with a ride option</span></h3>
+      <p>Lineman เริ่มต้นและยังคงเน้นหนักไปทางบริการส่งอาหารและส่งของ (Lineman Man, Lineman Mart) เป็นหลัก แม้จะมีบริการเรียกรถเพิ่มเข้ามาในบางพื้นที่ แต่จุดแข็งของแพลตฟอร์มนี้อยู่ที่เครือข่ายร้านอาหารและร้านสะดวกซื้อที่ผูกกับ LINE ซึ่งเป็นแอปที่คนไทยใช้กันแพร่หลาย ทำให้ฐานลูกค้าฝั่งผู้สั่งมีจำนวนมากในเขตเมือง คนขับที่ถนัดขับมอเตอร์ไซค์และเน้นงานส่งอาหารระยะสั้นในโซนที่คุ้นเคย มักพบว่า Lineman เหมาะกับรูปแบบการทำงานนี้</p>
+
+      <h3>Bolt<span class="en">Ride-hailing first, expanding into delivery</span></h3>
+      <p>Bolt เป็นผู้ให้บริการเรียกรถที่มีต้นกำเนิดจากยุโรปและขยายเข้ามาในตลาดไทย โดยเน้นบริการเรียกรถโดยสาร (Bolt Car, Bolt Bike) เป็นหลัก และเริ่มมีบริการส่งอาหาร/พัสดุเพิ่มเติมในบางเมือง เนื่องจากเป็นผู้เล่นที่เข้าตลาดทีหลังในหลายพื้นที่ ปริมาณคนขับที่แข่งกันอาจน้อยกว่า Grab ในบางโซน แต่ก็หมายความว่าปริมาณงานโดยรวมอาจไม่หนาแน่นเท่ากันในทุกพื้นที่เช่นกัน ความคุ้มค่าของ Bolt จึงขึ้นอยู่กับว่าแพลตฟอร์มนี้เติบโตในจังหวัดหรือย่านที่คุณขับมากแค่ไหน</p>
+
+      <h3>Shopee Food<span class="en">Food delivery tied to Shopee's e-commerce ecosystem</span></h3>
+      <p>Shopee Food เป็นบริการส่งอาหารที่อยู่ภายใต้เครือ Shopee ซึ่งมีฐานผู้ใช้จากแอปช้อปปิ้งออนไลน์เดิมอยู่แล้ว ทำให้มีข้อได้เปรียบด้านการเข้าถึงลูกค้าจำนวนมาก โครงสร้างงานเน้นไปที่การส่งอาหารและพัสดุขนาดเล็กเป็นหลัก คล้ายกับ Lineman มากกว่าจะเป็นบริการเรียกรถโดยสาร คนขับที่ต้องการเน้นงานส่งอาหารอย่างเดียวโดยไม่สนใจงานรับผู้โดยสาร มักมองว่า Shopee Food เป็นตัวเลือกเสริมที่ดีควบคู่ไปกับแอปอื่น</p>
+
+      <h2>ปัจจัยที่ควรใช้ตัดสินใจ ไม่ใช่แค่ "แอปไหนดัง"<span class="en">Decision factors that matter more than brand reputation</span></h2>
+
+      <h3>ประเภทรถที่คุณมี<span class="en">The vehicle you actually have</span></h3>
+      <p>แต่ละแอปมีเงื่อนไขเรื่องประเภทและอายุรถ/มอเตอร์ไซค์ที่รับสมัครแตกต่างกัน และเงื่อนไขเหล่านี้เปลี่ยนแปลงได้ตามนโยบายและพื้นที่ ก่อนตัดสินใจสมัคร ควรตรวจสอบเงื่อนไขล่าสุดของแต่ละแอปโดยตรงว่ารถที่คุณมีอยู่เข้าเกณฑ์หรือไม่ เพราะการเตรียมเอกสารและผ่านการตรวจสอบรถอาจใช้เวลาหลายวัน ถ้าเลือกแอปที่รถไม่เข้าเกณฑ์ตั้งแต่แรก จะเสียเวลาโดยไม่จำเป็น</p>
+
+      <h3>ระบบจับงานทำงานอย่างไร<span class="en">How the matching/assignment system generally works</span></h3>
+      <p>โดยทั่วไปแอปเรียกรถและส่งอาหารในไทยใช้ระบบจับคู่งานอัตโนมัติที่พิจารณาระยะห่างระหว่างคนขับกับจุดรับงาน ร่วมกับปัจจัยอื่น ๆ ที่แต่ละแพลตฟอร์มออกแบบไว้ต่างกัน เช่น คะแนนการให้บริการ อัตราการรับ/ปฏิเสธงาน หรือช่วงเวลาที่ออนไลน์ต่อเนื่อง รายละเอียดที่แน่นอนของอัลกอริทึมแต่ละแอปไม่ได้เปิดเผยต่อสาธารณะทั้งหมด และเปลี่ยนแปลงได้ตามช่วงเวลา สิ่งที่คนขับทำได้จริงคือสังเกตรูปแบบงานที่ได้รับในพื้นที่ของตัวเองในช่วง 1-2 สัปดาห์แรก แล้วปรับกลยุทธ์ตามนั้น มากกว่าจะยึดติดกับสิ่งที่คนอื่นบอกต่อกันมาว่า "แอปนี้จับงานยังไง" เพราะประสบการณ์ในแต่ละพื้นที่ต่างกันได้มาก</p>
+
+      <h3>ชื่อเสียงด้านการซัพพอร์ตคนขับ<span class="en">Driver-support reputation</span></h3>
+      <p>เวลาเกิดปัญหา เช่น ลูกค้ายกเลิกงานกลางทาง โดนรีวิวไม่เป็นธรรม หรือมีข้อพิพาทเรื่องเงิน ความเร็วและคุณภาพของการซัพพอร์ตจากแอปมีผลต่อประสบการณ์การทำงานโดยตรง ชื่อเสียงด้านนี้ของแต่ละแอปเปลี่ยนแปลงได้ตามเวลาและอาจต่างกันในแต่ละพื้นที่ วิธีที่น่าเชื่อถือที่สุดคือลองสอบถามคนขับที่ทำงานในโซนเดียวกับคุณจริง ๆ ผ่านกลุ่มคนขับในพื้นที่ มากกว่าจะเชื่อรีวิวทั่วไปที่หาอ่านได้ทางออนไลน์ ซึ่งอาจไม่สะท้อนสถานการณ์ปัจจุบันหรือพื้นที่ของคุณ</p>
+
+      <h3>ตารางเวลาที่คุณว่างขับ<span class="en">The hours you actually have free</span></h3>
+      <p>แต่ละแอปมีช่วงเวลาที่งานหนาแน่นต่างกันไปตามพฤติกรรมผู้ใช้ของแพลตฟอร์มนั้น ๆ ในพื้นที่นั้น ๆ เช่น บางแอปอาจมีงานหนาแน่นช่วงเที่ยงเพราะฐานลูกค้าเป็นพนักงานออฟฟิศที่สั่งอาหารกลางวัน ขณะที่อีกแอปอาจหนาแน่นช่วงเย็นเพราะฐานลูกค้าเป็นครอบครัวที่สั่งอาหารเย็น ถ้าคุณมีเวลาว่างขับแค่บางช่วง การเลือกแอปที่ "ดัง" แต่ไม่มีงานในช่วงเวลาที่คุณว่าง ย่อมไม่คุ้มเท่าแอปที่เล็กกว่าแต่มีงานตรงกับตารางเวลาของคุณพอดี</p>
+
+      <h2>ขับหลายแอปพร้อมกัน: กลยุทธ์ยอดนิยมที่มีข้อควรพิจารณา<span class="en">Multi-apping: a common strategy with real tradeoffs</span></h2>
+      <p>คนขับจำนวนมากในไทยไม่ได้เลือกขับแอปเดียว แต่เปิดหลายแอปพร้อมกันในกะเดียว หรือที่เรียกกันว่า "ขับหลายแอป" (multi-apping) เพื่อเพิ่มโอกาสรับงานให้มากที่สุดในช่วงเวลาที่ขับอยู่ แทนที่จะรอเฉพาะออเดอร์จากแอปเดียวซึ่งอาจมีช่วงว่างงานเป็นระยะ</p>
+      <p>ข้อดีที่ชัดเจนคือลดเวลาที่นั่งรอเฉย ๆ โดยไม่มีรายได้เข้ามาเลย เพราะถ้าแอปหนึ่งเงียบ อีกแอปอาจมีงานเข้ามาแทน และยังช่วยให้เห็นข้อมูลเปรียบเทียบด้วยตัวเองว่าจริง ๆ แล้วแอปไหนให้งานถี่กว่าหรือจ่ายดีกว่าในพื้นที่และช่วงเวลาที่ตัวเองขับ ไม่ต้องเดาหรือเชื่อตามคนอื่นบอก</p>
+      <p>แต่การขับหลายแอปก็มีข้อควรพิจารณาที่มือใหม่มักมองข้าม ประการแรกคือการจัดการงานที่เข้ามาพร้อมกันจากหลายแอปทำได้ยากขึ้น อาจพลาดรับงานจากแอปหนึ่งเพราะกำลังส่งงานของอีกแอปอยู่ ซึ่งถ้าปฏิเสธงานบ่อยเกินไปอาจกระทบคะแนนหรือสิทธิ์การรับงานในระยะยาวของบางแพลตฟอร์ม ประการที่สองคือแบตเตอรี่โทรศัพท์และค่าเน็ตที่ใช้มากขึ้นเมื่อเปิดหลายแอปพร้อมกันตลอดกะ และประการสุดท้ายคือความซับซ้อนในการติดตามว่าแต่ละกะ แต่ละแอป ทำรายได้จริงเท่าไหร่ เพราะถ้าไม่บันทึกแยกไว้อย่างเป็นระบบ จะจำไม่ได้ว่าท้ายที่สุดแล้วแอปไหนคุ้มกว่ากันจริง ๆ</p>
+      <p>สำหรับมือใหม่ คำแนะนำที่ปฏิบัติได้จริงคือ เริ่มจากแอปเดียวก่อนสักระยะเพื่อทำความคุ้นเคยกับระบบงานและพื้นที่ที่ขับ แล้วค่อยทดลองเพิ่มแอปที่สองเมื่อเริ่มจับจังหวะงานได้แล้ว มากกว่าจะเปิดหลายแอปพร้อมกันตั้งแต่วันแรกซึ่งอาจทำให้สับสนและพลาดงานได้ง่าย</p>
+      <p>และเพราะการขับหลายแอปทำให้ข้อมูลรายได้กระจัดกระจายอยู่คนละที่ การมีเครื่องมือกลางที่ช่วยบันทึกทุกกะจากทุกแอปไว้ในที่เดียวจึงมีประโยชน์มาก — นี่คือสิ่งที่ <a class="ds-mention" href="https://driverlog.link/app" target="_blank" rel="noopener">DriverLog</a> ถูกออกแบบมาให้ทำ คือให้คนขับบันทึกกะจาก Grab, Lineman, Bolt, Shopee Food หรือแอปอื่นใดก็ได้ในที่เดียวกัน แล้วดูเปรียบเทียบกำไรสุทธิต่อชั่วโมงของแต่ละแอปแบบเคียงข้างกัน เพื่อให้เห็นด้วยตัวเลขจริงของตัวเองว่าแอปไหนคุ้มที่สุด "สำหรับคุณ" โดยเฉพาะ ไม่ใช่ค่าเฉลี่ยทั่วไปที่อาจไม่ตรงกับพื้นที่หรือตารางเวลาของคุณเลย</p>
+
+      <h2>สรุปการเปรียบเทียบ<span class="en">Comparison summary</span></h2>
+      <div class="example-table-wrap">
+        <table class="example-table">
+          <caption>ภาพรวมโครงสร้างงานของแต่ละแพลตฟอร์ม · ไม่รวมตัวเลขค่าคอมมิชชั่นหรือโปรโมชั่นซึ่งเปลี่ยนแปลงบ่อย</caption>
+          <thead>
+            <tr>
+              <th>แอป</th>
+              <th>ประเภทงานหลัก</th>
+              <th>จุดเด่นเชิงโครงสร้าง</th>
+              <th>เหมาะกับใคร</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Grab</strong></td>
+              <td>เรียกรถ + ส่งอาหาร/พัสดุ</td>
+              <td>หลายบริการในแอปเดียว ฐานผู้ใช้กว้าง</td>
+              <td>คนขับที่อยากสลับรับงานได้หลายประเภทในกะเดียว</td>
+            </tr>
+            <tr>
+              <td><strong>Lineman</strong></td>
+              <td>ส่งอาหาร/ของชำ เป็นหลัก</td>
+              <td>ผูกกับฐานผู้ใช้ LINE ที่แพร่หลาย</td>
+              <td>ไรเดอร์มอเตอร์ไซค์ที่เน้นงานส่งระยะสั้นในโซนคุ้นเคย</td>
+            </tr>
+            <tr>
+              <td><strong>Bolt</strong></td>
+              <td>เรียกรถ เป็นหลัก</td>
+              <td>เข้าตลาดทีหลัง อาจมีคนขับแข่งน้อยกว่าในบางโซน</td>
+              <td>คนขับรถที่พื้นที่ของตัวเองมี Bolt เติบโตดี</td>
+            </tr>
+            <tr>
+              <td><strong>Shopee Food</strong></td>
+              <td>ส่งอาหาร เป็นหลัก</td>
+              <td>ผูกกับฐานผู้ใช้ระบบนิเวศ Shopee</td>
+              <td>ไรเดอร์ที่ต้องการแอปเสริมเน้นส่งอาหารอย่างเดียว</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>ตารางนี้เป็นภาพรวมเชิงโครงสร้างเท่านั้น ไม่ใช่คำแนะนำว่าแอปไหนดีกว่าแอปไหน เพราะคำตอบที่แท้จริงขึ้นอยู่กับพื้นที่ ตารางเวลา และรถที่คุณมี ซึ่งต่างกันไปในแต่ละคน วิธีเดียวที่จะรู้แน่ชัดคือทดลองขับจริงและบันทึกผลลัพธ์เปรียบเทียบด้วยตัวเอง</p>
+
+      <h2>สรุปสั้น ๆ<span class="en">Quick recap</span></h2>
+      <ul>
+        <li>ไม่มีแอปไหน "ดีที่สุด" แบบตายตัว คำตอบขึ้นอยู่กับพื้นที่ ตารางเวลา และรถที่คุณมี</li>
+        <li>Grab ครอบคลุมหลายบริการในแอปเดียว, Lineman และ Shopee Food เน้นส่งอาหาร, Bolt เน้นเรียกรถ — แต่ทุกแอปขยายบริการได้ตามพื้นที่และเวลา</li>
+        <li>ค่าคอมมิชชั่นและโปรโมชั่นเปลี่ยนแปลงบ่อยและต่างกันในแต่ละพื้นที่ ควรตรวจสอบข้อมูลล่าสุดจากแอปโดยตรงเสมอ</li>
+        <li>ขับหลายแอปพร้อมกันช่วยลดเวลาว่างงาน แต่มีข้อควรระวังเรื่องการจัดการงานที่เข้าพร้อมกันและการติดตามรายได้แยกแอป</li>
+        <li>วิธีที่แม่นยำที่สุดในการเลือกแอปคือทดลองขับจริงและบันทึกผลเปรียบเทียบด้วยตัวเลขของตัวเอง ไม่ใช่เชื่อตามคำบอกเล่า</li>
+      </ul>
+
+    </div>
+
+    <div class="ad-slot">
+      <span class="ad-label">โฆษณา · Advertisement</span>
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3349895945204021" data-ad-slot="9769218389" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <nav class="related" aria-label="คู่มืออื่น ๆ · Other guides">
+      <h2>อ่านต่อ<span class="en">Keep reading</span></h2>
+      <div class="related-grid">
+        <a class="related-card" href="/guides/calculate-profit.html">
+          <span class="rc-kicker">คู่มือคนขับ</span>
+          <span class="rc-title">วิธีคำนวณกำไรที่แท้จริงจากการขับ Grab, Lineman, Bolt<span class="en">How to calculate your true profit</span></span>
+        </a>
+        <a class="related-card" href="/guides/fuel-saving-tips.html">
+          <span class="rc-kicker">คู่มือคนขับ</span>
+          <span class="rc-title">วิธีประหยัดค่าน้ำมันสำหรับคนขับ Grab, Lineman, Bolt<span class="en">Fuel-saving tips for gig drivers</span></span>
+        </a>
+      </div>
+    </nav>
+  </article>
+
+  <footer>
+    <div class="footer-row">
+      <img class="footer-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+      <div class="footer-links">
+        <a href="/">หน้าแรก · Home</a>
+        <a href="/guides/calculate-profit.html">คำนวณกำไร · Calculate profit</a>
+        <a href="/guides/fuel-saving-tips.html">ประหยัดน้ำมัน · Fuel saving</a>
+        <a href="https://driverlog.link/privacy/">นโยบายความเป็นส่วนตัว · Privacy</a>
+      </div>
+    </div>
+    <p class="footer-credit">© 2026 DriverLog · สร้างโดย Grit · ขับเคลื่อนด้วย Claude</p>
+  </footer>
+
+</div>
+
+</body>
+</html>

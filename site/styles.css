@@ -12,7 +12,6 @@
 }
 [data-theme="dark"] .nav{background:rgba(28,28,30,.92);}
 [data-theme="dark"] .svc-opt{background:#1C1C1E;color:var(--text2);}
-[data-theme="dark"] .ad-slot{background:#1C1C1E;}
 [data-theme="dark"] .auth-field input,[data-theme="dark"] select,[data-theme="dark"] input[type=date],[data-theme="dark"] input[type=time],[data-theme="dark"] input[type=number],[data-theme="dark"] input[type=email],[data-theme="dark"] input[type=password]{background:#1C1C1E;color:var(--text);}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;position:relative;}
 /* Nav */
@@ -198,8 +197,6 @@ body.authed .nav{display:flex;}
 .export-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .export-btns button{background:none;border:1.5px solid var(--red);color:var(--red);border-radius:var(--radius-sm);padding:11px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
 .export-btns button:active{background:var(--red-light);}
-.ad-slot{margin:16px;background:#fff;border:1px solid var(--border,#eee);border-radius:14px;padding:8px 10px 10px;min-height:120px;overflow:hidden;}
-.ad-label{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3,#999);margin-bottom:4px;text-align:center;}
 .affiliate-card{margin:0 16px 16px;background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:14px 16px;}
 .affiliate-badge{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3,#999);margin-bottom:6px;}
 .affiliate-title{font-size:15px;font-weight:600;color:var(--text,#111);margin-bottom:4px;}
@@ -306,7 +303,6 @@ body.shift-timer-active .nav{display:none;}
   #s-dash .content > * { break-inside: avoid; }
   #s-dash .section-title { break-after: avoid; }        /* keep a title with its card */
   #s-dash .stat-grid { column-span: all; grid-template-columns: repeat(4, 1fr); margin-bottom: 20px; }
-  #s-dash .ad-slot { column-span: all; }
   .chart-wrap { height: 200px; }
 
   /* Un-pin the fixed overlays from the 430px mobile clamp */
