@@ -1,33 +1,49 @@
-name: Scratch diag - /info live smoke test (preview + prod)
+name: Scratch diag - post-merge /info production smoke test
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check preview deploy + production driverlog.link
+      - name: Full production smoke test of driverlog.link/info
         shell: bash
         run: |
           set +e
-          PREVIEW="https://driver-log-git-claude-driverlo-9fa668-kritkritth-4743s-projects.vercel.app"
-          echo "=== PREVIEW: /info/ ==="
-          curl -sS -D - -o /tmp/p1.html --max-time 10 "$PREVIEW/info/"; echo "exit: $?"
-          echo "=== PREVIEW: /info/guides/ ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "$PREVIEW/info/guides/"
-          echo "=== PREVIEW: /info/guides/calculate-profit.html ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "$PREVIEW/info/guides/calculate-profit.html"
-          echo "=== PREVIEW: /info/guides/fuel-saving-tips.html ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "$PREVIEW/info/guides/fuel-saving-tips.html"
-          echo "=== PREVIEW: /info/guides/choosing-app.html ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "$PREVIEW/info/guides/choosing-app.html"
-          echo "=== PREVIEW: /info/brand/favicon-64.png ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "$PREVIEW/info/brand/favicon-64.png"
-          echo "=== PREVIEW: /info/ds-base.js ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "$PREVIEW/info/ds-base.js"
-          echo "=== PREVIEW: unaffected routes / and /app ==="
-          curl -sS -o /dev/null -w "/ -> HTTP %{http_code}\n" --max-time 10 "$PREVIEW/"
-          curl -sS -o /dev/null -w "/app -> HTTP %{http_code}\n" --max-time 10 "$PREVIEW/app"
-          echo ""
-          echo "=== PROD (pre-merge baseline): driverlog.link/info/ ==="
-          curl -sS -D - -o /dev/null --max-time 10 "https://driverlog.link/info/"; echo "exit: $?"
-          echo "=== PROD: old subdomain info.driverlog.link/ (expect still broken) ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "https://info.driverlog.link/"; echo "exit: $?"
+          B="https://driverlog.link"
+          check() {
+            code=$(curl -s -o /tmp/body.html -w "%{http_code}" --max-time 10 "$B$1")
+            size=$(wc -c < /tmp/body.html)
+            echo "$1 -> HTTP $code (${size}b)"
+          }
+          echo "=== core /info pages ==="
+          check /info
+          check /info/
+          check /info/guides
+          check /info/guides/
+          check /info/guides/calculate-profit.html
+          check /info/guides/fuel-saving-tips.html
+          check /info/guides/choosing-app.html
+          echo "=== static assets ==="
+          check /info/brand/favicon-64.png
+          check /info/brand/logo-wordmark.svg
+          check /info/ds-base.js
+          check "/info/_ds/broadsheet-1e60ea10-6273-4712-b1c6-328beb2ebe0e/styles.css"
+          echo "=== unaffected routes (regression check) ==="
+          check /
+          check /app.html
+          check /login.html
+          echo "=== fetch real homepage body, check internal links are /info/-prefixed ==="
+          curl -s --max-time 10 "$B/info/" -o /tmp/home.html
+          echo "-- guides link found in homepage nav/footer:"
+          grep -o 'href="/info/guides/"' /tmp/home.html | sort -u
+          echo "-- any stray unprefixed /guides/ link (should be none):"
+          grep -o 'href="/guides/[^"]*"' /tmp/home.html
+          echo "(none found = clean)"
+          echo "=== fetch guide article body, check ad unit + related links ==="
+          curl -s --max-time 10 "$B/info/guides/calculate-profit.html" -o /tmp/article.html
+          echo "-- adsbygoogle present:"
+          grep -c 'adsbygoogle' /tmp/article.html
+          echo "-- related-card links (should be /info/guides/...):"
+          grep -o 'class="related-card" href="[^"]*"' /tmp/article.html
+          echo "=== old subdomain (expect still broken, we abandoned it) ==="
+          curl -sS -o /dev/null -w "info.driverlog.link -> HTTP %{http_code}\n" --max-time 8 "https://info.driverlog.link/"
+          echo "exit: $?"
