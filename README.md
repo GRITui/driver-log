@@ -3,11 +3,13 @@ easy log for driver
 
 ## Cloud backend setup (Vercel + Neon)
 
-One Vercel project serves everything: `site/` (driverlog.link), `info/`
-(info.driverlog.link), and this repo's own `api/` serverless functions
-(both domains' `/api/*`), backed by a Neon Postgres database — see
-`vercel.json`'s host-based rewrites. Hostinger's only remaining job is DNS
-(both domains point at Vercel; no FTP hosting, no Netlify mirror).
+One Vercel project serves everything: `site/` (driverlog.link/*), `info/`
+(driverlog.link/info/*), and this repo's own `api/` serverless functions
+(driverlog.link/api/*), backed by a Neon Postgres database — see
+`vercel.json`'s path-based rewrites. Hostinger's only remaining job is DNS
+(driverlog.link points at Vercel; no FTP hosting, no Netlify mirror, no
+info.driverlog.link subdomain — info/ moved to a same-domain path because
+the subdomain's DNS record was never reliably resolvable).
 PocketBase is not used anywhere in this project anymore.
 
 **Workflow:** changes are built on a branch, opened as a PR against `main`,
@@ -16,8 +18,9 @@ automatically — there is no manual/local deploy step anymore.
 
 1. **Create the Vercel project** from this repo (root directory = repo
    root, not `site/`) and connect it to GitHub so pushes to `main` deploy
-   automatically. Add `driverlog.link` and `info.driverlog.link` as custom
-   domains on the project.
+   automatically. Add `driverlog.link` as a custom domain on the project —
+   `info/` is served from the same domain at `/info/*`, no separate
+   subdomain needed.
 2. **Connect Neon** — Vercel dashboard → the project → **Storage** →
    **Connect Database** → Neon. This auto-provisions `DATABASE_URL`; don't
    set it by hand (`lib/db.js` reads exactly that name).
