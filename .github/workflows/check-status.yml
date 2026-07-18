@@ -1,23 +1,30 @@
-name: Scratch diag - info 403 check
+name: Scratch diag - info 403 vs unreachable
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check info.driverlog.link current response + DNS
+      - name: Check info.driverlog.link current response + DNS (non-fatal)
+        shell: bash
         run: |
+          set +e
           echo "=== full response ==="
-          curl -sS -D - -o /tmp/info.html "https://info.driverlog.link/"
-          echo "--- body ---"; cat /tmp/info.html
+          curl -sS -D - -o /tmp/info.html --max-time 10 "https://info.driverlog.link/"
+          echo "curl exit code: $?"
+          echo "--- body ---"; cat /tmp/info.html 2>/dev/null
           echo ""
-          echo "=== dig A (default) ==="
-          dig +short info.driverlog.link A || true
-          echo "=== dig CNAME (default) ==="
-          dig +short info.driverlog.link CNAME || true
-          echo "=== dig via Google 8.8.8.8 ==="
-          dig +short info.driverlog.link @8.8.8.8 || true
-          echo "=== direct against authoritative ns1/ns2.dns-parking.com ==="
-          dig +short info.driverlog.link CNAME @ns1.dns-parking.com || true
-          dig +short info.driverlog.link A @ns1.dns-parking.com || true
-          dig +short info.driverlog.link CNAME @ns2.dns-parking.com || true
-          dig +short info.driverlog.link A @ns2.dns-parking.com || true
+          echo "=== dig A (default resolver) ==="
+          dig +short info.driverlog.link A
+          echo "=== dig CNAME (default resolver) ==="
+          dig +short info.driverlog.link CNAME
+          echo "=== dig ANY via Google 8.8.8.8 ==="
+          dig +short info.driverlog.link @8.8.8.8
+          echo "=== dig ANY via Cloudflare 1.1.1.1 ==="
+          dig +short info.driverlog.link @1.1.1.1
+          echo "=== direct against authoritative ns1.dns-parking.com ==="
+          dig +short info.driverlog.link CNAME @ns1.dns-parking.com
+          dig +short info.driverlog.link A @ns1.dns-parking.com
+          echo "=== direct against authoritative ns2.dns-parking.com ==="
+          dig +short info.driverlog.link CNAME @ns2.dns-parking.com
+          dig +short info.driverlog.link A @ns2.dns-parking.com
+          echo "=== done ==="
