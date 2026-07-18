@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>5 เทคนิคประหยัดน้ำมันสำหรับไรเดอร์มืออาชีพ | DriverLog</title>
+<meta name="description" content="ลมยาง การขับนุ่มนวล วางแผนเส้นทาง ดูแลรถ และลดเวลาเดินเบา — 5 เทคนิคประหยัดน้ำมันที่คนขับ Grab, Lineman, Bolt และไรเดอร์ส่งอาหารใช้ได้จริงทุกวัน" />
+<meta name="theme-color" content="#D0021B" />
+<link rel="icon" href="brand/favicon-64.png" sizes="64x64" />
+<link rel="icon" href="brand/logo-icon.svg" type="image/svg+xml" />
+<link rel="mask-icon" href="brand/logo-icon.svg" color="#D0021B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="ds-base.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3349895945204021" crossorigin="anonymous"></script>
+<style>
+/* Page overrides on top of the Broadsheet base (_ds/…/styles.css) — same token
+   set as info/index.html, plus article-specific typography for guide pages. */
+:root {
+  --dl-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Sukhumvit Set", "Noto Sans Thai", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--dl-font);
+  --font-body: var(--dl-font);
+  --font-heading-weight: 700;
+
+  --color-bg: #FAFAFA;
+  --color-surface: #F2F2F7;
+  --color-text: #1C1C1E;
+  --color-divider: color-mix(in srgb, #1C1C1E 10%, transparent);
+
+  --color-accent: #D0021B;
+  --color-accent-100: #FDECEA;
+  --color-accent-200: #FBD0CB;
+  --color-accent-300: #F5A8A0;
+  --color-accent-400: #EE7A6E;
+  --color-accent-500: #E8344A;
+  --color-accent-600: #D0021B;
+  --color-accent-700: #A80016;
+  --color-accent-800: #7A0F13;
+  --color-accent-900: #4D0A0C;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --edge: clamp(20px, 5vw, 72px);
+  --leading: 28px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: var(--dl-font); text-wrap: pretty; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--edge); }
+
+.muted-en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.muted-en-inline { font-size: 0.68em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+
+/* — nav (pinned) — */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  padding-inline: max(var(--edge), calc((100% - 1120px) / 2 + var(--edge)));
+  border-bottom: 1px solid var(--color-divider);
+}
+.nav-logo { height: 26px; width: auto; display: block; }
+.nav a { white-space: nowrap; font-weight: 500; }
+.nav a:hover { color: var(--color-accent-700); }
+.nav .btn-primary { margin-left: var(--space-2, 10px); }
+@media (max-width: 560px) {
+  .nav a:not(.nav-cta):not(.nav-back) { display: none; }
+  .nav { gap: var(--space-3, 15px); }
+}
+
+/* — article — */
+.article-hero { padding: calc(2.5 * var(--leading)) 0 var(--leading); }
+.a-kicker { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 calc(var(--leading) - 12px); }
+.a-title { font-family: var(--dl-font); font-weight: 800; font-size: clamp(28px, 4.6vw, 46px); line-height: 1.16; letter-spacing: -0.02em; margin: 0; color: var(--color-text); }
+.a-title .en { display: block; font-size: 0.38em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 10px; letter-spacing: 0; }
+.a-lead { font-size: 17px; line-height: var(--leading); max-width: 62ch; margin: calc(var(--leading) - 4px) 0 0; color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.a-lead .en { display: block; font-size: 0.85em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 6px; }
+.a-meta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-top: calc(var(--leading) - 6px); font-size: 13px; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+.a-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
+
+.article-body { padding: 0 0 calc(1.5 * var(--leading)); max-width: 74ch; }
+.article-body h2 { display: flex; align-items: center; gap: 12px; font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.01em; margin: calc(2.4 * var(--leading)) 0 calc(var(--leading) - 12px); color: var(--color-text); }
+.article-body h2:first-of-type { margin-top: calc(1.4 * var(--leading)); }
+.a-num { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--color-accent); color: #fff; font-size: 16px; font-weight: 800; }
+.article-body h2 .en { display: block; font-size: 0.5em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+.article-body h3 { font-size: 16.5px; font-weight: 700; margin: calc(1.4 * var(--leading)) 0 8px; color: var(--color-text); }
+.article-body p { font-size: 15.5px; line-height: 1.75; margin: 0 0 calc(var(--leading) - 10px); color: color-mix(in srgb, var(--color-text) 80%, transparent); }
+.article-body ul { margin: 0 0 calc(var(--leading) - 10px); padding-left: 1.3em; font-size: 15.5px; line-height: 1.75; color: color-mix(in srgb, var(--color-text) 80%, transparent); }
+.article-body li { margin-bottom: 6px; }
+.article-body li b, .article-body p b { color: var(--color-text); }
+.article-body strong { color: var(--color-text); }
+
+.a-callout { background: var(--color-accent-100); border: 1px solid var(--color-accent-200); border-radius: var(--radius-lg); padding: 20px 22px; margin: calc(1.6 * var(--leading)) 0; }
+.a-callout p { margin: 0; color: var(--color-accent-900); font-size: 15px; line-height: 1.7; }
+.a-callout p .en { display: block; font-size: 0.85em; color: color-mix(in srgb, var(--color-accent-900) 70%, transparent); margin-top: 6px; }
+.a-callout a { color: var(--color-accent-700); font-weight: 700; }
+
+.ad-block { margin: calc(2 * var(--leading)) 0 var(--leading); max-width: 74ch; }
+.ad-label { display: block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in srgb, var(--color-text) 40%, transparent); margin-bottom: 8px; }
+
+.guide-nav { padding: calc(1.5 * var(--leading)) 0 calc(2 * var(--leading)); border-top: 1px solid var(--color-divider); }
+.guide-nav .a-kicker { margin-bottom: calc(var(--leading) - 14px); }
+.guide-nav-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.guide-nav-list a { display: block; padding: 14px 16px; border: 1px solid var(--color-divider); border-radius: var(--radius-md); font-size: 14.5px; font-weight: 600; color: var(--color-text); text-decoration: none; }
+.guide-nav-list a:hover { border-color: var(--color-accent-300); background: var(--color-accent-100); color: var(--color-accent-700); }
+.guide-nav-list a span.en { display: block; font-size: 0.72em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+@media (max-width: 560px) { .guide-nav-list { grid-template-columns: 1fr; } }
+
+/* — footer — */
+footer { padding: calc(2 * var(--leading)) 0; border-top: 1px solid var(--color-divider); }
+.footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.footer-logo { height: 22px; width: auto; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 65%, transparent); text-decoration: none; }
+.footer-links a:hover { color: var(--color-accent-700); }
+.footer-credit { font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 50%, transparent); margin-top: var(--leading); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="หลัก · Main">
+  <a href="/" class="nav-back" style="margin-right:auto;display:flex;align-items:center;">
+    <img class="nav-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+  </a>
+  <a href="/#features">ฟีเจอร์<span class="muted-en-inline"> · Features</span></a>
+  <a href="/#how">วิธีใช้<span class="muted-en-inline"> · How it works</span></a>
+  <a class="btn btn-primary nav-cta" href="https://driverlog.link/app/">เปิดแอป<span class="muted-en-inline"> · Open app</span></a>
+</nav>
+
+<div class="wrap">
+
+  <article>
+
+  <section class="article-hero">
+    <span class="a-kicker">คู่มือคนขับ · Driver guide</span>
+    <h1 class="a-title">5 เทคนิคประหยัดน้ำมันสำหรับไรเดอร์มืออาชีพ
+      <span class="en">5 fuel-saving techniques every professional rider &amp; driver should know</span>
+    </h1>
+    <p class="a-lead">ค่าน้ำมันเป็นต้นทุนก้อนใหญ่ที่สุดก้อนหนึ่งของคนขับ Grab, Lineman, Bolt และไรเดอร์ส่งอาหารทุกแอป และเป็นต้นทุนก้อนเดียวที่คุณควบคุมได้มากที่สุดด้วยพฤติกรรมการขับและการดูแลรถ นี่คือ 5 เทคนิคที่ใช้ได้จริง ไม่ต้องเปลี่ยนรถ ไม่ต้องลงทุนเพิ่ม
+      <span class="en">Fuel is one of the biggest recurring costs for gig drivers — and the one you have the most control over. No new vehicle required.</span>
+    </p>
+    <div class="a-meta">
+      <span>อ่านประมาณ 6 นาที <span class="muted-en-inline">· ~6 min read</span></span>
+      <span class="dot"></span>
+      <span>สำหรับรถยนต์และมอเตอร์ไซค์ <span class="muted-en-inline">· Cars &amp; motorcycles</span></span>
+    </div>
+  </section>
+
+  <section class="article-body">
+
+    <h2><span class="a-num">1</span>ลมยางให้ถูกต้อง — เรื่องเล็กที่กินน้ำมันจริง<span class="en">Correct tire pressure — the small thing that quietly costs you</span></h2>
+    <p>ยางที่มีลมอ่อนกว่ามาตรฐานจะแบนราบลงและมีหน้าสัมผัสกับถนนกว้างขึ้น ฟังดูเหมือนเรื่องเล็ก แต่หน้าสัมผัสที่กว้างขึ้นหมายถึง <b>แรงต้านการหมุนของยาง (rolling resistance)</b> ที่สูงขึ้น เครื่องยนต์หรือมอเตอร์ของรถต้องออกแรงมากขึ้นเพื่อพารถให้เคลื่อนที่ด้วยความเร็วเท่าเดิม นั่นแปลว่ากินน้ำมันมากขึ้นในทุกกิโลเมตรที่ขับ โดยที่คุณอาจไม่รู้ตัวเลยเพราะรถยังขับได้ปกติ ไม่มีไฟเตือนขึ้น ไม่มีเสียงผิดปกติ</p>
+    <p>ผลกระทบไม่ได้หยุดแค่ค่าน้ำมัน ยางที่ลมอ่อนยังสึกเร็วกว่าปกติ โดยเฉพาะบริเวณขอบดอกยางทั้งสองข้าง เพราะน้ำหนักรถกดลงบนหน้ายางผิดจุด สำหรับคนขับที่วิ่งวันละหลายสิบถึงหลายร้อยกิโลเมตร ความเสียหายสะสมนี้แปลว่าต้องเปลี่ยนยางเร็วขึ้น ซึ่งเป็นต้นทุนก้อนใหญ่กว่าค่าน้ำมันที่ประหยัดผิดที่เสียอีก</p>
+    <h3>เช็กลมยางให้ได้ผลจริง</h3>
+    <ul>
+      <li>ใช้ตัวเลขแรงดันลมยางที่ผู้ผลิตรถกำหนด (ดูจากสติกเกอร์ในกรอบประตูฝั่งคนขับ หรือคู่มือรถ) <b>ไม่ใช่</b> ตัวเลขสูงสุดที่พิมพ์ข้างแก้มยาง เพราะเป็นค่าคนละความหมายกัน</li>
+      <li>เช็กตอนยางยังเย็น คือก่อนขับหรือขับมาไม่เกิน 2-3 กิโลเมตร เพราะยางที่ร้อนจากการวิ่งจะมีแรงดันสูงขึ้นชั่วคราว ทำให้อ่านค่าคลาดเคลื่อน</li>
+      <li>ตรวจอย่างน้อยสัปดาห์ละครั้ง ยิ่งขับทุกวันเหมือนอาชีพคนขับ ยางยิ่งเสียลมเร็วกว่าคนขับทั่วไป โดยเฉพาะช่วงอากาศเปลี่ยนหรือหน้าฝน</li>
+    </ul>
+
+    <h2><span class="a-num">2</span>ขับนุ่มนวล ไม่ใช่ขับช้า<span class="en">Smooth driving beats slow driving</span></h2>
+    <p>การเหยียบคันเร่งแรงๆ เพื่อออกตัวเร็ว บังคับให้เครื่องยนต์ฉีดน้ำมันเข้าห้องเผาไหม้มากขึ้นในช่วงเวลาสั้นๆ เพื่อสร้างแรงบิดสูง ยิ่งรอบเครื่องขึ้นเร็วและแรงมากเท่าไร อัตราการใช้น้ำมันต่อวินาทีก็ยิ่งสูงขึ้นเท่านั้น ในทางกลับกัน การเบรกกะทันหันคือการทิ้งพลังงานที่เพิ่งใช้น้ำมันสร้างขึ้นมาทั้งหมดให้กลายเป็นความร้อนที่ผ้าเบรก แล้วต้องมาเร่งเครื่องสร้างความเร็วนั้นขึ้นใหม่อีกรอบ พูดง่ายๆ คือทุกครั้งที่เร่งแรงแล้วเบรกแรง คุณกำลังเผาน้ำมันทิ้งไปเปล่าๆ ส่วนหนึ่ง</p>
+    <p>เทคนิคที่ช่วยได้จริงคือ <b>การขับแบบมองไกล</b> สังเกตสัญญาณไฟและรถคันหน้าล่วงหน้า 2-3 คัน แทนที่จะเบรกกะทันหันตอนไฟแดงเปลี่ยน ให้ผ่อนคันเร่งแต่เนิ่นๆ ปล่อยให้รถชะลอตัวเองด้วยแรงเสียดทานตามธรรมชาติ วิธีนี้ไม่เพียงประหยัดน้ำมัน แต่ยังลดการสึกของผ้าเบรกและยาง สำหรับมอเตอร์ไซค์ยิ่งสำคัญ เพราะการบิดคันเร่งกระชากบ่อยๆ ยังทำให้โซ่และชุดเกียร์สึกเร็วขึ้นด้วย การรักษาความเร็วให้สม่ำเสมอในช่วงที่การจราจรเอื้ออำนวยจึงคุ้มค่ากว่าการเร่งแซงแล้วเบรกสลับกันไปตลอดเส้นทาง</p>
+
+    <h2><span class="a-num">3</span>วางแผนเส้นทางและจัดคิวงานให้ฉลาด<span class="en">Plan routes and batch jobs smartly</span></h2>
+    <p>ระยะทางที่ขับโดยไม่มีผู้โดยสารหรือไม่มีออเดอร์ติดตัว หรือที่เรียกกันว่า <b>deadhead distance</b> คือระยะทางที่กินน้ำมันเต็มๆ แต่ไม่สร้างรายได้เลย คนขับที่วนหารถหาออเดอร์ไปเรื่อยๆ โดยไม่มีจุดหมาย มักจะสะสมระยะทางเปล่าประโยชน์แบบนี้มากกว่าที่คิด การจอดรอในจุดที่รู้ว่ามีงานเข้าบ่อย แล้วปล่อยให้แอปจับคู่งานมาหาแทนการขับวนหาเอง มักประหยัดน้ำมันได้มากกว่า</p>
+    <p>สำหรับไรเดอร์ส่งอาหาร การรับออเดอร์ที่ร้านใกล้กันหรือทิศทางเดียวกันในรอบเดียว (batching) ช่วยลดระยะทางรวมต่อจำนวนออเดอร์ได้ชัดเจน ส่วนคนขับรถรับส่งผู้โดยสาร การเลือกวิ่งไปโซนที่มีความต้องการสูงในทิศทางที่ใกล้เคียงกับเส้นทางกลับบ้านหรือจุดพักถัดไป ก็ช่วยไม่ให้ต้องขับย้อนกลับไปกลับมาโดยเปล่าประโยชน์ นอกจากนี้ การใช้แอปนำทางที่แสดงสภาพจราจรแบบเรียลไทม์ช่วยหลีกเลี่ยงถนนที่รถติดหนัก เพราะการขับๆ หยุดๆ ในรถติดกินน้ำมันมากกว่าการขับด้วยความเร็วคงที่บนถนนโล่งอย่างมีนัยสำคัญ แม้ระยะทางจะยาวกว่าเล็กน้อยก็ตาม</p>
+
+    <h2><span class="a-num">4</span>ดูแลรถสม่ำเสมอ ตามระยะที่ขับจริง<span class="en">Maintain the vehicle on real mileage, not just the calendar</span></h2>
+    <p>เครื่องยนต์ที่มีน้ำมันเครื่องเก่าหรือสกปรกจะมีแรงเสียดทานภายในสูงขึ้น ชิ้นส่วนที่เคลื่อนไหวต้องฝืนแรงเสียดทานนั้นตลอดเวลาที่เครื่องทำงาน ซึ่งหมายถึงพลังงานจากน้ำมันเชื้อเพลิงถูกใช้ไปกับการเอาชนะแรงเสียดทานมากกว่าที่จะใช้ขับเคลื่อนรถ ไส้กรองอากาศที่อุดตันก็ส่งผลคล้ายกัน คือทำให้เครื่องยนต์ได้รับอากาศไม่เพียงพอ ระบบจึงต้องปรับส่วนผสมน้ำมันให้เข้มข้นขึ้นเพื่อรักษากำลัง ส่งผลให้ใช้น้ำมันต่อระยะทางมากกว่าที่ควรจะเป็น</p>
+    <p>ประเด็นสำคัญสำหรับคนขับอาชีพคือ <b>ระยะทางสะสมต่อเดือนของคุณสูงกว่าคนขับทั่วไปมาก</b> รถที่วิ่งวันละ 150-300 กิโลเมตรจะถึงระยะเปลี่ยนถ่ายน้ำมันเครื่องหรือไส้กรองเร็วกว่าที่ปฏิทินบอกไว้มาก การยึดตามระยะทางที่วิ่งจริงแทนการนับเป็นเดือนๆ จึงสำคัญกว่า นอกจากนี้ควรสังเกตอาการผิดปกติที่มักถูกมองข้าม เช่น เบรกที่ฝืดค้างเล็กน้อย (ผ้าเบรกไม่คลายตัวเต็มที่) ซึ่งสร้างแรงเสียดทานตลอดการขับโดยไม่รู้ตัว หรือช่วงล่างที่ทำให้ล้อไม่ตรงศูนย์ ก็ล้วนเพิ่มแรงต้านและกินน้ำมันเพิ่มขึ้นทั้งสิ้น สำหรับมอเตอร์ไซค์ การหล่อลื่นและปรับความตึงโซ่ให้พอดีอยู่เสมอก็ช่วยลดการสูญเสียกำลังจากระบบขับเคลื่อนได้เช่นกัน</p>
+
+    <h2><span class="a-num">5</span>ลดของที่ไม่จำเป็น และจัดการเวลาเดินเบาให้ฉลาด<span class="en">Cut unnecessary weight and manage idle time wisely</span></h2>
+    <p>ของที่แบกไว้ในรถหรือกล่องส่งอาหารโดยไม่จำเป็น เช่น อุปกรณ์ที่ไม่ได้ใช้ ขวดน้ำสำรองหลายขวด หรือของสะสมท้ายรถ ล้วนเป็นน้ำหนักส่วนเกินที่เครื่องยนต์ต้องออกแรงพามันเคลื่อนที่ทุกครั้งที่ออกตัว โดยเฉพาะในเมืองที่ต้องเร่งและเบรกบ่อยๆ ผลกระทบจะยิ่งชัดเจนกว่าการขับทางไกลด้วยความเร็วคงที่ ส่วนอุปกรณ์เสริมภายนอกอย่างกล่องหลังคาหรือของติดตั้งที่ยื่นออกมา จะเพิ่มแรงต้านอากาศ ซึ่งมีผลมากขึ้นเรื่อยๆ ตามความเร็วที่สูงขึ้น หากไม่จำเป็นต้องใช้ตลอดเวลา การถอดออกเมื่อไม่ได้ใช้งานก็ช่วยประหยัดได้ในระยะยาว</p>
+    <p>อีกจุดที่คนขับมักมองข้ามคือ <b>เวลาเดินเบา (idle)</b> เครื่องยนต์ที่ติดเครื่องทิ้งไว้เฉยๆ ยังคงเผาผลาญน้ำมันอยู่ตลอดเวลาแม้รถจะไม่ขยับแม้แต่เมตรเดียว ในสถานการณ์ที่ต้องรอนานและปลอดภัยที่จะทำ เช่น จอดรอรับอาหารหน้าร้านที่ยังไม่เสร็จ หรือจอดรอคิวรับผู้โดยสารในจุดที่จอดได้ถูกกฎหมาย การดับเครื่องระหว่างรอมักประหยัดน้ำมันได้มากกว่าการเปิดแอร์เดินเบาทิ้งไว้ โดยเฉพาะถ้าต้องรอเกินหนึ่งถึงสองนาทีขึ้นไป แน่นอนว่าเรื่องความปลอดภัยต้องมาก่อนเสมอ ไม่ควรดับเครื่องในจุดที่กีดขวางการจราจรหรือในสถานการณ์ที่ต้องเคลื่อนตัวกะทันหัน การตัดสินใจจึงขึ้นอยู่กับสถานการณ์ตรงหน้าจริงๆ ในแต่ละครั้ง</p>
+
+    <div class="a-callout">
+      <p>เทคนิคพวกนี้ได้ผลจริงหรือไม่ วัดได้ง่ายที่สุดด้วยตัวเลข ไม่ใช่ความรู้สึก การบันทึกระยะทางและค่าน้ำมันของทุกกะใน <a href="https://driverlog.link/app">DriverLog</a> ช่วยให้เห็นแนวโน้มจริงเป็นบาทต่อกิโลเมตรในแต่ละสัปดาห์ ทำให้รู้ได้ชัดเจนว่านิสัยการขับแบบไหนที่ช่วยให้กำไรสุทธิของคุณเพิ่มขึ้นจริง
+        <span class="en">The only way to know a habit is actually saving money is to measure it — logging every shift's distance and fuel cost in DriverLog turns that into a number you can track week over week.</span>
+      </p>
+    </div>
+
+    <p>ไม่มีเทคนิคข้อใดข้อหนึ่งที่จะพลิกตัวเลขค่าน้ำมันได้เพียงลำพัง แต่เมื่อทำทั้ง 5 ข้อควบคู่กันอย่างสม่ำเสมอ ทั้งลมยาง การขับนุ่มนวล การวางแผนเส้นทาง การดูแลรถตามระยะจริง และการจัดการน้ำหนักกับเวลาเดินเบา ผลรวมตลอดทั้งเดือนสามารถสร้างความต่างที่จับต้องได้ในกำไรสุทธิของคุณ ความสม่ำเสมอสำคัญกว่าความเข้มข้นเสมอ เริ่มจากข้อที่ทำได้ง่ายที่สุดก่อน แล้วค่อยๆ ทำให้เป็นนิสัย</p>
+
+  </section>
+
+  <section class="ad-block">
+    <span class="ad-label">โฆษณา · Advertisement</span>
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3349895945204021" data-ad-slot="9769218389" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  </section>
+
+  </article>
+
+  <section class="guide-nav">
+    <span class="a-kicker">อ่านต่อ · More guides</span>
+    <div class="guide-nav-list">
+      <a href="/guides/calculate-profit.html">วิธีคำนวณกำไรสุทธิที่แท้จริง<span class="en">How to calculate your real net profit</span></a>
+      <a href="/guides/choosing-app.html">เลือกแอปไหนดีสำหรับคนขับ<span class="en">Choosing the right delivery/ride app</span></a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-row">
+      <img class="footer-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+      <div class="footer-links">
+        <a href="/">หน้าแรก · Home</a>
+        <a href="/#features">ฟีเจอร์ · Features</a>
+        <a href="/#how">วิธีใช้ · How it works</a>
+        <a href="https://driverlog.link/privacy/">นโยบายความเป็นส่วนตัว · Privacy</a>
+      </div>
+    </div>
+    <p class="footer-credit">© 2026 DriverLog · สร้างโดย Grit · ขับเคลื่อนด้วย Claude</p>
+  </footer>
+
+</div>
+
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+</body>
+</html>

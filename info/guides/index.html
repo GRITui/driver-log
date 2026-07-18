@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<base href="/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>คู่มือคนขับ: คำนวณกำไร ประหยัดน้ำมัน เลือกแอป | DriverLog</title>
+<meta name="description" content="รวมคู่มือฟรีสำหรับคนขับ Grab, Lineman, Bolt และไรเดอร์ส่งอาหาร — วิธีคำนวณกำไรที่แท้จริง เทคนิคประหยัดน้ำมัน และวิธีเลือกแอปให้เหมาะกับตัวเอง" />
+<meta name="theme-color" content="#D0021B" />
+<link rel="icon" href="brand/favicon-64.png" sizes="64x64" />
+<link rel="icon" href="brand/logo-icon.svg" type="image/svg+xml" />
+<link rel="mask-icon" href="brand/logo-icon.svg" color="#D0021B" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="ds-base.js"></script>
+<style>
+/* Page overrides on top of the Broadsheet base (_ds/…/styles.css) — same
+   token set as info/index.html and the guide articles, reused here so this
+   hub page reads as part of the same site. No AdSense unit: this is a
+   navigational index page, not an article. */
+:root {
+  --dl-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Sukhumvit Set", "Noto Sans Thai", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--dl-font);
+  --font-body: var(--dl-font);
+  --font-heading-weight: 700;
+
+  --color-bg: #FAFAFA;
+  --color-surface: #F2F2F7;
+  --color-text: #1C1C1E;
+  --color-divider: color-mix(in srgb, #1C1C1E 10%, transparent);
+
+  --color-accent: #D0021B;
+  --color-accent-100: #FDECEA;
+  --color-accent-200: #FBD0CB;
+  --color-accent-300: #F5A8A0;
+  --color-accent-400: #EE7A6E;
+  --color-accent-500: #E8344A;
+  --color-accent-600: #D0021B;
+  --color-accent-700: #A80016;
+  --color-accent-800: #7A0F13;
+  --color-accent-900: #4D0A0C;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --edge: clamp(20px, 5vw, 72px);
+  --leading: 28px;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: var(--dl-font); text-wrap: pretty; background: var(--color-bg); color: var(--color-text); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 var(--edge); }
+
+.muted-en { display: block; font-size: 0.62em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 2px; }
+.muted-en-inline { font-size: 0.68em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 50%, transparent); }
+
+/* — nav (pinned) — */
+.nav {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  padding-inline: max(var(--edge), calc((100% - 1120px) / 2 + var(--edge)));
+  border-bottom: 1px solid var(--color-divider);
+}
+.nav-logo { height: 26px; width: auto; display: block; }
+.nav a { white-space: nowrap; font-weight: 500; }
+.nav a:hover { color: var(--color-accent-700); }
+.nav .btn-primary { margin-left: var(--space-2, 10px); }
+@media (max-width: 560px) {
+  .nav a:not(.nav-cta) { display: none; }
+  .nav { gap: var(--space-3, 15px); }
+}
+
+/* — hub header — */
+.article-header { padding: calc(2.5 * var(--leading)) 0 var(--leading); max-width: 74ch; }
+.section-kicker { display: block; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-700); margin: 0 0 calc(var(--leading) - 10px); }
+.article-header h1 { font-size: clamp(28px, 4.2vw, 42px); line-height: 1.22; font-weight: 800; letter-spacing: -0.015em; margin: 0; }
+.article-header h1 .en { display: block; font-size: 0.42em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 10px; }
+.article-intro { font-size: 17px; line-height: var(--leading); max-width: 66ch; margin: var(--leading) 0 0; color: color-mix(in srgb, var(--color-text) 82%, transparent); }
+.article-intro .en { display: block; font-size: 0.85em; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+
+/* — guide list — */
+.guide-list { padding: 0 0 calc(2.5 * var(--leading)); display: grid; gap: 16px; }
+.guide-card { display: block; border: 1px solid var(--color-divider); border-radius: var(--radius-lg); padding: calc(var(--leading) - 4px) clamp(20px, 3vw, 30px); text-decoration: none; color: var(--color-text); background: #fff; transition: border-color .15s, background .15s; }
+.guide-card:hover { border-color: var(--color-accent-300); background: var(--color-accent-100); }
+.guide-card .gc-kicker { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--color-accent-700); display: block; margin-bottom: 8px; }
+.guide-card .gc-title { font-size: 20px; font-weight: 800; line-height: 1.35; display: block; letter-spacing: -0.01em; }
+.guide-card .gc-title .en { display: block; font-size: 0.55em; font-weight: 500; color: color-mix(in srgb, var(--color-text) 55%, transparent); margin-top: 4px; }
+.guide-card .gc-desc { font-size: 14.5px; line-height: 1.65; margin: 10px 0 0; color: color-mix(in srgb, var(--color-text) 75%, transparent); max-width: 62ch; }
+.guide-card .gc-arrow { display: inline-block; margin-top: 12px; font-size: 13.5px; font-weight: 700; color: var(--color-accent-700); }
+
+/* — footer — */
+footer { padding: calc(2 * var(--leading)) 0; border-top: 1px solid var(--color-divider); }
+.footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.footer-logo { height: 22px; width: auto; }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-links a { font-size: 13.5px; color: color-mix(in srgb, var(--color-text) 65%, transparent); text-decoration: none; }
+.footer-links a:hover { color: var(--color-accent-700); }
+.footer-credit { font-size: 12.5px; color: color-mix(in srgb, var(--color-text) 50%, transparent); margin-top: var(--leading); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="หลัก · Main">
+  <a href="/" style="margin-right:auto;display:flex;align-items:center;">
+    <img class="nav-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+  </a>
+  <a href="/#features">ฟีเจอร์<span class="muted-en-inline"> · Features</span></a>
+  <a href="/#how">วิธีใช้<span class="muted-en-inline"> · How it works</span></a>
+  <a href="/guides/">คู่มือ<span class="muted-en-inline"> · Guides</span></a>
+  <a href="https://driverlog.link/privacy/">นโยบาย<span class="muted-en-inline"> · Privacy</span></a>
+  <a class="btn btn-primary nav-cta" href="https://driverlog.link/app/">เปิดแอป<span class="muted-en-inline"> · Open app</span></a>
+</nav>
+
+<div class="wrap">
+
+  <header class="article-header">
+    <span class="section-kicker">คู่มือคนขับ · Driver Guides</span>
+    <h1>รู้ต้นทุนจริง ขับให้คุ้ม<span class="en">Know your real costs, drive smarter</span></h1>
+    <p class="article-intro">ยอดรับที่ขึ้นในแอปไม่ใช่กำไรจริง คู่มือชุดนี้รวบรวมสิ่งที่คนขับ Grab, Lineman, Bolt และไรเดอร์ส่งอาหารควรรู้ก่อนออกไปขับแต่ละกะ ตั้งแต่วิธีคำนวณกำไรที่แท้จริง เทคนิคลดค่าน้ำมัน ไปจนถึงวิธีเลือกแอปให้เหมาะกับตัวเอง เขียนขึ้นให้อ่านง่าย ใช้ได้จริง ไม่มีค่าใช้จ่าย
+      <span class="en">The number your app shows isn't your real profit. This guide series covers what Grab, Lineman, Bolt, and food-delivery drivers should know before every shift — from calculating true profit, to cutting fuel costs, to choosing the right app. Plain, practical, free.</span>
+    </p>
+  </header>
+
+  <section class="guide-list">
+
+    <a class="guide-card" href="/guides/calculate-profit.html">
+      <span class="gc-kicker">คำนวณกำไร · Profit</span>
+      <span class="gc-title">วิธีคำนวณกำไรที่แท้จริงจากการขับ Grab, Lineman, Bolt<span class="en">How to calculate your true profit from gig driving</span></span>
+      <p class="gc-desc">ยอดรับกับกำไรสุทธิไม่เหมือนกัน คู่มือนี้สอนวิธีคำนวณกำไรที่แท้จริง พร้อมสูตรและตัวอย่างสมมติที่เข้าใจง่าย เพื่อให้รู้ว่ากะไหนคุ้มจริง ไม่ใช่แค่รู้สึกว่าคุ้ม</p>
+      <span class="gc-arrow">อ่านคู่มือ · Read guide →</span>
+    </a>
+
+    <a class="guide-card" href="/guides/fuel-saving-tips.html">
+      <span class="gc-kicker">ประหยัดน้ำมัน · Fuel saving</span>
+      <span class="gc-title">5 เทคนิคประหยัดน้ำมันสำหรับไรเดอร์มืออาชีพ<span class="en">5 fuel-saving techniques for pro riders</span></span>
+      <p class="gc-desc">ลมยาง การขับนุ่มนวล วางแผนเส้นทาง ดูแลรถ และลดเวลาเดินเบา — 5 เทคนิคประหยัดน้ำมันที่คนขับ Grab, Lineman, Bolt และไรเดอร์ส่งอาหารใช้ได้จริงทุกวัน</p>
+      <span class="gc-arrow">อ่านคู่มือ · Read guide →</span>
+    </a>
+
+    <a class="guide-card" href="/guides/choosing-app.html">
+      <span class="gc-kicker">เลือกแอป · Choosing an app</span>
+      <span class="gc-title">เลือกแอปไหนดี: เปรียบเทียบ Grab, Lineman, Bolt, Shopee Food สำหรับมือใหม่<span class="en">Which app should I choose? Comparing Grab, Lineman, Bolt, Shopee Food for beginners</span></span>
+      <p class="gc-desc">มือใหม่ควรเริ่มขับกับแอปไหนดี คู่มือนี้เปรียบเทียบโครงสร้างงาน ประเภทรถ ระบบจับงาน และการขับหลายแอปพร้อมกัน เพื่อช่วยตัดสินใจอย่างมีข้อมูล</p>
+      <span class="gc-arrow">อ่านคู่มือ · Read guide →</span>
+    </a>
+
+  </section>
+
+  <footer>
+    <div class="footer-row">
+      <img class="footer-logo" src="brand/logo-wordmark.svg" alt="DriverLog" />
+      <div class="footer-links">
+        <a href="/">หน้าแรก · Home</a>
+        <a href="/guides/calculate-profit.html">คำนวณกำไร · Calculate profit</a>
+        <a href="/guides/fuel-saving-tips.html">ประหยัดน้ำมัน · Fuel saving</a>
+        <a href="/guides/choosing-app.html">เลือกแอป · Choosing an app</a>
+        <a href="https://driverlog.link/privacy/">นโยบายความเป็นส่วนตัว · Privacy</a>
+      </div>
+    </div>
+    <p class="footer-credit">© 2026 DriverLog · สร้างโดย Grit · ขับเคลื่อนด้วย Claude</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
