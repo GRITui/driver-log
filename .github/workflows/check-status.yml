@@ -1,30 +1,19 @@
-name: Scratch diag - AdSense fix live check
+name: Scratch diag - info subdomain status
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify ad removed from app + guides live
+      - name: Check info.driverlog.link DNS
         run: |
-          echo "=== driverlog.link/app.html - grep for ad markers (expect NONE) ==="
-          curl -sS "https://driverlog.link/app.html" | grep -i "adsbygoogle\|pagead2" && echo "STILL PRESENT" || echo "CLEAN - no ad markers"
-          echo ""
-          echo "=== driverlog.link/app.js - grep for pushAds (expect NONE) ==="
-          curl -sS "https://driverlog.link/app.js" | grep -i "pushAds" && echo "STILL PRESENT" || echo "CLEAN"
-          echo ""
-          echo "=== driverlog.link/app.html - APP_VERSION (expect 2.10.1) ==="
-          curl -sS "https://driverlog.link/app.html" | grep -o 'id="app-version"[^<]*<[^>]*>[0-9.]*'
-          echo ""
-          echo "=== info.driverlog.link/ - HTTP status ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/"
-          echo "=== info.driverlog.link/guides/ - HTTP status ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/guides/"
-          echo "=== info.driverlog.link/guides/calculate-profit.html - HTTP status + ad check ==="
-          curl -sS -D - -o /tmp/g1.html "https://info.driverlog.link/guides/calculate-profit.html" | grep -i "^HTTP"
-          grep -ic "adsbygoogle" /tmp/g1.html
-          echo "=== info.driverlog.link/guides/fuel-saving-tips.html - HTTP status ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/guides/fuel-saving-tips.html"
-          echo "=== info.driverlog.link/guides/choosing-app.html - HTTP status ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "https://info.driverlog.link/guides/choosing-app.html"
-          echo "=== info.driverlog.link nav contains guides link? ==="
-          curl -sS "https://info.driverlog.link/" | grep -o 'href="/guides/"' | head -2
+          echo "=== dig info.driverlog.link CNAME (default) ==="
+          dig +short info.driverlog.link CNAME || true
+          echo "=== dig via Google 8.8.8.8 ==="
+          dig +short info.driverlog.link @8.8.8.8 || true
+          echo "=== dig via Cloudflare 1.1.1.1 ==="
+          dig +short info.driverlog.link @1.1.1.1 || true
+          echo "=== direct against authoritative ns1/ns2.dns-parking.com ==="
+          dig +short info.driverlog.link CNAME @ns1.dns-parking.com || true
+          dig +short info.driverlog.link CNAME @ns2.dns-parking.com || true
+          echo "=== SOA serial (compare to prior: 2026071708) ==="
+          dig +short info.driverlog.link SOA @ns1.dns-parking.com || true
