@@ -1,5 +1,5 @@
-# One Vercel project now serves site/ (driverlog.link), info/
-# (info.driverlog.link), and api/+lib/ (both domains' /api/*) — see
+# One Vercel project now serves site/ (driverlog.link/*), info/
+# (driverlog.link/info/*), and api/+lib/ (driverlog.link/api/*) — see
 # vercel.json. Everything else in this repo is dev-only tooling, historical
 # snapshots, or docs; keep it out of the public deployment.
 .claude/

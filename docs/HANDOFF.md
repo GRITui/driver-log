@@ -170,11 +170,13 @@ Keys: `lang`, `unit` (km/mi)
 
 ### Vercel (current)
 
-One Vercel project serves `site/`, `info/`, and `api/` together (see root
-`vercel.json` and `README.md`'s "Cloud backend setup" section). Push a
-branch, open a PR against `main`; once it's reviewed and merged, Vercel
-deploys automatically. Hostinger only holds the DNS records pointing
-`driverlog.link` / `info.driverlog.link` at Vercel.
+One Vercel project serves `site/`, `info/` (at `/info/*`), and `api/`
+together (see root `vercel.json` and `README.md`'s "Cloud backend setup"
+section). Push a branch, open a PR against `main`; once it's reviewed and
+merged, Vercel deploys automatically. Hostinger only holds the DNS record
+pointing `driverlog.link` at Vercel — `info/` no longer has its own
+subdomain, since `info.driverlog.link`'s DNS record was never reliably
+resolvable (see `git log` around 2026-07-18 for the diagnosis).
 
 ---
 
