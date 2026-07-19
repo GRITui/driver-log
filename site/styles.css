@@ -17,6 +17,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Thai',sa
 /* Nav */
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);border-top:0.5px solid var(--border);display:none;z-index:100;padding-bottom:env(safe-area-inset-bottom,0);}
 body.authed .nav{display:flex;}
+.nav-brand{display:none;}   /* mobile bottom tab bar has no room for the wordmark; shown at the desktop breakpoint below */
 .nav-btn{flex:1;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;position:relative;}
 .nav-btn svg{width:24px;height:24px;stroke:var(--text3);stroke-width:1.8;fill:none;transition:stroke .15s;}
 .nav-btn span{font-size:10px;color:var(--text3);font-weight:500;transition:color .15s;}
@@ -173,8 +174,9 @@ body.authed .nav{display:flex;}
 .fab.fab-active-shift{font-size:0;}
 .fab-rec-dot{width:14px;height:14px;border-radius:50%;background:#fff;animation:fabPulse 1.4s ease-in-out infinite;}
 @keyframes fabPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(.75);}}
-.fab-timer{position:absolute;right:16px;bottom:68px;width:44px;height:44px;background:#fff;border-radius:50%;border:1.5px solid var(--red-border);color:var(--red);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 4px 12px rgba(0,0,0,.12);}
+.fab-timer{position:absolute;right:16px;bottom:68px;width:44px;height:44px;background:#fff;border-radius:50%;border:1.5px solid var(--red-border);color:var(--red);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 4px 12px rgba(0,0,0,.12);}
 .fab-timer:active{background:var(--red-light);}
+.fab-timer svg{width:18px;height:18px;margin-left:2px;}   /* nudge right — a geometrically centered play triangle looks optically left-heavy */
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;}
 .modal-overlay.open{display:flex;}
@@ -271,11 +273,8 @@ body.shift-timer-active .nav{display:none;}
     background: var(--card); backdrop-filter: none;
     border-top: none; border-right: 0.5px solid var(--border);
   }
-  .nav::before {
-    content: "DriverLog";
-    font-size: 19px; font-weight: 800; color: var(--red);
-    letter-spacing: -0.3px; padding: 6px 12px 18px;
-  }
+  .nav-brand { display: block; padding: 6px 12px 18px; }
+  .nav-brand svg { width: 140px; height: auto; display: block; }
   .nav-btn {
     flex: 0 0 auto; flex-direction: row; justify-content: flex-start;
     gap: 14px; padding: 12px 14px; border-radius: 10px;
