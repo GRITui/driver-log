@@ -56,6 +56,11 @@ create table if not exists driver_sessions (
   tip           numeric,
   vehicle       text not null default '',
   net_rev       numeric,
+  -- Per-trip breakdown (fare + timestamp) carried over from the shift timer's
+  -- "+ Log trip" laps when a shift ends into this session — see
+  -- site/app.js's endShift()/saveSession(). Empty for manually-logged
+  -- sessions, which never had individual trips to begin with.
+  trips         jsonb not null default '[]'::jsonb,
   deleted       boolean not null default false,
   updated_at    timestamptz not null default now(),
   unique (user_id, cuid)
@@ -130,3 +135,7 @@ alter table users add column if not exists push_token text;
 alter table fleets add column if not exists plan text not null default 'free';
 -- 2026-07-16: fleets.seat_limit for the fleet billing seat cap.
 alter table fleets add column if not exists seat_limit integer not null default 3;
+-- 2026-07-19: driver_sessions.trips — per-trip breakdown carried over from
+-- the shift timer, so the session detail page can show what made up the
+-- revenue instead of just the aggregate total.
+alter table driver_sessions add column if not exists trips jsonb not null default '[]'::jsonb;

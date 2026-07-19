@@ -3,7 +3,8 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.10.4';  // v1.10.4: removed guest login — account now required to use the app; APP_VERSION 2.10.3->2.10.4
+const SW_VERSION = 'v1.10.5';  // v1.10.5: shift-timer trips persist onto the session (new trips breakdown UI) + Revenue moved before Trip details in the session form + shorter timer hero card + dropped "Break-even fuel" from the dashboard insight card; APP_VERSION 2.10.4->2.10.5
+// prior: v1.10.4: removed guest login — account now required to use the app; APP_VERSION 2.10.3->2.10.4
 // prior: v1.10.3: desktop sidebar brand mark now the real wordmark (was plain text, off brand CI) + start-shift FAB now a real centered SVG icon (was an off-center Unicode glyph); APP_VERSION 2.10.2->2.10.3
 // prior: v1.10.2: fixed desktop dashboard empty-state's lopsided two-column CSS-multicol layout; APP_VERSION 2.10.1->2.10.2
 // prior: v1.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change; APP_VERSION 2.10.0->2.10.1
