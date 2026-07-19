@@ -1,14 +1,43 @@
-name: Scratch diag - LINE login config re-check
+name: Scratch diag - records-save schema check
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check /api/line-login-start redirect_uri
+      - name: Root liveness check
         shell: bash
         run: |
           set +e
-          curl -sS -D - -o /tmp/body.txt --max-time 10 "https://driverlog.link/api/line-login-start"
+          echo "GET / ->"
+          curl -s -o /dev/null -w '%{http_code}\n' --max-time 10 "https://driverlog.link/"
+      - name: Bare GET records-save (expect 401/400/405, not 500)
+        shell: bash
+        run: |
+          set +e
+          echo "GET /api/records-save ->"
+          curl -sS -D - -o /tmp/get_body.txt --max-time 10 "https://driverlog.link/api/records-save"
           echo "curl exit: $?"
           echo "--- body ---"
-          cat /tmp/body.txt; echo
+          cat /tmp/get_body.txt; echo
+      - name: Malformed POST records-save (expect 401/400, not 500)
+        shell: bash
+        run: |
+          set +e
+          echo "POST /api/records-save (no auth, no body) ->"
+          curl -sS -D - -o /tmp/post_body.txt --max-time 10 -X POST -H "Content-Type: application/json" -d '{}' "https://driverlog.link/api/records-save"
+          echo "curl exit: $?"
+          echo "--- body ---"
+          cat /tmp/post_body.txt; echo
+      - name: POST records-save with fake auth + trips payload (probe for missing-column 500)
+        shell: bash
+        run: |
+          set +e
+          echo "POST /api/records-save with bogus bearer + trips field ->"
+          curl -sS -D - -o /tmp/post_body2.txt --max-time 10 -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer bogus-token-for-diag" \
+            -d '{"records":[{"cuid":"diag-test-cuid","trips":[{"fare":1,"at":"2026-07-19T00:00:00Z"}]}]}' \
+            "https://driverlog.link/api/records-save"
+          echo "curl exit: $?"
+          echo "--- body ---"
+          cat /tmp/post_body2.txt; echo
