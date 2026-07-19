@@ -1,10 +1,10 @@
-name: Scratch diag - LINE login config check
+name: Scratch diag - LINE login config re-check
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check /api/line-login-start
+      - name: Check /api/line-login-start redirect_uri
         shell: bash
         run: |
           set +e
