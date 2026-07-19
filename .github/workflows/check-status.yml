@@ -1,25 +1,14 @@
-name: Scratch diag - info.driverlog.link 403 report
+name: Scratch diag - LINE login config check
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check info.driverlog.link + driverlog.link/info live
+      - name: Check /api/line-login-start
         shell: bash
         run: |
           set +e
-          echo "=== info.driverlog.link/ full response ==="
-          curl -sS -D - -o /tmp/info.html --max-time 10 "https://info.driverlog.link/"
+          curl -sS -D - -o /tmp/body.txt --max-time 10 "https://driverlog.link/api/line-login-start"
           echo "curl exit: $?"
-          echo "--- body (first 500 bytes) ---"; head -c 500 /tmp/info.html 2>/dev/null; echo
-          echo ""
-          echo "=== dig info.driverlog.link (default resolver) ==="
-          dig +short info.driverlog.link
-          echo "=== dig via 8.8.8.8 ==="
-          dig +short info.driverlog.link @8.8.8.8
-          echo "=== dig CNAME via authoritative ns1.dns-parking.com ==="
-          dig +short info.driverlog.link CNAME @ns1.dns-parking.com
-          dig +short info.driverlog.link A @ns1.dns-parking.com
-          echo ""
-          echo "=== sanity check: driverlog.link/info/ (expect 200) ==="
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "https://driverlog.link/info/"
+          echo "--- body ---"
+          cat /tmp/body.txt; echo
