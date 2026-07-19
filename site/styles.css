@@ -305,6 +305,15 @@ body.shift-timer-active .nav{display:none;}
   #s-dash .stat-grid { column-span: all; grid-template-columns: repeat(4, 1fr); margin-bottom: 20px; }
   .chart-wrap { height: 200px; }
 
+  /* Dashboard empty state (no sessions logged yet): only the welcome
+     prompt + donate card stay visible, and multicol splits those two lone
+     blocks into a lopsided two-column layout with the second column mostly
+     empty. Drop back to the same centered single column the generic .content
+     rule above uses for every other screen. */
+  #s-dash.dash-empty .content { max-width: 640px; column-count: 1; margin-left: auto; margin-right: auto; }
+  #s-dash.dash-empty .empty { padding: 64px 20px 40px; }
+  #s-dash.dash-empty .affiliate-card { margin: 0 0 16px; }
+
   /* Un-pin the fixed overlays from the 430px mobile clamp */
   .fab-wrap { left: auto; right: 0; transform: none; width: auto; max-width: none; bottom: 24px; padding-right: 24px; }
   .fab { right: 24px; }
