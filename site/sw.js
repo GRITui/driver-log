@@ -3,7 +3,9 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.10.1';  // v1.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change; APP_VERSION 2.10.0->2.10.1
+const SW_VERSION = 'v1.10.3';  // v1.10.3: desktop sidebar brand mark now the real wordmark (was plain text, off brand CI) + start-shift FAB now a real centered SVG icon (was an off-center Unicode glyph); APP_VERSION 2.10.2->2.10.3
+// prior: v1.10.2: fixed desktop dashboard empty-state's lopsided two-column CSS-multicol layout; APP_VERSION 2.10.1->2.10.2
+// prior: v1.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change; APP_VERSION 2.10.0->2.10.1
 // prior: v1.10.0: maintenance-log CRUD + fleet plan-gating scaffolding; APP_VERSION 2.9.1->2.10.0
 // prior: v1.9.1: "Fuel card partner" placeholder -> real "Buy me a coffee" link; APP_VERSION 2.9.0->2.9.1
 // prior: v1.9.0: fleet (B2B) tier — Settings > Fleet + new site/fleet.html owner console; APP_VERSION 2.8.1->2.9.0
