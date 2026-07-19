@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "link.driverlog.twa"
+    namespace = "com.prod.driverlog_1_0_1"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "link.driverlog.twa"
+        applicationId "com.prod.driverlog_1_0_1"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
