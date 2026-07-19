@@ -32,13 +32,19 @@ work instead of letting it drift again.
   was never built. Decide before fleet adoption grows past a few pilot users.
 
 ## Android / Play Store
-- **First real CI-signed build was triggered (18 Jul 2026) and failed exactly as
-  documented** — the workflow's fail-fast guard correctly caught that none of the 4
-  signing secrets exist yet (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
-  `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`) and stopped in ~4s with that exact
-  error, per README's "CI-signed release builds" section. Not a bug — still blocked on
-  the one-time local keystore + secrets setup described there. Re-run `workflow_dispatch`
-  once those are added.
+- **First real CI-signed build succeeded (19 Jul 2026).** Took 3 attempts, each
+  failing on a different, expected thing rather than a code bug:
+  1. Fail-fast guard correctly caught the 4 signing secrets not existing yet.
+  2. `ANDROID_KEYSTORE_BASE64` secret was set to corrupted base64 (clipboard got
+     overwritten between encoding and pasting) — re-encoded and re-set, fixed.
+  3. `workflow_dispatch` input mix-up: `1.0.0` was entered into `versionCode` (must be
+     a plain integer, Play Console's strictly-increasing build counter) instead of
+     `versionName` (the human-facing string, where `1.0.0` is correct). Gradle failed
+     evaluating `android/app/build.gradle` with `1.0.0` in an int field. Re-run with
+     `versionCode: 1` / `versionName: 1.0.0` fixed it.
+  Signed `.aab` now produced and uploaded as a workflow artifact. Repo's
+  `android/app/build.gradle` was never touched by any of this — the version `sed` runs
+  transiently on the CI checkout, never committed.
 - Google Play Developer account ($25) — **created.**
 - Real app icon/splash art — **done.** Android's default Capacitor placeholder (blue
   "X" mark) replaced across all `mipmap-*/ic_launcher*.png`, the adaptive-icon
