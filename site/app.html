@@ -422,10 +422,11 @@
         <div class="field-half"><label data-i18n="start_time">Start time</label><input type="time" id="s-start" step="900" oninput="calcDuration()"></div>
         <div class="field-half"><label data-i18n="end_time">End time</label><input type="time" id="s-end" step="900" oninput="calcDuration()"></div>
       </div>
-      <div class="form-row">
-        <div class="field-half"><label data-i18n="end_date">End date</label><input type="date" id="s-enddate" oninput="calcDuration()"></div>
-        <div class="field-half" style="display:flex;align-items:flex-end;padding-bottom:10px;"><span style="font-size:13px;color:var(--text3);"><span data-i18n="duration">Duration</span>: <b id="s-dur" style="color:var(--red)">—</b></span></div>
-      </div>
+      <!-- End date has no visible field — a shift that crosses midnight auto-advances
+           it (see calcDuration() in site/app.js); the hidden input just carries the
+           value through to saveSession(). -->
+      <input type="hidden" id="s-enddate">
+      <div class="field" style="display:flex;align-items:center;padding:12px 16px;"><span style="font-size:13px;color:var(--text3);"><span data-i18n="duration">Duration</span>: <b id="s-dur" style="color:var(--red)">—</b></span></div>
       <div class="form-row">
         <div class="field-half"><label data-i18n="distance_km">Distance (km)</label><input type="number" id="s-dist" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"></div>
         <div class="field-half"><label data-i18n="consumption">Consumption (km/L)</label><input type="number" id="s-cons" placeholder="0" step="0.1" min="0" inputmode="decimal" oninput="calcSNet()"></div>
