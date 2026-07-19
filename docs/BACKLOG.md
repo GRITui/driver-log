@@ -32,12 +32,29 @@ work instead of letting it drift again.
   was never built. Decide before fleet adoption grows past a few pilot users.
 
 ## Android / Play Store
-- **First real CI-signed build has never been run.** The workflow exists but needs a
-  one-time local keystore (`keytool -genkeypair`, see README's "CI-signed release
-  builds" section) + 4 GitHub encrypted secrets before `workflow_dispatch` produces a
-  real signed `.aab`. Don't assume it works until it's actually been triggered once.
-- Google Play Developer account ($25) not yet created.
-- Real app icon/splash art — still placeholder.
+- **First real CI-signed build succeeded (19 Jul 2026).** Took 3 attempts, each
+  failing on a different, expected thing rather than a code bug:
+  1. Fail-fast guard correctly caught the 4 signing secrets not existing yet.
+  2. `ANDROID_KEYSTORE_BASE64` secret was set to corrupted base64 (clipboard got
+     overwritten between encoding and pasting) — re-encoded and re-set, fixed.
+  3. `workflow_dispatch` input mix-up: `1.0.0` was entered into `versionCode` (must be
+     a plain integer, Play Console's strictly-increasing build counter) instead of
+     `versionName` (the human-facing string, where `1.0.0` is correct). Gradle failed
+     evaluating `android/app/build.gradle` with `1.0.0` in an int field. Re-run with
+     `versionCode: 1` / `versionName: 1.0.0` fixed it.
+  Signed `.aab` now produced and uploaded as a workflow artifact. Repo's
+  `android/app/build.gradle` was never touched by any of this — the version `sed` runs
+  transiently on the CI checkout, never committed.
+- Google Play Developer account ($25) — **created.**
+- Real app icon/splash art — **done.** Android's default Capacitor placeholder (blue
+  "X" mark) replaced across all `mipmap-*/ic_launcher*.png`, the adaptive-icon
+  foreground layer, and all `drawable*/splash.png` with the real DriverLog brand mark
+  (`brand/logo-icon.svg`'s road/pin glyph on the brand red gradient); adaptive-icon
+  background color (`values/ic_launcher_background.xml`) changed from white to brand
+  red `#D0021B` to match. Generated via a local SVG→PNG render + Pillow resize instead
+  of `@capacitor/assets`, since that tool still can't install in this sandbox (needs a
+  `sharp` binary the proxy blocks — see README). The PWA icons in `site/icons/` were
+  already real brand art and didn't need touching.
 - Play Console listing (store copy, screenshots, content rating, `assetlinks.json`
   signing fingerprint) not started.
 
