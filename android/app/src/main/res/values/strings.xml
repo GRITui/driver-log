@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">DriverLog</string>
     <string name="title_activity_main">DriverLog</string>
-    <string name="package_name">link.driverlog.twa</string>
-    <string name="custom_url_scheme">link.driverlog.twa</string>
+    <string name="package_name">com.prod.driverlog_1_0_1</string>
+    <string name="custom_url_scheme">com.prod.driverlog_1_0_1</string>
 </resources>
