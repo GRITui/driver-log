@@ -1,14 +1,25 @@
-name: Scratch diag - LINE login redirect_uri live check
+name: Scratch diag - post-AUTH_TOKEN_SECRET-fix auth check
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check /api/line-login-start redirect_uri
+      - name: Check /api/auth-login (bogus creds, expect 401 not 500)
         shell: bash
         run: |
           set +e
-          curl -sS -D - -o /tmp/body.txt --max-time 10 "https://driverlog.link/api/line-login-start"
+          curl -sS -D - -o /tmp/body.txt --max-time 10 -X POST "https://driverlog.link/api/auth-login" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"nonexistent-probe@example.com","password":"wrongpassword"}'
           echo "curl exit: $?"
           echo "--- body ---"
           cat /tmp/body.txt; echo
+      - name: Check /api/records-list with bogus bearer (expect 401 not 500)
+        shell: bash
+        run: |
+          set +e
+          curl -sS -D - -o /tmp/body2.txt --max-time 10 "https://driverlog.link/api/records-list?collection=sessions" \
+            -H "Authorization: Bearer bogus-token-probe"
+          echo "curl exit: $?"
+          echo "--- body ---"
+          cat /tmp/body2.txt; echo
