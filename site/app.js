@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.10.4';   // bump on every deploy — 2.10.4: removed guest login (no more "Login as Guest" — account required to use the app; loginGuest()/guestUsername() deleted, login.html button removed, auth_hint copy fixed to stop claiming cloud sync is "coming soon" when it's been live since 2.7.0). Anyone already mid-session as a guest (localStorage session key still 'guest') keeps working via restoreSession()'s existing branch — this only closes the entry point for new guest sessions, doesn't strand existing local-only data. Privacy policy (site/privacy.html + privacy/index.html) updated to drop the guest-mode framing. 2.10.3: two UI polish fixes. (1) Desktop sidebar's brand mark was plain CSS-generated red text ("DriverLog") with no icon — replaced with the real wordmark (app-icon squircle + two-tone "Driver"/"Log" text) per brand/CI-brand-guidelines.html's "01 — Logo" spec, matching what login.html and info/ already use. New .nav-brand element in app.html, hidden on mobile (bottom tab bar has no room for it) and shown at the >=900px breakpoint. (2) The dashboard's "start shift" FAB used a bare "▶" Unicode glyph, which rendered visibly off-center in its circle (font glyph metrics, not a proper icon) — replaced with a real centered SVG play-triangle icon. 2.10.2: fixed desktop dashboard's empty state (no sessions logged yet) rendering as a lopsided two-column CSS-multicol split — the welcome prompt + donate card are now the only two blocks left visible in that state, and multicol was never designed for exactly two large blocks. New #s-dash.dash-empty class (toggled in renderDashboard()) drops back to a single centered column at >=900px, matching every other screen's desktop treatment. 2.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change. 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.10.5';   // bump on every deploy — 2.10.5: shift-timer trips now survive past "End shift" — the individual laps (fare + time) that used to be summed into revenue and thrown away are saved onto the session as `trips` (new driver_sessions.trips jsonb column, synced) and shown as a read-only "Trips this shift" breakdown on the session add/edit form, reusing the timer screen's lap-row styling. Session form reordered: Revenue now comes right after picking provider/type (with the trips breakdown under it when present), Trip details (distance/fuel/expense) after — so you see what you earned before what it cost. Also trimmed the shift-timer's hero card (smaller clock, tighter padding) since it was taking up disproportionate vertical space, and dropped the "Break-even fuel" row from the dashboard's profitability insight card (removed the now-unused break_even/be_now i18n keys and the per-liter calc behind them). 2.10.4: removed guest login (no more "Login as Guest" — account required to use the app; loginGuest()/guestUsername() deleted, login.html button removed, auth_hint copy fixed to stop claiming cloud sync is "coming soon" when it's been live since 2.7.0). Anyone already mid-session as a guest (localStorage session key still 'guest') keeps working via restoreSession()'s existing branch — this only closes the entry point for new guest sessions, doesn't strand existing local-only data. Privacy policy (site/privacy.html + privacy/index.html) updated to drop the guest-mode framing. 2.10.3: two UI polish fixes. (1) Desktop sidebar's brand mark was plain CSS-generated red text ("DriverLog") with no icon — replaced with the real wordmark (app-icon squircle + two-tone "Driver"/"Log" text) per brand/CI-brand-guidelines.html's "01 — Logo" spec, matching what login.html and info/ already use. New .nav-brand element in app.html, hidden on mobile (bottom tab bar has no room for it) and shown at the >=900px breakpoint. (2) The dashboard's "start shift" FAB used a bare "▶" Unicode glyph, which rendered visibly off-center in its circle (font glyph metrics, not a proper icon) — replaced with a real centered SVG play-triangle icon. 2.10.2: fixed desktop dashboard's empty state (no sessions logged yet) rendering as a lopsided two-column CSS-multicol split — the welcome prompt + donate card are now the only two blocks left visible in that state, and multicol was never designed for exactly two large blocks. New #s-dash.dash-empty class (toggled in renderDashboard()) drops back to a single centered column at >=900px, matching every other screen's desktop treatment. 2.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change. 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 3;
 function openDB() {
   return new Promise((res, rej) => {
@@ -176,7 +176,7 @@ function toServer(store, rec) {
   if (store === 'sessions') return { ...base,
     provider: rec.provider || '', serviceType: rec.serviceType, date: rec.date, endDate: rec.endDate || '', startTime: rec.startTime || '', endTime: rec.endTime || '',
     distance: rec.distance, consumption: rec.consumption,
-    oilPrice: rec.oilPrice, exp: rec.exp, rev: rec.rev, tip: rec.tip, vehicle: rec.vehicle || '', netRev: rec.netRev };
+    oilPrice: rec.oilPrice, exp: rec.exp, rev: rec.rev, tip: rec.tip, vehicle: rec.vehicle || '', netRev: rec.netRev, trips: rec.trips || [] };
   else if (store === 'maintenance') return { ...base,
     vehicle: rec.vehicle || '', serviceType: rec.serviceType || '', cost: rec.cost, date: rec.date, odometerKm: rec.odometerKm, nextDueDate: rec.nextDueDate, nextDueKm: rec.nextDueKm };
   else return { ...base, station: rec.station, liters: rec.liters, price: rec.price, date: rec.date };
@@ -264,7 +264,7 @@ function fromServer(store, sr, local) {
   const common = { uid, cuid: sr.cuid, sid: sr.id, updatedAt: sr.updatedAt || sr.updated, dirty: false, deleted: false };
   let rec;
   if (store === 'sessions') rec = { provider: sr.provider || '', serviceType: sr.serviceType, date: sr.date, endDate: sr.endDate || '', startTime: sr.startTime || '', endTime: sr.endTime || '', distance: sr.distance,
-    consumption: sr.consumption, oilPrice: sr.oilPrice, exp: sr.exp, rev: sr.rev, tip: sr.tip, vehicle: sr.vehicle || '', netRev: sr.netRev };
+    consumption: sr.consumption, oilPrice: sr.oilPrice, exp: sr.exp, rev: sr.rev, tip: sr.tip, vehicle: sr.vehicle || '', netRev: sr.netRev, trips: sr.trips || [] };
   else if (store === 'maintenance') rec = { vehicle: sr.vehicle || '', serviceType: sr.serviceType || '', cost: sr.cost, date: sr.date, odometerKm: sr.odometerKm, nextDueDate: sr.nextDueDate, nextDueKm: sr.nextDueKm };
   else rec = { station: sr.station, liters: sr.liters, price: sr.price, date: sr.date };
   rec = { ...rec, ...common };
@@ -578,7 +578,7 @@ const I18N = {
     first_name: 'First name',
     welcome: 'Welcome', welcome_back: 'Welcome back',
     profitability: 'Is this shift profitable?', profit_margin: 'Profit margin', profit_per: 'Profit /',
-    break_even: 'Break-even fuel', be_now: 'now', coach: 'Coach',
+    coach: 'Coach',
     verdict_loss: 'Losing money', verdict_breakeven: 'Breaking even', verdict_thin: 'Thin margin',
     verdict_ok: 'Profitable', verdict_great: 'Very profitable',
     tip_loss: 'This period ran at a loss. Cut fuel costs or take higher-paying trips.',
@@ -668,7 +668,7 @@ const I18N = {
     first_name: 'ชื่อจริง',
     welcome: 'ยินดีต้อนรับ', welcome_back: 'ยินดีต้อนรับกลับ',
     profitability: 'กะนี้คุ้มไหม?', profit_margin: 'อัตรากำไร', profit_per: 'กำไรต่อ',
-    break_even: 'จุดคุ้มทุนน้ำมัน', be_now: 'ตอนนี้', coach: 'โค้ช',
+    coach: 'โค้ช',
     verdict_loss: 'ขาดทุน', verdict_breakeven: 'เท่าทุน', verdict_thin: 'กำไรบาง',
     verdict_ok: 'มีกำไร', verdict_great: 'กำไรดีมาก',
     tip_loss: 'ช่วงนี้ขาดทุน ลดค่าน้ำมันหรือรับงานที่ได้ค่าตอบแทนสูงขึ้น',
@@ -1086,11 +1086,6 @@ function renderProfitInsights(filtered, m) {
   const gross = m.grossRev, profit = m.profit, ratio = m.ratio;
   const margin = gross > 0 ? (profit / gross * 100) : 0;
   const perDist = m.distVal > 0 ? profit / m.distVal : 0;
-  // total liters used across the period → break-even fuel price
-  let liters = 0;
-  filtered.forEach(s => { if (s.consumption > 0) liters += s.distance / s.consumption; });
-  const avgOil = liters > 0 ? m.exp / liters : 0;
-  const beOil = liters > 0 ? gross / liters : 0;   // oil price where profit hits 0
 
   // verdict tier
   let vKey, vCls;
@@ -1108,9 +1103,6 @@ function renderProfitInsights(filtered, m) {
   else tip = t('tip_healthy');
 
   const marginColor = profit <= 0 ? 'var(--red)' : (margin < 35 ? '#B45309' : '#047857');
-  const beRow = liters > 0
-    ? `<div class="insight-row"><span class="insight-label">${t('break_even')}</span><span class="insight-val">฿${fmt(beOil,1)}/L · ${t('be_now')} ฿${fmt(avgOil,1)}/L</span></div>`
-    : '';
   const hourRow = (m.totalHours > 0)
     ? `<div class="insight-row"><span class="insight-label">${t('earn_per_hour')}</span><span class="insight-val" style="font-weight:700;color:#047857">฿${fmt(m.perHour,0)}/${t('hour_unit')}</span></div>`
     : '';
@@ -1125,7 +1117,6 @@ function renderProfitInsights(filtered, m) {
       <span class="insight-label">${t('profit_per')} ${m.unit}</span>
       <span class="insight-val">฿${fmt(perDist,1)}/${m.unit}</span>
     </div>
-    ${beRow}
     <div class="insight-row" style="border-top:1px solid var(--line,#eee);padding-top:10px">
       <span class="insight-label">💡 ${t('coach')}</span>
       <span class="insight-val" style="text-align:right;max-width:62%;font-weight:500">${tip}</span>
@@ -1355,6 +1346,8 @@ async function openEditSession(id, e) {
   document.querySelectorAll('#modal-session .svc-opt').forEach(o => o.classList.remove('sel'));
   (document.querySelector(`#modal-session .prov-selector .svc-opt[data-prov="${nrm.provider}"]`) || document.querySelector('#modal-session .prov-selector .svc-opt')).classList.add('sel');
   (document.querySelector(`#modal-session .type-selector .svc-opt[data-type="${nrm.type}"]`) || document.querySelector('#modal-session .type-selector .svc-opt')).classList.add('sel');
+  pendingSessionTrips = (s.trips && s.trips.length) ? s.trips : null;
+  renderTripsBreakdown();
   calcDuration();
   openSessionModal();
 }
@@ -1371,7 +1364,14 @@ async function deleteSession(id, e) {
 }
 
 // ─── ADD SESSION ──────────────────────────────────────────────────────
+// Trips carried into the session form from an ended shift (or an existing
+// session being edited) so saveSession() can persist them; see endShift()
+// and openEditSession(). Cleared here so a plain "+" tap never inherits
+// another session's trip breakdown.
+let pendingSessionTrips = null;
+
 function openAddSession() {
+  pendingSessionTrips = null;
   document.getElementById('s-edit-id').value = '';
   document.getElementById('modal-title').textContent = t('log_session');
   document.getElementById('s-date').value = todayISO();
@@ -1390,7 +1390,26 @@ function openAddSession() {
   document.querySelectorAll('#modal-session .svc-opt').forEach(o => o.classList.remove('sel'));
   document.querySelector('#modal-session .prov-selector .svc-opt[data-prov="Grab"]').classList.add('sel');
   document.querySelector('#modal-session .type-selector .svc-opt[data-type="Car"]').classList.add('sel');
+  renderTripsBreakdown();
   openSessionModal();
+}
+
+// Read-only list of the trips (laps) behind this session's revenue —
+// populated when a shift just ended (endShift()) or an existing session
+// with saved trips is opened for edit (openEditSession()). Hidden entirely
+// for sessions logged the old manual way, which never had trips.
+function renderTripsBreakdown() {
+  const section = document.getElementById('s-trips-section');
+  const listEl = document.getElementById('s-trips-list');
+  if (!section || !listEl) return;
+  const trips = pendingSessionTrips || [];
+  if (!trips.length) { section.style.display = 'none'; listEl.innerHTML = ''; return; }
+  section.style.display = '';
+  listEl.innerHTML = trips.map((lap, i) => `
+    <div class="lap-row">
+      <div class="lap-left"><div class="lap-num">${i + 1}</div><div class="lap-time">${hmOf(new Date(lap.ts))}</div></div>
+      <div class="lap-fare">฿${fmt(lap.fare)}</div>
+    </div>`).join('');
 }
 
 // element that had focus before the modal opened, so we can restore it on close
@@ -1499,7 +1518,7 @@ async function saveSession() {
   if (!rev || rev <= 0) { toast(t('rev_gt_zero')); return; }
   if (dist < 0 || cons < 0 || oil < 0 || exp < 0 || tip < 0) { toast(t('neg_not_allowed')); return; }
   const uid = isGuest ? 'guest' : currentUser.id;
-  const obj = {uid, provider, serviceType:svc, date, endDate, startTime, endTime, distance:dist, consumption:cons, oilPrice:oil, exp, rev, tip, vehicle, netRev: rev+tip-exp};
+  const obj = {uid, provider, serviceType:svc, date, endDate, startTime, endTime, distance:dist, consumption:cons, oilPrice:oil, exp, rev, tip, vehicle, netRev: rev+tip-exp, trips: pendingSessionTrips || []};
   const editId = document.getElementById('s-edit-id').value;
   if (editId) {
     const id = parseInt(editId);
@@ -1517,6 +1536,7 @@ async function saveSession() {
   const key = await dbPut('sessions', obj);
   if (obj.id == null) obj.id = key;
   if (!isGuest) await enqueue('upsert', 'sessions', obj);
+  pendingSessionTrips = null;
   closeSessionModal();
   await reload();
   toast(t('session_saved'));
@@ -1666,6 +1686,8 @@ function endShift() {
   document.getElementById('s-end').value = hmOf(ended);
   document.getElementById('s-enddate').value = isoOf(ended);
   if (revSoFar > 0) document.getElementById('s-rev').value = revSoFar;
+  pendingSessionTrips = shift.laps.length ? shift.laps : null;
+  renderTripsBreakdown();
   calcDuration();
   calcSNet();
   switchScreen('sessions');

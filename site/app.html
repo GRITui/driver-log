@@ -405,6 +405,17 @@
       </div>
     </div>
     <div class="form-section" style="margin:0 16px 12px;">
+      <div class="form-header" data-i18n="revenue">Revenue</div>
+      <div class="form-row">
+        <div class="field-half"><label data-i18n="revenue_b">Revenue (฿)</label><input type="number" id="s-rev" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+        <div class="field-half"><label data-i18n="extra_tip">Extra tip (฿)</label><input type="number" id="s-tip" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
+      </div>
+    </div>
+    <div class="form-section" id="s-trips-section" style="margin:0 16px 12px;display:none;">
+      <div class="form-header" data-i18n="trips_this_shift">Trips this shift</div>
+      <div id="s-trips-list"></div>
+    </div>
+    <div class="form-section" style="margin:0 16px 12px;">
       <div class="form-header" data-i18n="trip_details">Trip details</div>
       <div class="field"><label data-i18n="date">Date</label><input type="date" id="s-date"></div>
       <div class="form-row">
@@ -424,13 +435,6 @@
         <div class="field-half"><label data-i18n="fuel_expense">Fuel expense (฿)</label><input type="number" id="s-exp" placeholder="auto" step="0.01" min="0" inputmode="decimal" oninput="calcSNet(false)"></div>
       </div>
       <div class="field"><label data-i18n="vehicle">Vehicle</label><input type="text" id="s-vehicle" data-i18n-ph="vehicle_placeholder" placeholder="e.g. Honda Click 125i"></div>
-    </div>
-    <div class="form-section" style="margin:0 16px 12px;">
-      <div class="form-header" data-i18n="revenue">Revenue</div>
-      <div class="form-row">
-        <div class="field-half"><label data-i18n="revenue_b">Revenue (฿)</label><input type="number" id="s-rev" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
-        <div class="field-half"><label data-i18n="extra_tip">Extra tip (฿)</label><input type="number" id="s-tip" placeholder="0" min="0" inputmode="decimal" oninput="calcSNet()"></div>
-      </div>
     </div>
     <div class="net-box"><div class="net-box-label" data-i18n="net_revenue">Net revenue</div><div class="net-box-val" id="s-net">฿ 0</div></div>
     <input type="hidden" id="s-edit-id">
