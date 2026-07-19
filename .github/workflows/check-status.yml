@@ -1,49 +1,25 @@
-name: Scratch diag - post-merge /info production smoke test
+name: Scratch diag - info.driverlog.link 403 report
 on: workflow_dispatch
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - name: Full production smoke test of driverlog.link/info
+      - name: Check info.driverlog.link + driverlog.link/info live
         shell: bash
         run: |
           set +e
-          B="https://driverlog.link"
-          check() {
-            code=$(curl -s -o /tmp/body.html -w "%{http_code}" --max-time 10 "$B$1")
-            size=$(wc -c < /tmp/body.html)
-            echo "$1 -> HTTP $code (${size}b)"
-          }
-          echo "=== core /info pages ==="
-          check /info
-          check /info/
-          check /info/guides
-          check /info/guides/
-          check /info/guides/calculate-profit.html
-          check /info/guides/fuel-saving-tips.html
-          check /info/guides/choosing-app.html
-          echo "=== static assets ==="
-          check /info/brand/favicon-64.png
-          check /info/brand/logo-wordmark.svg
-          check /info/ds-base.js
-          check "/info/_ds/broadsheet-1e60ea10-6273-4712-b1c6-328beb2ebe0e/styles.css"
-          echo "=== unaffected routes (regression check) ==="
-          check /
-          check /app.html
-          check /login.html
-          echo "=== fetch real homepage body, check internal links are /info/-prefixed ==="
-          curl -s --max-time 10 "$B/info/" -o /tmp/home.html
-          echo "-- guides link found in homepage nav/footer:"
-          grep -o 'href="/info/guides/"' /tmp/home.html | sort -u
-          echo "-- any stray unprefixed /guides/ link (should be none):"
-          grep -o 'href="/guides/[^"]*"' /tmp/home.html
-          echo "(none found = clean)"
-          echo "=== fetch guide article body, check ad unit + related links ==="
-          curl -s --max-time 10 "$B/info/guides/calculate-profit.html" -o /tmp/article.html
-          echo "-- adsbygoogle present:"
-          grep -c 'adsbygoogle' /tmp/article.html
-          echo "-- related-card links (should be /info/guides/...):"
-          grep -o 'class="related-card" href="[^"]*"' /tmp/article.html
-          echo "=== old subdomain (expect still broken, we abandoned it) ==="
-          curl -sS -o /dev/null -w "info.driverlog.link -> HTTP %{http_code}\n" --max-time 8 "https://info.driverlog.link/"
-          echo "exit: $?"
+          echo "=== info.driverlog.link/ full response ==="
+          curl -sS -D - -o /tmp/info.html --max-time 10 "https://info.driverlog.link/"
+          echo "curl exit: $?"
+          echo "--- body (first 500 bytes) ---"; head -c 500 /tmp/info.html 2>/dev/null; echo
+          echo ""
+          echo "=== dig info.driverlog.link (default resolver) ==="
+          dig +short info.driverlog.link
+          echo "=== dig via 8.8.8.8 ==="
+          dig +short info.driverlog.link @8.8.8.8
+          echo "=== dig CNAME via authoritative ns1.dns-parking.com ==="
+          dig +short info.driverlog.link CNAME @ns1.dns-parking.com
+          dig +short info.driverlog.link A @ns1.dns-parking.com
+          echo ""
+          echo "=== sanity check: driverlog.link/info/ (expect 200) ==="
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" --max-time 10 "https://driverlog.link/info/"
