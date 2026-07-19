@@ -32,12 +32,23 @@ work instead of letting it drift again.
   was never built. Decide before fleet adoption grows past a few pilot users.
 
 ## Android / Play Store
-- **First real CI-signed build has never been run.** The workflow exists but needs a
-  one-time local keystore (`keytool -genkeypair`, see README's "CI-signed release
-  builds" section) + 4 GitHub encrypted secrets before `workflow_dispatch` produces a
-  real signed `.aab`. Don't assume it works until it's actually been triggered once.
-- Google Play Developer account ($25) not yet created.
-- Real app icon/splash art — still placeholder.
+- **First real CI-signed build was triggered (18 Jul 2026) and failed exactly as
+  documented** — the workflow's fail-fast guard correctly caught that none of the 4
+  signing secrets exist yet (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+  `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`) and stopped in ~4s with that exact
+  error, per README's "CI-signed release builds" section. Not a bug — still blocked on
+  the one-time local keystore + secrets setup described there. Re-run `workflow_dispatch`
+  once those are added.
+- Google Play Developer account ($25) — **created.**
+- Real app icon/splash art — **done.** Android's default Capacitor placeholder (blue
+  "X" mark) replaced across all `mipmap-*/ic_launcher*.png`, the adaptive-icon
+  foreground layer, and all `drawable*/splash.png` with the real DriverLog brand mark
+  (`brand/logo-icon.svg`'s road/pin glyph on the brand red gradient); adaptive-icon
+  background color (`values/ic_launcher_background.xml`) changed from white to brand
+  red `#D0021B` to match. Generated via a local SVG→PNG render + Pillow resize instead
+  of `@capacitor/assets`, since that tool still can't install in this sandbox (needs a
+  `sharp` binary the proxy blocks — see README). The PWA icons in `site/icons/` were
+  already real brand art and didn't need touching.
 - Play Console listing (store copy, screenshots, content rating, `assetlinks.json`
   signing fingerprint) not started.
 
