@@ -19,7 +19,7 @@ cd "$PROJECT_DIR" || exit 1
 # Deploy-on-QA-pass (user directive "deploy all QA-passed feature"): the FTP
 # deploy-site.sh script is retired (archive/retired-ftp-deploy-20260713/).
 # Deploys now happen via GitHub: push the branch, open a PR against main;
-# Vercel auto-deploys to driverlog.link/info.driverlog.link once it's
+# Vercel auto-deploys to driverlog.link (including /info/*) once it's
 # reviewed and merged. This script's job stops at "PR opened".
 
 iso() { date "+%Y-%m-%dT%H:%M:%S%z"; }

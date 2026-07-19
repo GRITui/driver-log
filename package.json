@@ -1,7 +1,7 @@
 {
   "name": "driver-log",
   "private": true,
-  "description": "DriverLog — local-first driver log book. site/ (driverlog.link), info/ (info.driverlog.link), and api/ (serverless functions: email/password + LINE OAuth2 auth, CRUD sync for sessions/fuel against Neon via lib/db.js) deploy together from one Vercel project — see vercel.json. android/ is a Capacitor shell (remote mode, same live site) for the Play Store — see README.md. Deliberately left without \"type\": \"module\" — Node's native require(esm) interop already loads the ESM `export default` syntax in api/*.js and lib/*.js fine without that flag.",
+  "description": "DriverLog — local-first driver log book. site/ (driverlog.link), info/ (driverlog.link/info/), and api/ (serverless functions: email/password + LINE OAuth2 auth, CRUD sync for sessions/fuel against Neon via lib/db.js) deploy together from one Vercel project — see vercel.json. android/ is a Capacitor shell (remote mode, same live site) for the Play Store — see README.md. Deliberately left without \"type\": \"module\" — Node's native require(esm) interop already loads the ESM `export default` syntax in api/*.js and lib/*.js fine without that flag.",
   "dependencies": {
     "@capacitor/android": "^8.4.1",
     "@capacitor/core": "^8.4.1",
