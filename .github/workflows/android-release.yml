@@ -74,6 +74,11 @@ jobs:
       - name: Upload signed .aab
         uses: actions/upload-artifact@v4
         with:
-          name: driverlog-${{ inputs.versionName }}-${{ inputs.versionCode }}.aab
+          # Include the run id so two dispatches with the same
+          # versionName/versionCode inputs (e.g. re-running after a config
+          # fix without bumping the version) never produce identically-named
+          # artifacts — that made it impossible to tell which run's .aab was
+          # actually downloaded from the Actions run list.
+          name: driverlog-${{ inputs.versionName }}-${{ inputs.versionCode }}-run${{ github.run_id }}.aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 90
