@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.10.6';   // bump on every deploy — 2.10.6: removed the "End date" field from the session form's Trip details — it was almost always redundant with Date (only relevant for shifts that cross midnight), and calcDuration() already auto-advances it a day when End time <= Start time. Now a hidden input carries the value through to saveSession() unchanged; Duration gets its own compact row instead of sharing one with the removed field. Dropped the now-unused end_date i18n key. 2.10.5: shift-timer trips now survive past "End shift" — the individual laps (fare + time) that used to be summed into revenue and thrown away are saved onto the session as `trips` (new driver_sessions.trips jsonb column, synced) and shown as a read-only "Trips this shift" breakdown on the session add/edit form, reusing the timer screen's lap-row styling. Session form reordered: Revenue now comes right after picking provider/type (with the trips breakdown under it when present), Trip details (distance/fuel/expense) after — so you see what you earned before what it cost. Also trimmed the shift-timer's hero card (smaller clock, tighter padding) since it was taking up disproportionate vertical space, and dropped the "Break-even fuel" row from the dashboard's profitability insight card (removed the now-unused break_even/be_now i18n keys and the per-liter calc behind them). 2.10.4: removed guest login (no more "Login as Guest" — account required to use the app; loginGuest()/guestUsername() deleted, login.html button removed, auth_hint copy fixed to stop claiming cloud sync is "coming soon" when it's been live since 2.7.0). Anyone already mid-session as a guest (localStorage session key still 'guest') keeps working via restoreSession()'s existing branch — this only closes the entry point for new guest sessions, doesn't strand existing local-only data. Privacy policy (site/privacy.html + privacy/index.html) updated to drop the guest-mode framing. 2.10.3: two UI polish fixes. (1) Desktop sidebar's brand mark was plain CSS-generated red text ("DriverLog") with no icon — replaced with the real wordmark (app-icon squircle + two-tone "Driver"/"Log" text) per brand/CI-brand-guidelines.html's "01 — Logo" spec, matching what login.html and info/ already use. New .nav-brand element in app.html, hidden on mobile (bottom tab bar has no room for it) and shown at the >=900px breakpoint. (2) The dashboard's "start shift" FAB used a bare "▶" Unicode glyph, which rendered visibly off-center in its circle (font glyph metrics, not a proper icon) — replaced with a real centered SVG play-triangle icon. 2.10.2: fixed desktop dashboard's empty state (no sessions logged yet) rendering as a lopsided two-column CSS-multicol split — the welcome prompt + donate card are now the only two blocks left visible in that state, and multicol was never designed for exactly two large blocks. New #s-dash.dash-empty class (toggled in renderDashboard()) drops back to a single centered column at >=900px, matching every other screen's desktop treatment. 2.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change. 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.10.7';   // bump on every deploy — 2.10.7: fixed a dashboard calculation bug where a synced session's numeric fields (distance/tip/exp/rev/netRev) could arrive as strings instead of numbers — Postgres `numeric` columns come back from Neon as strings, and lib/records.js/fromServer() passed them through uncoerced, so `+` in the dashboard's totals silently string-concatenated instead of adding (e.g. rendered "Total revenue" as ฿800,586,010,640 instead of ฿811,226) and one unguarded field turned the whole period's net revenue/fuel ratio into NaN. Fixed at three points: lib/records.js now casts every numeric column back to a real number before it ever reaches the client; fromServer() does the same defensively on the client; and every dashboard reduce (totals, trend chart, service breakdown, day/time insights, monthly CSV export) now coerces with Number(...)||0 so an already-corrupted local record self-heals on the next render instead of poisoning the aggregate. 2.10.6: removed the "End date" field from the session form's Trip details — it was almost always redundant with Date (only relevant for shifts that cross midnight), and calcDuration() already auto-advances it a day when End time <= Start time. Now a hidden input carries the value through to saveSession() unchanged; Duration gets its own compact row instead of sharing one with the removed field. Dropped the now-unused end_date i18n key. 2.10.5: shift-timer trips now survive past "End shift" — the individual laps (fare + time) that used to be summed into revenue and thrown away are saved onto the session as `trips` (new driver_sessions.trips jsonb column, synced) and shown as a read-only "Trips this shift" breakdown on the session add/edit form, reusing the timer screen's lap-row styling. Session form reordered: Revenue now comes right after picking provider/type (with the trips breakdown under it when present), Trip details (distance/fuel/expense) after — so you see what you earned before what it cost. Also trimmed the shift-timer's hero card (smaller clock, tighter padding) since it was taking up disproportionate vertical space, and dropped the "Break-even fuel" row from the dashboard's profitability insight card (removed the now-unused break_even/be_now i18n keys and the per-liter calc behind them). 2.10.4: removed guest login (no more "Login as Guest" — account required to use the app; loginGuest()/guestUsername() deleted, login.html button removed, auth_hint copy fixed to stop claiming cloud sync is "coming soon" when it's been live since 2.7.0). Anyone already mid-session as a guest (localStorage session key still 'guest') keeps working via restoreSession()'s existing branch — this only closes the entry point for new guest sessions, doesn't strand existing local-only data. Privacy policy (site/privacy.html + privacy/index.html) updated to drop the guest-mode framing. 2.10.3: two UI polish fixes. (1) Desktop sidebar's brand mark was plain CSS-generated red text ("DriverLog") with no icon — replaced with the real wordmark (app-icon squircle + two-tone "Driver"/"Log" text) per brand/CI-brand-guidelines.html's "01 — Logo" spec, matching what login.html and info/ already use. New .nav-brand element in app.html, hidden on mobile (bottom tab bar has no room for it) and shown at the >=900px breakpoint. (2) The dashboard's "start shift" FAB used a bare "▶" Unicode glyph, which rendered visibly off-center in its circle (font glyph metrics, not a proper icon) — replaced with a real centered SVG play-triangle icon. 2.10.2: fixed desktop dashboard's empty state (no sessions logged yet) rendering as a lopsided two-column CSS-multicol split — the welcome prompt + donate card are now the only two blocks left visible in that state, and multicol was never designed for exactly two large blocks. New #s-dash.dash-empty class (toggled in renderDashboard()) drops back to a single centered column at >=900px, matching every other screen's desktop treatment. 2.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change. 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 3;
 function openDB() {
   return new Promise((res, rej) => {
@@ -259,14 +259,22 @@ async function applyServerRecord(store, sr) {
   await dbPut(store, merged);
 }
 
+// Defense-in-depth alongside lib/records.js's own num() — a server response
+// should always carry real JSON numbers now, but this guards against any
+// numeric-string ever reaching a local record again (Postgres `numeric`
+// columns serialize as strings by default; uncoerced, a synced session's
+// tip/distance/etc. break the dashboard's `+` aggregates into string
+// concatenation instead of addition). Null stays null, distinct from 0.
+function num(v) { return v == null ? v : Number(v); }
+
 function fromServer(store, sr, local) {
   const uid = currentUser.id;
   const common = { uid, cuid: sr.cuid, sid: sr.id, updatedAt: sr.updatedAt || sr.updated, dirty: false, deleted: false };
   let rec;
-  if (store === 'sessions') rec = { provider: sr.provider || '', serviceType: sr.serviceType, date: sr.date, endDate: sr.endDate || '', startTime: sr.startTime || '', endTime: sr.endTime || '', distance: sr.distance,
-    consumption: sr.consumption, oilPrice: sr.oilPrice, exp: sr.exp, rev: sr.rev, tip: sr.tip, vehicle: sr.vehicle || '', netRev: sr.netRev, trips: sr.trips || [] };
-  else if (store === 'maintenance') rec = { vehicle: sr.vehicle || '', serviceType: sr.serviceType || '', cost: sr.cost, date: sr.date, odometerKm: sr.odometerKm, nextDueDate: sr.nextDueDate, nextDueKm: sr.nextDueKm };
-  else rec = { station: sr.station, liters: sr.liters, price: sr.price, date: sr.date };
+  if (store === 'sessions') rec = { provider: sr.provider || '', serviceType: sr.serviceType, date: sr.date, endDate: sr.endDate || '', startTime: sr.startTime || '', endTime: sr.endTime || '', distance: num(sr.distance),
+    consumption: num(sr.consumption), oilPrice: num(sr.oilPrice), exp: num(sr.exp), rev: num(sr.rev), tip: num(sr.tip), vehicle: sr.vehicle || '', netRev: num(sr.netRev), trips: sr.trips || [] };
+  else if (store === 'maintenance') rec = { vehicle: sr.vehicle || '', serviceType: sr.serviceType || '', cost: num(sr.cost), date: sr.date, odometerKm: num(sr.odometerKm), nextDueDate: sr.nextDueDate, nextDueKm: num(sr.nextDueKm) };
+  else rec = { station: sr.station, liters: num(sr.liters), price: num(sr.price), date: sr.date };
   rec = { ...rec, ...common };
   if (local) rec.id = local.id;           // preserve local idb key
   return rec;
@@ -1016,11 +1024,14 @@ function renderDashboard() {
     if (noSessions) return;
   }
   const filtered = filterByPeriod(currentPeriod);
-  const totalNet = filtered.reduce((a,s) => a + (s.netRev||0), 0);
-  const totalRev = filtered.reduce((a,s) => a + s.rev, 0);
-  const totalTip = filtered.reduce((a,s) => a + (s.tip||0), 0);
-  const totalExp = filtered.reduce((a,s) => a + s.exp, 0);
-  const totalDist = filtered.reduce((a,s) => a + s.distance, 0);
+  // Number(...) on every term: a numeric-string or null/undefined field (see
+  // fromServer()'s own comment) would otherwise turn `+` into string
+  // concatenation or NaN for the whole period, not just the one bad record.
+  const totalNet = filtered.reduce((a,s) => a + (Number(s.netRev)||0), 0);
+  const totalRev = filtered.reduce((a,s) => a + (Number(s.rev)||0), 0);
+  const totalTip = filtered.reduce((a,s) => a + (Number(s.tip)||0), 0);
+  const totalExp = filtered.reduce((a,s) => a + (Number(s.exp)||0), 0);
+  const totalDist = filtered.reduce((a,s) => a + (Number(s.distance)||0), 0);
   const totalHours = filtered.reduce((a,s) => a + sessionHours(s), 0);
   const perHour = totalHours > 0 ? totalNet / totalHours : 0;
   const unit = settings.unit === 'mi' ? 'mi' : 'km';
@@ -1031,7 +1042,7 @@ function renderDashboard() {
   document.getElementById('hero-amt').textContent = '฿' + fmt(totalNet);
 
   // change vs previous comparable period
-  const prevNet = prevFilterByPeriod(currentPeriod).reduce((a,s) => a + (s.netRev||0), 0);
+  const prevNet = prevFilterByPeriod(currentPeriod).reduce((a,s) => a + (Number(s.netRev)||0), 0);
   renderHeroDelta(totalNet, prevNet, currentPeriod);
   document.getElementById('h-rev').textContent = '฿' + fmt(totalRev);
   document.getElementById('h-tip').textContent = '฿' + fmt(totalTip);
@@ -1131,8 +1142,8 @@ function renderWeeklyRecap() {
   if (!el) return;
   const thisWeek = filterByPeriod('week');
   const lastWeek = prevFilterByPeriod('week');
-  const totalNet = thisWeek.reduce((a,s) => a + (s.netRev||0), 0);
-  const prevNet = lastWeek.reduce((a,s) => a + (s.netRev||0), 0);
+  const totalNet = thisWeek.reduce((a,s) => a + (Number(s.netRev)||0), 0);
+  const prevNet = lastWeek.reduce((a,s) => a + (Number(s.netRev)||0), 0);
   const shiftCount = thisWeek.length;
 
   if (shiftCount === 0 && lastWeek.length === 0) {
@@ -1171,7 +1182,7 @@ function renderWeeklyRecap() {
 function renderTrend(filtered) {
   const byDate = {};
   filtered.forEach(s => {
-    byDate[s.date] = (byDate[s.date]||0) + (s.netRev||0);
+    byDate[s.date] = (byDate[s.date]||0) + (Number(s.netRev)||0);
   });
   const sortedDates = Object.keys(byDate).sort();
   const labels = sortedDates.map(d => {
@@ -1208,7 +1219,7 @@ function renderSvcBreakdown(filtered) {
   const byProv = {};
   filtered.forEach(s => {
     const p = normSvc(s).provider;
-    byProv[p] = (byProv[p]||0) + s.rev + (s.tip||0);
+    byProv[p] = (byProv[p]||0) + (Number(s.rev)||0) + (Number(s.tip)||0);
   });
   const el = document.getElementById('svc-breakdown');
   if (Object.keys(byProv).length === 0) { el.innerHTML = ''; return; }
@@ -1223,7 +1234,7 @@ function renderTimeInsights(filtered) {
   filtered.forEach(s => {
     const dow = DAYS[new Date(s.date+'T12:00:00').getDay()];
     if (!byDow[dow]) byDow[dow] = {total:0,count:0};
-    byDow[dow].total += s.netRev||0;
+    byDow[dow].total += Number(s.netRev)||0;
     byDow[dow].count++;
   });
   const el = document.getElementById('time-insights');
@@ -1249,7 +1260,7 @@ function renderDayInsights(filtered) {
   const byDate = {};
   filtered.forEach(s => {
     if (!byDate[s.date]) byDate[s.date] = {net:0, hours:0};
-    byDate[s.date].net += (s.netRev||0);
+    byDate[s.date].net += Number(s.netRev)||0;
     byDate[s.date].hours += sessionHours(s);
   });
   const sorted = Object.entries(byDate).sort((a,b)=>b[1].net-a[1].net).slice(0,5);
@@ -1297,7 +1308,7 @@ function renderSessions() {
     const [y,m] = month.split('-');
     const monthDate = new Date(+y, +m-1, 1);
     const monthLabel = curLang() === 'th' ? thaiDate(monthDate, 'month-year') : monthDate.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-    const monthNet = list.reduce((a,s)=>a+(s.netRev||0),0);
+    const monthNet = list.reduce((a,s)=>a+(Number(s.netRev)||0),0);
     return `<div class="section-title" style="display:flex;justify-content:space-between">
       <span>${monthLabel}</span><span style="color:var(--red)">฿${fmt(monthNet)}</span>
     </div>
@@ -1311,7 +1322,7 @@ function renderSessions() {
           </div>
           <div class="list-right">
             <div class="list-amt amt-pos">฿${fmt(s.netRev||0)}</div>
-            <div class="list-amt-sub">${(() => { const g=s.rev+(s.tip||0); const mg=g>0?(s.netRev||0)/g*100:0; const c=(s.netRev||0)<=0?'var(--red)':(mg<35?'#B45309':'#047857'); return `<span style="color:${c};font-weight:700">${fmt(mg,0)}%</span> · ${t('rev_word')} ฿${fmt(s.rev)}`; })()}</div>
+            <div class="list-amt-sub">${(() => { const g=(Number(s.rev)||0)+(Number(s.tip)||0); const netRev=Number(s.netRev)||0; const mg=g>0?netRev/g*100:0; const c=netRev<=0?'var(--red)':(mg<35?'#B45309':'#047857'); return `<span style="color:${c};font-weight:700">${fmt(mg,0)}%</span> · ${t('rev_word')} ฿${fmt(s.rev)}`; })()}</div>
           </div>
           <button class="btn-edit" onclick="openEditSession(${s.id},event)">
             <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1833,7 +1844,7 @@ function exportMonthlyCSV() {
     const m = (s.date || '').slice(0, 7); if (!m) return;
     if (!by[m]) by[m] = {sessions: 0, hours: 0, rev: 0, tip: 0, exp: 0, net: 0};
     by[m].sessions++; by[m].hours += sessionHours(s);
-    by[m].rev += s.rev || 0; by[m].tip += s.tip || 0; by[m].exp += s.exp || 0; by[m].net += s.netRev || 0;
+    by[m].rev += Number(s.rev)||0; by[m].tip += Number(s.tip)||0; by[m].exp += Number(s.exp)||0; by[m].net += Number(s.netRev)||0;
   });
   let csv = 'Month,Sessions,Hours,Revenue (฿),Tips (฿),Fuel (฿),Net (฿),Net per hour (฿)\n';
   Object.keys(by).sort().forEach(m => {
