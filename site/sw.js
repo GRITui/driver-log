@@ -3,7 +3,8 @@
  * P3: background sync (drain-outbox) — see bottom
  * Bump SW_VERSION on every deploy so clients pick up new HTML/assets.
  */
-const SW_VERSION = 'v1.10.7';  // v1.10.7: fixed dashboard totals silently string-concatenating instead of adding when a synced session's numeric fields arrived as strings from the DB; APP_VERSION 2.10.6->2.10.7
+const SW_VERSION = 'v1.10.8';  // v1.10.8: fixed calcDuration() permanently miscounting a same-day trip as ~24h too long (e.g. "25h 47m" instead of "1h 47m") after a transient time-wheel-picker value crossed midnight; APP_VERSION 2.10.7->2.10.8
+// prior: v1.10.7: fixed dashboard totals silently string-concatenating instead of adding when a synced session's numeric fields arrived as strings from the DB; APP_VERSION 2.10.6->2.10.7
 // prior: v1.10.6: removed the redundant "End date" field from the session form (hidden input still carries it for overnight-shift auto-advance); APP_VERSION 2.10.5->2.10.6
 // prior: v1.10.5: shift-timer trips persist onto the session (new trips breakdown UI) + Revenue moved before Trip details in the session form + shorter timer hero card + dropped "Break-even fuel" from the dashboard insight card; APP_VERSION 2.10.4->2.10.5
 // prior: v1.10.4: removed guest login — account now required to use the app; APP_VERSION 2.10.3->2.10.4
