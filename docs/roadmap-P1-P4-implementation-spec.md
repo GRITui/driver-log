@@ -240,7 +240,7 @@ self.addEventListener('fetch', e => {
 
 ## 3. HTTPS
 
-TWA and service workers **require** HTTPS. Vercel issues and renews HTTPS certs automatically for custom domains (driverlog.link, info.driverlog.link) — confirm both show a valid cert in the Vercel dashboard's Domains tab and that http→https redirect is on.
+TWA and service workers **require** HTTPS. Vercel issues and renews HTTPS certs automatically for custom domains (driverlog.link — confirm it shows a valid cert in the Vercel dashboard's Domains tab and that http→https redirect is on).
 
 ## 4. Install prompt (custom)
 

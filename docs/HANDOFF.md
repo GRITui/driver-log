@@ -1,5 +1,15 @@
 # Driver Log Book - Project Handoff
 
+> **⚠️ HISTORICAL SNAPSHOT (4 Jul 2026) — superseded by [`docs/BACKLOG.md`](BACKLOG.md).**
+> This document describes the app as it stood in early July 2026, before most of what is
+> now shipped: Neon-backed cloud sync + auth replaced IndexedDB-only storage and dropped
+> PocketBase entirely, guest login was removed (#42), LINE login went live, the Fleet
+> (B2B) tier shipped (`site/fleet.html`, `api/fleet-*.js`), and CI-signed Android
+> release builds work. It is kept as architecture/history reference only — **do not act
+> on its checklists or "future ideas"; `docs/BACKLOG.md` is the current source of truth.**
+> Known-stale spots are annotated inline below but the rest of the prose predates all of
+> the above.
+
 ## Overview
 
 **Driver Log Book** is a free, offline-first web app for gig economy drivers (Grab, food delivery, etc.) to track daily earnings, fuel costs, and driving insights. All data is stored locally on the device — no backend, no cloud, no subscriptions.
@@ -23,7 +33,7 @@
   - Best driving times (day-of-week breakdown with 🔥 indicator for best day)
   - Service type breakdown (pie-style pill layout)
 - **Multi-user**: Each driver gets a separate account with isolated data (sessions, fuel, settings)
-- **Guest Mode**: Try the app without creating an account — data persists locally but marked as temporary
+- ~~**Guest Mode**~~ — *removed since this snapshot (#42)*
 - **Bilingual**: Thai (ภาษาไทย) and English, default Thai
 - **Export**: 
   - **CSV**: Download sessions as spreadsheet (`driver-logbook-<user>-<date>.csv`)
@@ -36,6 +46,9 @@
 ## Technical Stack
 
 ### Architecture
+> *Stale since this snapshot: storage/auth moved to Neon Postgres via same-origin `api/`
+> (`lib/db.js`, `lib/auth.js`, `api/auth-*.js`, `api/records-*.js`, `sql/schema.sql`);
+> PocketBase is not used anywhere in this project. See root `README.md`.*
 - **Single HTML file** (~58 KB, no build step)
 - **Browser storage**: IndexedDB (5 sessions/data stores: users, sessions, fuel, settings)
 - **Auth**: Passwords hashed with SHA-256 + random salt, stored in IndexedDB
@@ -175,8 +188,9 @@ together (see root `vercel.json` and `README.md`'s "Cloud backend setup"
 section). Push a branch, open a PR against `main`; once it's reviewed and
 merged, Vercel deploys automatically. Hostinger only holds the DNS record
 pointing `driverlog.link` at Vercel — `info/` no longer has its own
-subdomain, since `info.driverlog.link`'s DNS record was never reliably
-resolvable (see `git log` around 2026-07-18 for the diagnosis).
+subdomain, and the old info subdomain has since been retired entirely —
+info content lives at `driverlog.link/info/*` (see `git log`
+around 2026-07-18 for the diagnosis).
 
 ---
 
@@ -184,7 +198,8 @@ resolvable (see `git log` around 2026-07-18 for the diagnosis).
 
 ### For Drivers
 
-1. **First time?** Tap "Try as guest" to explore, or create an account (username + password)
+1. **First time?** ~~Tap "Try as guest" to explore, or create an account (username + password)~~
+   *guest login removed (#42) — create an account, optionally with LINE login*
 2. **Log a session**: Dashboard → Sessions → + button
    - Select service type (GrabCar, GrabFood, etc.)
    - Enter date, distance, fuel consumption, fuel price
@@ -252,6 +267,8 @@ let settings = {lang: 'en', unit: 'km'}; // change 'th' to 'en'
 ## Known Limitations & Future Ideas
 
 ### Current Constraints
+> *Stale since this snapshot: cloud sync via Neon is live, and a Fleet (B2B) tier
+> (`site/fleet.html`) provides aggregated multi-driver views — see `docs/BACKLOG.md`.*
 - **Device-local only** — data doesn't sync across phones; each device is isolated
 - **No real-time updates** — all changes are local
 - **No backend auth** — password security is client-side only (not suitable for sensitive enterprise use)
@@ -296,7 +313,8 @@ let settings = {lang: 'en', unit: 'km'}; // change 'th' to 'en'
 
 ### For Future Maintainers
 
-1. **Testing**: Use guest mode for rapid iteration (no login friction)
+1. **Testing**: ~~Use guest mode for rapid iteration (no login friction)~~
+   *guest login was removed (#42) — create a throwaway test account instead*
 2. **IndexedDB inspection**: Browser DevTools → Application → IndexedDB → gritdrive-v2 to view live data
 3. **Responsive testing**: Resize to 375px width (mobile preset) to verify layout
 4. **Performance**: All operations should be instant (IndexedDB queries are synchronous via promises)
@@ -328,6 +346,10 @@ For questions or improvements, refer to the code comments or contact the origina
 
 ## Checklist: Before Going Live
 
+> *Historical pre-launch checklist from the 4 Jul 2026 snapshot — the app has been live
+> for some time; kept only as a record. Do not work through this; see `docs/BACKLOG.md`
+> for what actually remains (Play Console store listing is the outstanding Android
+> launch step).*
 - [ ] Test guest mode on mobile
 - [ ] Test login with real credentials
 - [ ] Add 5+ sessions, verify calculations
@@ -344,5 +366,5 @@ For questions or improvements, refer to the code comments or contact the origina
 
 ---
 
-**Last Updated:** July 4, 2026  
-**Status:** Ready for production deployment
+**Last Updated:** July 4, 2026 (annotated 24 Aug 2026)  
+**Status:** Historical snapshot — see `docs/BACKLOG.md` for current status
