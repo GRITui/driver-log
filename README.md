@@ -8,8 +8,9 @@ One Vercel project serves everything: `site/` (driverlog.link/*), `info/`
 (driverlog.link/api/*), backed by a Neon Postgres database — see
 `vercel.json`'s path-based rewrites. Hostinger's only remaining job is DNS
 (driverlog.link points at Vercel; no FTP hosting, no Netlify mirror, no
-info.driverlog.link subdomain — info/ moved to a same-domain path because
-the subdomain's DNS record was never reliably resolvable).
+separate subdomain — info/ moved to a same-domain path at
+`driverlog.link/info/*` because the old info subdomain's DNS record was
+never reliably resolvable and has since been retired).
 PocketBase is not used anywhere in this project anymore.
 
 **Workflow:** changes are built on a branch, opened as a PR against `main`,
