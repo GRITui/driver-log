@@ -14,7 +14,10 @@ Read-only audit ahead of Play soft launch. Every claim cites live evidence
 | hreflang | absent; TH content is inline-translated, no separate URLs | ℹ️ acceptable at this scale |
 
 **Fixed here:** `site/sitemap.xml` added (index, /info/, all 3 guides, /privacy)
-+ `Sitemap:` line in robots.txt. Still open: OG/Twitter meta tags (S effort).
++ `Sitemap:` line in robots.txt; **OG/Twitter card tags added to index.html +
+all three guides** (og:title/description/image pointing at `/icons/icon-512.png`,
+`twitter:card=summary`). Remaining: none in this section beyond Search Console
+submission (owner clicks).
 
 ## 2. AdSense readiness — **PARTIAL**
 
@@ -53,6 +56,6 @@ LINE login against prod before inviting testers.
 |---|---|---|---|
 | 1 | Land this PR's sitemap + submit to Google Search Console | S (done + clicks) | indexing starts before any campaign |
 | 2 | Publish GDPR consent message in AdSense + submit site for review | S (console) | revenue clock starts at approval, which lags |
-| 3 | Add OG/Twitter meta to index + guides | S | every shared link converts better |
+| 3 | ~~Add OG/Twitter meta~~ DONE in this PR | S | every shared link converts better |
 | 4 | Install consent-gated analytics | M | Phase 2 "watch what drivers do" needs it day one |
 | 5 | Grow info/guides 3 → 6–8 articles | M/L content | defends AdSense review; each guide is an SEO entry point |
