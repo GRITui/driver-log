@@ -3,55 +3,63 @@
 **Principle:** DriverLog stays **free for drivers — no subscription, ever.** Revenue comes
 from ads and partnerships that don't put the core logging behind a paywall.
 
-## Shipped now — display ads (AdSense)
+*Last reconciled with the codebase: 24 Aug 2026.* Earlier versions of this file described
+a bottom-of-dashboard ad unit, listed affiliate placement as an unbuilt lever, and
+counted the fleet tier as future work — all superseded since. Current reality below.
 
-A single, non-intrusive **responsive ad unit** sits at the bottom of the dashboard
-(below "Top earning days"), labeled "Sponsored" / "โฆษณา". It's placed *after* the data a
-driver came to see, never blocking session logging, and the container reserves height to
-avoid layout shift. Ads are already excluded from the offline cache (service worker).
+## Shipped now — display ads (AdSense) on the info/ guide pages
 
-**You must do one thing to turn on revenue:**
-1. In your AdSense account (publisher `ca-pub-3349895945204021`), create a **Display ad unit**.
-2. Copy its **ad slot id** (a 10-digit number).
-3. In `site/index.html`, set to real ad-unit slot 9769218389 (done).
-4. Redeploy `site/`.
+Display ads run on the **content guide pages under `info/guides/`**
+(`calculate-profit`, `choosing-app`, `fuel-saving-tips`), not inside the driver app:
+Google policy prohibits ads on behavioral/tool screens, so the earlier
+bottom-of-dashboard unit was **removed from `site/index.html`** (v2.10.1). The guides
+load the AdSense tag for publisher `ca-pub-3349895945204021` and render responsive
+units using ad slot **9769218389** (already set — nothing to configure).
 
-Until then the slot renders empty (no errors). AdSense also requires the site/domain to be
-**approved** in your account, and ads only serve on the live `driverlog.link` domain.
+**Still outstanding:** AdSense site review/approval for `driverlog.link`. Until the
+domain is approved, slots render empty (no errors).
+
+## Voluntary support — "Buy me a coffee" (shipped)
+
+The driver dashboard (`site/app.html`) carries a clearly-labeled voluntary donation
+card linking to `https://buymeacoffee.com/kritkritth9` (merged from PR #32,
+`a7b0dc7`). It replaces both the old static "Fuel card partner — coming soon"
+placeholder and the previously-considered affiliate/referral placements idea — a
+direct support link won out over commission-based links. Never gates any feature.
+
+## Shipped now — Fleet / B2B tier
+
+The fleet tier is **live**, no longer roadmap P8: fleet owners create a fleet and
+invite drivers (`api/fleet-*.js`, owner console at `site/fleet.html`) with aggregated
+revenue/net/trips/km-per-L dashboards across active drivers. Creating/joining is free
+and ungated — the originally-envisioned seat-based payment layer was never built
+(track in `docs/BACKLOG.md` → "Fleet billing").
 
 ## Consent — Google EU User Consent Policy (required for EEA / UK / Switzerland)
 
 Serving ads to users in the EEA, UK, or Switzerland requires a **Google-certified Consent
-Management Platform (CMP)** integrated with the IAB TCF. Two parts:
+Management Platform (CMP)** integrated with the IAB TCF:
 
-1. **Code (done, shipped):** `index.html` now sets **Google Consent Mode v2** to *denied* by
-   default (ad_storage, ad_user_data, ad_personalization, analytics_storage) until consent is
-   granted. `privacy.html` discloses consent handling and the opt-out path.
-2. **Account (you must do this):** in AdSense → **Privacy & messaging**, create and publish the
-   **European regulations (GDPR) message**. Google's own message is a certified CMP (TCF CMP ID
-   300) and is free — once published it auto-shows the consent banner to EEA/UK/CH visitors
-   through the AdSense tag already on the page, and updates Consent Mode automatically. Also
-   publish a **California (CCPA)** message if you want US-state coverage. Ref:
+1. **Code (shipped):** the guide pages carry the AdSense tag, and by default consent is
+   *denied* until granted — `site/privacy.html` discloses the certified-CMP handling and
+   the opt-out path to visitors.
+2. **Account (you must do this):** in AdSense → **Privacy & messaging**, create and publish
+   the **European regulations (GDPR) message**. Google's own message is a certified CMP
+   (TCF CMP ID 300) and is free — once published it auto-shows the consent banner to
+   EEA/UK/CH visitors through the AdSense tag already on the page. Also publish a
+   **California (CCPA)** message if you want US-state coverage. Ref:
    https://support.google.com/adsense/answer/13554116
 
-Without a published certified CMP, EEA/UK/CH traffic is limited to non-personalized / limited
-ads (or none), so publishing the message is what unlocks full ad revenue there.
+Without a published certified CMP, EEA/UK/CH traffic is limited to non-personalized /
+limited ads (or none), so publishing the message is what unlocks full ad revenue there.
 
-**UX guardrails to keep:** one ad per screen max; never inside the log-session modal or the
-net-revenue hero; keep the "Sponsored" label; consider hiding the ad on a brand-new empty
-dashboard so first-run onboarding stays clean (future tweak).
+## Remaining non-subscription levers (backlog, in rough priority)
 
-## Next non-subscription levers (backlog, in rough priority)
-
-1. **Affiliate / referral placements** — fuel-station loyalty cards, motorbike/vehicle
-   insurance, phone plans, EV charging. High relevance to drivers, better RPM than generic
-   display. Implement as native "recommended" cards, clearly labeled.
-2. **Sponsored provider tie-ins** — since sessions now tag a provider (Grab/Lineman/Bolt/
-   Shopee/Taxi), there's room for provider-specific promos or sign-up bounties.
-3. **Fleet / B2B tier (this is roadmap P8)** — fleet managers pay for aggregated dashboards
-   and CSV/API export across many drivers. The drivers' app stays free; the *business* pays.
-4. **Voluntary "tip jar" / one-time supporter unlock** — optional cosmetic (themes, extra
-   export formats) for drivers who want to chip in. Never gates core features.
+1. **Sponsored provider tie-ins** — sessions tag a provider (Grab/Lineman/Bolt/
+   Shopee/Taxi), so there's room for provider-specific promos or sign-up bounties.
+2. **Fleet billing** — see above; the tier is live but monetization of it is undecided.
+3. **Cosmetic supporter unlocks** — optional themes or extra export formats for drivers
+   who want to chip in beyond the coffee link. Never gates core features.
 
 ## Measurement
 Once live, watch AdSense RPM and CTR by screen, and keep an eye on retention — if ads dent
