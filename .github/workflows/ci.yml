@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+
+      # Zero-dependency regression harness: node:test is built in, no install,
+      # no services, no DB — pure-function tests against site/app.js only.
+      # NOTE: the directory form (`node --test test/`) fails on Node v26.x
+      # ("Cannot find module .../test"); the explicit glob is the supported
+      # invocation there and equivalent on older runners.
+      - name: Run regression suite (zero deps)
+        run: node --test "test/**/*.test.cjs"
