@@ -1,6 +1,6 @@
 // ─── DB ───────────────────────────────────────────────────────────────
 let db;
-const APP_VERSION = '2.10.8';   // bump on every deploy — 2.10.8: fixed a session-form bug where a normal same-day trip (e.g. 11:50-13:37) could show a wildly wrong Duration like "25h 47m" instead of "1h 47m". calcDuration() decided whether a shift crossed midnight by reading back its OWN previous output (the hidden end-date field) and only ever advancing it forward, never resetting it — so a transient intermediate value while scrolling a native time-wheel picker (iOS Safari fires oninput mid-drag, not just on commit) could permanently bump the end date a day, with nothing to ever un-bump it even once the time you actually landed on was a normal same-day one. Now recomputes the end date fresh from the current start/end time on every call instead of trusting prior state. 2.10.7: fixed a dashboard calculation bug where a synced session's numeric fields (distance/tip/exp/rev/netRev) could arrive as strings instead of numbers — Postgres `numeric` columns come back from Neon as strings, and lib/records.js/fromServer() passed them through uncoerced, so `+` in the dashboard's totals silently string-concatenated instead of adding (e.g. rendered "Total revenue" as ฿800,586,010,640 instead of ฿811,226) and one unguarded field turned the whole period's net revenue/fuel ratio into NaN. Fixed at three points: lib/records.js now casts every numeric column back to a real number before it ever reaches the client; fromServer() does the same defensively on the client; and every dashboard reduce (totals, trend chart, service breakdown, day/time insights, monthly CSV export) now coerces with Number(...)||0 so an already-corrupted local record self-heals on the next render instead of poisoning the aggregate. 2.10.6: removed the "End date" field from the session form's Trip details — it was almost always redundant with Date (only relevant for shifts that cross midnight), and calcDuration() already auto-advances it a day when End time <= Start time. Now a hidden input carries the value through to saveSession() unchanged; Duration gets its own compact row instead of sharing one with the removed field. Dropped the now-unused end_date i18n key. 2.10.5: shift-timer trips now survive past "End shift" — the individual laps (fare + time) that used to be summed into revenue and thrown away are saved onto the session as `trips` (new driver_sessions.trips jsonb column, synced) and shown as a read-only "Trips this shift" breakdown on the session add/edit form, reusing the timer screen's lap-row styling. Session form reordered: Revenue now comes right after picking provider/type (with the trips breakdown under it when present), Trip details (distance/fuel/expense) after — so you see what you earned before what it cost. Also trimmed the shift-timer's hero card (smaller clock, tighter padding) since it was taking up disproportionate vertical space, and dropped the "Break-even fuel" row from the dashboard's profitability insight card (removed the now-unused break_even/be_now i18n keys and the per-liter calc behind them). 2.10.4: removed guest login (no more "Login as Guest" — account required to use the app; loginGuest()/guestUsername() deleted, login.html button removed, auth_hint copy fixed to stop claiming cloud sync is "coming soon" when it's been live since 2.7.0). Anyone already mid-session as a guest (localStorage session key still 'guest') keeps working via restoreSession()'s existing branch — this only closes the entry point for new guest sessions, doesn't strand existing local-only data. Privacy policy (site/privacy.html + privacy/index.html) updated to drop the guest-mode framing. 2.10.3: two UI polish fixes. (1) Desktop sidebar's brand mark was plain CSS-generated red text ("DriverLog") with no icon — replaced with the real wordmark (app-icon squircle + two-tone "Driver"/"Log" text) per brand/CI-brand-guidelines.html's "01 — Logo" spec, matching what login.html and info/ already use. New .nav-brand element in app.html, hidden on mobile (bottom tab bar has no room for it) and shown at the >=900px breakpoint. (2) The dashboard's "start shift" FAB used a bare "▶" Unicode glyph, which rendered visibly off-center in its circle (font glyph metrics, not a proper icon) — replaced with a real centered SVG play-triangle icon. 2.10.2: fixed desktop dashboard's empty state (no sessions logged yet) rendering as a lopsided two-column CSS-multicol split — the welcome prompt + donate card are now the only two blocks left visible in that state, and multicol was never designed for exactly two large blocks. New #s-dash.dash-empty class (toggled in renderDashboard()) drops back to a single centered column at >=900px, matching every other screen's desktop treatment. 2.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change. 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
+const APP_VERSION = '2.10.9';   // bump on every deploy — 2.10.9: completed maintenance-log CRUD — records are now EDITABLE from Settings > Vehicle > Maintenance log (new edit button per row fills the same form; save reuses the record's cuid/sid so the outbox upsert lands as an UPDATE on the server row instead of a duplicate insert), row title/subtitle are HTML-escaped like every other list, optional numeric fields store null instead of ''/0 when left empty (#49 numeric-hygiene convention), and local JSON Backup now exports + restores maintenance records too (backups made before this version still restore fine — the array is treated as optional). Fleet console's "Upcoming maintenance" panel: fixed the status pill class inversion that styled OVERDUE items with the .good (red/alert) treatment while due-soon items got plain gray; due dates are escaped. New collection-scoped api/maintenance-{list,save,remove}.js endpoints mirror the generic api/records-*.js routes (?collection=maintenance) for direct API consumers — both share lib/records.js underneath. 2.10.8: fixed a session-form bug where a normal same-day trip (e.g. 11:50-13:37) could show a wildly wrong Duration like "25h 47m" instead of "1h 47m". calcDuration() decided whether a shift crossed midnight by reading back its OWN previous output (the hidden end-date field) and only ever advancing it forward, never resetting it — so a transient intermediate value while scrolling a native time-wheel picker (iOS Safari fires oninput mid-drag, not just on commit) could permanently bump the end date a day, with nothing to ever un-bump it even once the time you actually landed on was a normal same-day one. Now recomputes the end date fresh from the current start/end time on every call instead of trusting prior state. 2.10.7: fixed a dashboard calculation bug where a synced session's numeric fields (distance/tip/exp/rev/netRev) could arrive as strings instead of numbers — Postgres `numeric` columns come back from Neon as strings, and lib/records.js/fromServer() passed them through uncoerced, so `+` in the dashboard's totals silently string-concatenated instead of adding (e.g. rendered "Total revenue" as ฿800,586,010,640 instead of ฿811,226) and one unguarded field turned the whole period's net revenue/fuel ratio into NaN. Fixed at three points: lib/records.js now casts every numeric column back to a real number before it ever reaches the client; fromServer() does the same defensively on the client; and every dashboard reduce (totals, trend chart, service breakdown, day/time insights, monthly CSV export) now coerces with Number(...)||0 so an already-corrupted local record self-heals on the next render instead of poisoning the aggregate. 2.10.6: removed the "End date" field from the session form's Trip details — it was almost always redundant with Date (only relevant for shifts that cross midnight), and calcDuration() already auto-advances it a day when End time <= Start time. Now a hidden input carries the value through to saveSession() unchanged; Duration gets its own compact row instead of sharing one with the removed field. Dropped the now-unused end_date i18n key. 2.10.5: shift-timer trips now survive past "End shift" — the individual laps (fare + time) that used to be summed into revenue and thrown away are saved onto the session as `trips` (new driver_sessions.trips jsonb column, synced) and shown as a read-only "Trips this shift" breakdown on the session add/edit form, reusing the timer screen's lap-row styling. Session form reordered: Revenue now comes right after picking provider/type (with the trips breakdown under it when present), Trip details (distance/fuel/expense) after — so you see what you earned before what it cost. Also trimmed the shift-timer's hero card (smaller clock, tighter padding) since it was taking up disproportionate vertical space, and dropped the "Break-even fuel" row from the dashboard's profitability insight card (removed the now-unused break_even/be_now i18n keys and the per-liter calc behind them). 2.10.4: removed guest login (no more "Login as Guest" — account required to use the app; loginGuest()/guestUsername() deleted, login.html button removed, auth_hint copy fixed to stop claiming cloud sync is "coming soon" when it's been live since 2.7.0). Anyone already mid-session as a guest (localStorage session key still 'guest') keeps working via restoreSession()'s existing branch — this only closes the entry point for new guest sessions, doesn't strand existing local-only data. Privacy policy (site/privacy.html + privacy/index.html) updated to drop the guest-mode framing. 2.10.3: two UI polish fixes. (1) Desktop sidebar's brand mark was plain CSS-generated red text ("DriverLog") with no icon — replaced with the real wordmark (app-icon squircle + two-tone "Driver"/"Log" text) per brand/CI-brand-guidelines.html's "01 — Logo" spec, matching what login.html and info/ already use. New .nav-brand element in app.html, hidden on mobile (bottom tab bar has no room for it) and shown at the >=900px breakpoint. (2) The dashboard's "start shift" FAB used a bare "▶" Unicode glyph, which rendered visibly off-center in its circle (font glyph metrics, not a proper icon) — replaced with a real centered SVG play-triangle icon. 2.10.2: fixed desktop dashboard's empty state (no sessions logged yet) rendering as a lopsided two-column CSS-multicol split — the welcome prompt + donate card are now the only two blocks left visible in that state, and multicol was never designed for exactly two large blocks. New #s-dash.dash-empty class (toggled in renderDashboard()) drops back to a single centered column at >=900px, matching every other screen's desktop treatment. 2.10.1: removed the AdSense ad unit from the private driver dashboard — Google policy prohibits ads on behavioral/tool screens; ads now only run on info.driverlog.link's new content guide pages, built in this same change. 2.10.0: maintenance-log CRUD (new Settings > Vehicle > Maintenance log screen, syncs via the existing outbox/IndexedDB engine like sessions/fuel; new vehicle_maintenance table) + fleet plan-gating scaffolding (fleets.plan/seat_limit columns, free tier capped at 3 active drivers with a 402 "contact to upgrade" message, no live payment processing yet) + a read-only "Upcoming maintenance" panel on the fleet-owner dashboard aggregating overdue/due-soon service records across active members. 2.9.1: dashboard's "Fuel card partner" placeholder (never had a real partner, always said "coming soon") replaced with a real "Buy me a coffee" donation link (buymeacoffee.com/kritkritth9), EN+TH. 2.9.0: fleet (B2B) tier — any account can create a fleet, invite drivers by email, and a driver must explicitly accept before the owner sees anything; new Settings > Fleet section (create/invite/accept/decline/leave) + new site/fleet.html desktop owner console (read-only aggregated revenue/net/trips/km-per-L across active members, current-month/week/all-time). New tables fleets/fleet_members (sql/schema.sql), lib/fleets.js, 6 new api/fleet-*.js endpoints. Maintenance-log CRUD deliberately deferred to a follow-up slice. 2.8.1: dashboard reprioritized around revenue/trip per driver feedback — stat grid's "Avg / session" (net) swapped for "Avg revenue / trip" (gross, localized รายได้เฉลี่ย/งาน — the เที่ยว->งาน fix), removed the now-unused avg_per_session/net_revenue_lower i18n keys. 2.8.0: shift timer (start a shift, "+ Log trip" per drop-off, "End shift" hands off to the normal Add Session form pre-filled) — local-only, laps not synced to the server yet; new fab-timer button, #s-timer screen, modal-start-shift/modal-log-trip. 2.7.1: single Vercel project now serves site/+info/+api/ same-origin (Netlify mirror + Hostinger FTP hosting retired); cloud sync/LINE login enabled by default (API_URL same-origin, no per-device localStorage.api_url needed anymore). 2.7.0: PocketBase dropped entirely. Cloud sync/auth (email+password, "Log in with LINE", and sessions/fuel CRUD sync) now runs against this project's own Vercel serverless functions on Neon Postgres — see lib/db.js, lib/auth.js, lib/lineLogin.js, api/auth-*.js, api/records-*.js, api/line-login-*.js, sql/schema.sql. localStorage.pb_url -> api_url; the 'pb:'+uid session prefix is now 'cloud:'+uid (SW v1.7.0). 2.6.10: localized aria-labels for icon-only controls (FAB, avatar, reminder toggle) via new data-i18n-aria applyLang() pass, EN+TH (SW v1.6.14). 2.6.9: personalized dashboard empty-state welcome title using first name (EN+TH; SW v1.6.13). 2.6.8: optional first-name capture at registration (both PB/Sync and local-only paths) + time-of-day dashboard greeting (morning/afternoon/evening, EN+TH; SW v1.6.12). 2.6.7: hero card readability + alignment (soft branded tint, dark high-contrast amount, even gap to stat grid, dark-mode hero variant; SW v1.6.11). 2.6.6: local JSON Backup RESTORE/import (overwrite this account's sessions+fuel, DriverLog-file validation + confirm, SW v1.6.10). 2.6.5: local JSON "Backup" export (full sessions+fuel+settings, SW v1.6.9). 2.6.4: post-split staged fixes (SW v1.6.1–v1.6.8): hero-card restyle, dark-mode hero, toast + login a11y, CSV formula-injection escaping + UTF-8 BOM. 2.6.3 was the login.html/app.html split (SW v1.6.0).
 const DB_NAME = 'gritdrive-v2', DB_VER = 3;
 function openDB() {
   return new Promise((res, rej) => {
@@ -610,7 +610,7 @@ const I18N = {
     fleet_invite_prompt: "Driver's email:", fleet_invite_sent: 'Invite sent!',
     fleet_leave_confirm: 'Leave this fleet? The owner will no longer see your sessions.', fleet_left: 'Left fleet',
     fleet_accept: 'Accept', fleet_decline: 'Decline', fleet_leave: 'Leave',
-    maintenance_log_title: 'Vehicle maintenance', service_history: 'Service history', add_maintenance: 'Add service record', vehicle_section: 'Vehicle', maintenance_log_link: 'Maintenance log', cost: 'Cost (฿)', odometer_km: 'Odometer (km, optional)', next_due_date: 'Next due date (optional)', next_due_km: 'Next due (km, optional)', save_maintenance: 'Save record', no_maintenance_records: 'No maintenance records yet', unknown_vehicle: 'Unknown vehicle', enter_vehicle_date: 'Enter a vehicle and date', maintenance_saved: 'Service record saved!', delete_maintenance_confirm: 'Delete this maintenance record?',
+    maintenance_log_title: 'Vehicle maintenance', service_history: 'Service history', add_maintenance: 'Add service record', edit_maintenance: 'Edit service record', vehicle_section: 'Vehicle', maintenance_log_link: 'Maintenance log', cost: 'Cost (฿)', odometer_km: 'Odometer (km, optional)', next_due_date: 'Next due date (optional)', next_due_km: 'Next due (km, optional)', save_maintenance: 'Save record', no_maintenance_records: 'No maintenance records yet', unknown_vehicle: 'Unknown vehicle', enter_vehicle_date: 'Enter a vehicle and date', maintenance_saved: 'Service record saved!', delete_maintenance_confirm: 'Delete this maintenance record?',
     appearance: 'Appearance', theme_light: 'Light', theme_dark: 'Dark', theme_auto: 'Auto',
     send_feedback: 'Send feedback', monthly_word: 'Monthly', backup_word: 'Backup', exported: 'Exported!',
     restore_word: 'Restore',
@@ -700,7 +700,7 @@ const I18N = {
     fleet_invite_prompt: 'อีเมลคนขับ:', fleet_invite_sent: 'ส่งคำเชิญแล้ว!',
     fleet_leave_confirm: 'ออกจากฟลีทนี้? เจ้าของฟลีทจะไม่เห็นข้อมูลการทำงานของคุณอีกต่อไป', fleet_left: 'ออกจากฟลีทแล้ว',
     fleet_accept: 'ยอมรับ', fleet_decline: 'ปฏิเสธ', fleet_leave: 'ออก',
-    maintenance_log_title: 'ซ่อมบำรุงรถ', service_history: 'ประวัติการซ่อมบำรุง', add_maintenance: 'เพิ่มบันทึกซ่อมบำรุง', vehicle_section: 'ยานพาหนะ', maintenance_log_link: 'บันทึกซ่อมบำรุง', cost: 'ค่าใช้จ่าย (฿)', odometer_km: 'เลขไมล์ (กม., ไม่บังคับ)', next_due_date: 'วันครบกำหนดถัดไป (ไม่บังคับ)', next_due_km: 'ครบกำหนดถัดไป (กม., ไม่บังคับ)', save_maintenance: 'บันทึกรายการ', no_maintenance_records: 'ยังไม่มีประวัติซ่อมบำรุง', unknown_vehicle: 'ไม่ทราบยานพาหนะ', enter_vehicle_date: 'กรอกยานพาหนะและวันที่', maintenance_saved: 'บันทึกรายการซ่อมบำรุงแล้ว!', delete_maintenance_confirm: 'ลบรายการซ่อมบำรุงนี้?',
+    maintenance_log_title: 'ซ่อมบำรุงรถ', service_history: 'ประวัติการซ่อมบำรุง', add_maintenance: 'เพิ่มบันทึกซ่อมบำรุง', edit_maintenance: 'แก้ไขบันทึกซ่อมบำรุง', vehicle_section: 'ยานพาหนะ', maintenance_log_link: 'บันทึกซ่อมบำรุง', cost: 'ค่าใช้จ่าย (฿)', odometer_km: 'เลขไมล์ (กม., ไม่บังคับ)', next_due_date: 'วันครบกำหนดถัดไป (ไม่บังคับ)', next_due_km: 'ครบกำหนดถัดไป (กม., ไม่บังคับ)', save_maintenance: 'บันทึกรายการ', no_maintenance_records: 'ยังไม่มีประวัติซ่อมบำรุง', unknown_vehicle: 'ไม่ทราบยานพาหนะ', enter_vehicle_date: 'กรอกยานพาหนะและวันที่', maintenance_saved: 'บันทึกรายการซ่อมบำรุงแล้ว!', delete_maintenance_confirm: 'ลบรายการซ่อมบำรุงนี้?',
     appearance: 'ธีม', theme_light: 'สว่าง', theme_dark: 'มืด', theme_auto: 'อัตโนมัติ',
     send_feedback: 'ส่งความคิดเห็น', monthly_word: 'รายเดือน', backup_word: 'สำรองข้อมูล', exported: 'ส่งออกแล้ว!',
     restore_word: 'กู้คืนข้อมูล',
@@ -1775,6 +1775,24 @@ async function deleteFuel(id, e) {
 }
 
 // ─── MAINTENANCE LOG ──────────────────────────────────────────────────
+// Add/edit share this inline form (like the session modal's s-edit-id):
+// #m-edit-id carries the local record id while editing; openEditMaintenance()
+// fills the fields from the record and scrolls to the form, saveMaintenance()
+// detects it and reuses the existing cuid/sid so the outbox upsert lands as an
+// UPDATE on the server row instead of a duplicate insert.
+function clearMaintenanceForm() {
+  document.getElementById('m-edit-id').value = '';
+  document.getElementById('m-vehicle').value = '';
+  document.getElementById('m-service').value = '';
+  document.getElementById('m-cost').value = '';
+  document.getElementById('m-date').value = '';
+  document.getElementById('m-odometer').value = '';
+  document.getElementById('m-next-date').value = '';
+  document.getElementById('m-next-km').value = '';
+  const formTitle = document.querySelector('#s-maintenance .section-title[data-i18n="add_maintenance"]');
+  if (formTitle) formTitle.textContent = t('add_maintenance');
+}
+
 function renderMaintenanceLog() {
   const el = document.getElementById('maintenance-list');
   if (maintenanceLogs.length === 0) {
@@ -1785,17 +1803,39 @@ function renderMaintenanceLog() {
     <div class="list-row">
       <div class="list-icon" style="background:#E5E5EA">🔧</div>
       <div class="list-main">
-        <div class="list-title">${m.vehicle||t('unknown_vehicle')}</div>
-        <div class="list-sub">${m.serviceType} · ${fmtDate(m.date)}${syncBadge(m)}</div>
+        <div class="list-title">${escapeHtml(m.vehicle)||t('unknown_vehicle')}</div>
+        <div class="list-sub">${escapeHtml(m.serviceType)} · ${fmtDate(m.date)}${syncBadge(m)}</div>
       </div>
       <div class="list-right">
-        <div class="list-amt" style="color:var(--text)">฿${fmt(m.cost)}</div>
-        <div class="list-amt-sub">${m.nextDueDate?fmtDate(m.nextDueDate):(m.nextDueKm?fmt(m.nextDueKm)+' km':'—')}</div>
+        <div class="list-amt" style="color:var(--text)">฿${fmt(Number(m.cost)||0)}</div>
+        <div class="list-amt-sub">${m.nextDueDate?fmtDate(m.nextDueDate):(m.nextDueKm?fmt(Number(m.nextDueKm))+' km':'—')}</div>
       </div>
+      <button class="btn-edit" onclick="openEditMaintenance(${m.id},event)">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
       <button class="btn-delete" onclick="deleteMaintenance(${m.id},event)">
         <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
       </button>
     </div>`).join('')}</div>`;
+}
+
+function openEditMaintenance(id, e) {
+  e.stopPropagation();
+  const m = maintenanceLogs.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('m-edit-id').value = id;
+  document.getElementById('m-vehicle').value = m.vehicle || '';
+  document.getElementById('m-service').value = m.serviceType || '';
+  document.getElementById('m-cost').value = m.cost == null ? '' : m.cost;
+  document.getElementById('m-date').value = m.date || '';
+  document.getElementById('m-odometer').value = m.odometerKm == null ? '' : m.odometerKm;
+  document.getElementById('m-next-date').value = m.nextDueDate || '';
+  document.getElementById('m-next-km').value = m.nextDueKm == null ? '' : m.nextDueKm;
+  const formTitle = document.querySelector('#s-maintenance .section-title[data-i18n="add_maintenance"]');
+  if (formTitle) formTitle.textContent = t('edit_maintenance');
+  switchScreen('maintenance');
+  document.getElementById('m-vehicle').focus();
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
 async function saveMaintenance() {
@@ -1804,24 +1844,41 @@ async function saveMaintenance() {
   const date = document.getElementById('m-date').value;
   if (!vehicle || !date) { toast(t('enter_vehicle_date')); return; }
   if (cost < 0) { toast(t('neg_not_allowed')); return; }
+  // Numeric inputs go through real number coercion here (bug #49 convention):
+  // parseFloat on the field value for storage; empty optional fields -> null,
+  // never '' or a numeric string, so synced rows can't concatenate downstream.
+  const odometerRaw = parseFloat(document.getElementById('m-odometer').value);
+  const nextDueKmRaw = parseFloat(document.getElementById('m-next-km').value);
   const uid = isGuest ? 'guest' : currentUser.id;
   const obj = {uid, vehicle, serviceType: document.getElementById('m-service').value.trim(),
-    cost, date, odometerKm: parseFloat(document.getElementById('m-odometer').value)||null,
+    cost, date,
+    odometerKm: isNaN(odometerRaw) ? null : odometerRaw,
     nextDueDate: document.getElementById('m-next-date').value||null,
-    nextDueKm: parseFloat(document.getElementById('m-next-km').value)||null,
-    cuid: cuid(), sid: null, updatedAt: nowISO(), deleted: false, dirty: true};
+    nextDueKm: isNaN(nextDueKmRaw) ? null : nextDueKmRaw};
+  const editId = document.getElementById('m-edit-id').value;
+  if (editId) {
+    const id = parseInt(editId);
+    const prev = maintenanceLogs.find(m => m.id === id);
+    if (!prev) return;
+    obj.id = id;
+    obj.cuid = prev.cuid || cuid();
+    obj.sid = prev.sid || null;
+  } else {
+    obj.cuid = cuid();
+  }
+  obj.updatedAt = nowISO();
+  obj.deleted = false;
+  obj.dirty = true;
   const key = await dbPut('maintenance', obj);
-  obj.id = key;
+  if (obj.id == null) obj.id = key;
   if (!isGuest) await enqueue('upsert', 'maintenance', obj);
-  document.getElementById('m-vehicle').value = '';
-  document.getElementById('m-service').value = '';
-  document.getElementById('m-cost').value = '';
-  document.getElementById('m-date').value = '';
-  document.getElementById('m-odometer').value = '';
-  document.getElementById('m-next-date').value = '';
-  document.getElementById('m-next-km').value = '';
+  clearMaintenanceForm();
   await reload();
   toast(t('maintenance_saved'));
+}
+
+function cancelEditMaintenance() {
+  clearMaintenanceForm();
 }
 
 async function deleteMaintenance(id, e) {
@@ -1888,7 +1945,7 @@ async function exportBackup() {
   // device settings, as one JSON file the driver can save off-device (email,
   // Drive, etc.). Mitigates "lose your phone, lose your whole logbook" without
   // the (externally-blocked) cloud-sync backend. Import/restore is a future slice.
-  const [sess, fuel] = await Promise.all([dbAll('sessions'), dbAll('fuel')]);
+  const [sess, fuel, maint] = await Promise.all([dbAll('sessions'), dbAll('fuel'), dbAll('maintenance')]);
   const backup = {
     app: 'DriverLog',
     version: APP_VERSION,
@@ -1897,6 +1954,7 @@ async function exportBackup() {
     settings: settings,
     sessions: sess,
     fuel: fuel,
+    maintenance: maint,   // optional since 2.10.9 — older backups restore fine without it
   };
   const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
   const a = document.createElement('a');
@@ -1928,22 +1986,26 @@ async function importBackup(inputEl) {
     return;
   }
   // Guard against arbitrary / other-app JSON: require the DriverLog marker + both arrays.
+  // `maintenance` is optional — backups made before 2.10.9 don't carry it.
   if (!data || data.app !== 'DriverLog' || !Array.isArray(data.sessions) || !Array.isArray(data.fuel)) {
     toast(t('restore_bad_file'));
     return;
   }
+  if (!Array.isArray(data.maintenance)) data.maintenance = [];
   const n = data.sessions.length + data.fuel.length;
   if (!confirm(t('restore_confirm').replace('{n}', n))) return;
   const uid = isGuest ? 'guest' : currentUser.id;
   // Overwrite: clear THIS account's existing rows first (other accounts on the device
   // are left untouched), then re-add the backup's rows under the current account.
-  const [curSess, curFuel] = await Promise.all([dbAll('sessions'), dbAll('fuel')]);
+  const [curSess, curFuel, curMaint] = await Promise.all([dbAll('sessions'), dbAll('fuel'), dbAll('maintenance')]);
   for (const s of curSess) if (s.uid === uid) await dbDel('sessions', s.id);
   for (const f of curFuel) if (f.uid === uid) await dbDel('fuel', f.id);
+  for (const m of curMaint) if (m.uid === uid) await dbDel('maintenance', m.id);
   // Strip the old auto-increment id + any stale server id so a restore onto a fresh
   // device/account gets clean keys and can't collide; keep cuid for future sync dedupe.
   for (const s of data.sessions) { const {id, sid, ...rest} = s; await dbAdd('sessions', {...rest, uid}); }
   for (const f of data.fuel)     { const {id, sid, ...rest} = f; await dbAdd('fuel',     {...rest, uid}); }
+  for (const m of data.maintenance) { const {id, sid, ...rest} = m; await dbAdd('maintenance', {...rest, uid}); }
   await reload();
   toast(t('restore_done').replace('{n}', n));
 }

@@ -137,7 +137,7 @@ function renderDashboard(data) {
     : `<div class="fleet-empty">No pending invites.</div>`;
 
   const maintenanceRows = maintenanceSummary.length
-    ? maintenanceSummary.map(item => `<div class="fleet-invite-row"><span>${escapeHtml(item.vehicle)} — ${escapeHtml(item.serviceType)} (${escapeHtml(item.firstName)})</span><span class="fleet-status-pill${item.overdue ? ' good' : ''}">${item.overdue ? 'Overdue' : 'Due ' + item.nextDueDate}</span></div>`).join('')
+    ? maintenanceSummary.map(item => `<div class="fleet-invite-row"><span>${escapeHtml(item.vehicle)} — ${escapeHtml(item.serviceType)} (${escapeHtml(item.firstName)})</span><span class="fleet-status-pill${item.overdue ? '' : ' good'}">${item.overdue ? 'Overdue' : 'Due ' + escapeHtml(String(item.nextDueDate || ''))}</span></div>`).join('')
     : `<div class="fleet-empty">No upcoming maintenance.</div>`;
 
   document.getElementById('fleet-shell').innerHTML = `

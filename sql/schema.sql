@@ -97,6 +97,9 @@ create table if not exists vehicle_maintenance (
   unique (user_id, cuid)
 );
 create index if not exists idx_vehicle_maintenance_user_updated on vehicle_maintenance (user_id, updated_at);
+-- CRUD for this table is served by both the generic api/records-*.js
+-- (?collection=maintenance — what the sync engine calls) and the equivalent
+-- collection-scoped api/maintenance-{list,save,remove}.js routes.
 
 -- Fleet (B2B) tier: a fleet owner aggregates read-only stats across drivers
 -- who have explicitly opted in. Drivers keep full ownership of their own
