@@ -20,12 +20,16 @@ work instead of letting it drift again.
 - **#32 — "Buy me a coffee" donation link** (replaces the old static "Fuel card
   partner — coming soon" placeholder). Merged as `a7b0dc7`; live on the driver
   dashboard (`site/app.html`), linking to `buymeacoffee.com/kritkritth9`.
-
-## In progress (open branches by teammates)
-- **Maintenance-log CRUD** — `feat/maintenance-log-v2`: `vehicle_maintenance` table +
-  API + driver-side logging UI. Scoped out of the fleet-core PR (#33) on purpose; the
-  fleet dashboard's "Upcoming maintenance" panel currently has no data behind it.
-- **Test harness** — `feat/test-harness-v2`: CI test-harness rework.
+- **Maintenance-log CRUD completed** (merged 24 Aug 2026, #51–#53 wave): records
+  now editable from Settings ▸ Vehicle ▸ Maintenance log with cuid/sid-preserving
+  upsert sync; backup export/import covers maintenance rows; fleet panel pill
+  semantics fixed; collection-scoped `api/maintenance-{list,save,remove}.js`
+  routes live in production (verified serving 401-unauth'd same-day).
+- **Zero-dep regression harness + CI** (`test/`, 29 tests over the #49/#50 bug
+  classes + backup import + record mapping; `node --test` via `.github/workflows/ci.yml`)
+  — green locally AND on its first real GitHub Actions run.
+- Docs refresh: BACKLOG/MONETIZATION/HANDOFF reconciled with shipped reality;
+  retired-subdomain refs swept from live docs (archive/ untouched by design).
 
 ## Deferred follow-up slices
 - **Fleet billing** — creating/joining a fleet is currently free and ungated. The
@@ -56,8 +60,11 @@ work instead of letting it drift again.
   of `@capacitor/assets`, since that tool still can't install in this sandbox (needs a
   `sharp` binary the proxy blocks — see README). The PWA icons in `site/icons/` were
   already real brand art and didn't need touching.
-- Play Console listing (store copy, screenshots, content rating, `assetlinks.json`
-  signing fingerprint) not started.
+- Play Console listing — **kit prepared 24 Aug 2026**: see
+  [`launch/play-store-listing/`](../launch/play-store-listing/) (step-by-step,
+  EN+TH store copy, screenshot shot-list, assetlinks.json template). Remaining
+  blockers are account-side only: upload the .aab, paste the copy, complete the
+  content-rating + data-safety forms, decide the account-deletion mechanism.
 
 ## Monetization / growth
 - AdSense review/approval for `driverlog.link` not yet submitted (see
@@ -69,12 +76,11 @@ work instead of letting it drift again.
   usage.
 
 ## Known issues / technical debt
-- `api/auth-me` was observed returning HTTP 500 earlier in development (most likely a
-  missing `AUTH_TOKEN_SECRET` or `DATABASE_URL` on the Vercel project) — never
-  rechecked or confirmed fixed.
-- Stray branch `chore/redirect-smoke-30` on GitHub (a one-off diagnostic branch, no
-  open PR, safe to delete) — couldn't be deleted from the agent sandbox (git remote
-  returned 403 on `push --delete`); delete manually when convenient.
+- ~~`api/auth-me` was observed returning HTTP 500 earlier in development~~
+  **RESOLVED 24 Aug 2026** — verified live: unauthenticated requests correctly
+  return `401 {"error":"Not authenticated."}`; the historical 500 was almost
+  certainly missing env vars on the early deployment. Flag closed.
+- ~~Stray branch `chore/redirect-smoke-30`~~ **deleted 24 Aug 2026** via API.
 - `docs/roadmap-next.md`, `docs/roadmap-agents.md`, and `docs/HANDOFF.md` are dated
   planning snapshots (early July 2026) that predate most of what's now shipped —
   useful as history, not as a current source of truth. This file (`BACKLOG.md`) is the
